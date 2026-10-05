@@ -416,18 +416,26 @@ export default function PaginatedProperties() {
                   {propertiesData.map((prop, i) => (
                     <motion.div
                       key={prop._id}
+                      className="h-full flex"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: i * 0.05 }}
                     >
                       <PropertyCard
+                        {...prop}
                         id={prop._id}
                         title={prop.title}
-                        location={prop.location?.address}
+                        location={prop.location?.address || prop.location?.city || prop.location}
                         price={prop.price}
-                        image={prop.images?.[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa"}
+                        images={prop.images}
+                        image={prop.images?.[0]}
                         type={prop.type}
                         purpose={prop.purpose}
+                        area={prop.areaSqFt || prop.area}
+                        bhk={prop.bedrooms || prop.bhk}
+                        bathrooms={prop.bathrooms}
+                        furnishing={prop.furnishing}
+                        pricePerSqft={prop.pricePerSqft}
                       />
                     </motion.div>
                   ))}

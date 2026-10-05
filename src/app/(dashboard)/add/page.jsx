@@ -60,12 +60,28 @@ const AddPropertyPage = () => {
 
   const [files, setFiles] = useState([]);
   const [privateFiles, setPrivateFiles] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [isPaymentSelection, setIsPaymentSelection] = useState(false);
   const [createdPropertyId, setCreatedPropertyId] = useState(null);
   const [paymentOrder, setPaymentOrder] = useState(null);
   const [isPaying, setIsPaying] = useState(false);
+
+  useEffect(() => {
+    const fetchCategoriesList = async () => {
+      try {
+        const { data } = await axiosInstance.get("/categories");
+        const list = Array.isArray(data) ? data : data?.data || data?.categories || [];
+        if (list.length > 0) {
+          setCategories(list);
+        }
+      } catch (err) {
+        console.error("Failed to load categories in add property:", err);
+      }
+    };
+    fetchCategoriesList();
+  }, []);
 
   useEffect(() => {
     if (editId) {
@@ -87,7 +103,8 @@ const AddPropertyPage = () => {
             purpose: Array.isArray(data.purpose) ? data.purpose : [data.purpose || 'rent'],
             totalRooms: data.totalRooms || "",
             availableRooms: data.availableRooms || "",
-            bookedRooms: data.bookedRooms || ""
+            bookedRooms: data.bookedRooms || "",
+            contactNumber: data.contactNumber || ""
           });
           setPreviews(data.images || []);
         } catch (e) {
@@ -285,7 +302,7 @@ const AddPropertyPage = () => {
           router.push(isAdminFlow ? "/admin/properties" : "/seller/properties");
         }
       } else {
-        addProperty({ ...form, image: previews[0] || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3", hasPrivateMedia: privatePreviews.length > 0 });
+        addProperty({ ...form, image: previews[0], hasPrivateMedia: privatePreviews.length > 0 });
         toast.success("Saved locally! Login to save permanently.");
         router.push("/");
       }
@@ -308,8 +325,6 @@ const AddPropertyPage = () => {
       }
     } else if (currentStep === 2) {
       if (!form.rent) newErrors.rent = "Rent is required";
-      if (!form.deposit) newErrors.deposit = "Deposit is required";
-      if (!form.size) newErrors.size = "Size is required";
     } else if (currentStep === 3) {
       if (files.length === 0 && previews.length === 0) newErrors.files = "At least one property image is required";
     }
@@ -366,10 +381,18 @@ const AddPropertyPage = () => {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold uppercase tracking-wider text-indigo-600">Property Type</label>
                 <div className="flex flex-wrap gap-1.5">
-                  {["Apartment", "Villa", "Flat", "Room", "Shop", "Office", "Building", "Godown", "Land", "Residential", "Commercial", "Industrial", "PG & Hostels"].map((type) => (
+                  {(categories.length > 0
+                    ? categories.map((c) => c.name)
+                    : ["Apartment", "Villa", "Flat", "Room", "Shop", "Office", "Building", "Godown", "Land", "Residential", "Commercial", "Industrial", "PG & Hostels"]
+                  ).map((type) => (
                     <button key={type} type="button" onClick={() => toggleFormValue('type', type)}
-                      className={`py-2 px-4 rounded-lg text-xs font-bold transition-all ${form.type.includes(type) ? "bg-indigo-600 text-white shadow-lg scale-105" : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:bg-slate-50"}`}
-                    >{type}</button>
+                      className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${form.type.includes(type) ? "bg-indigo-600 text-white shadow-lg scale-105" : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50"}`}
+                    >
+                      {categories.find(c => c.name === type)?.icon && (
+                        <span>{categories.find(c => c.name === type)?.icon}</span>
+                      )}
+                      <span>{type}</span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -431,12 +454,12 @@ const AddPropertyPage = () => {
                 {errors.rent && <p className="text-xs font-medium text-rose-500">{errors.rent}</p>}
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-indigo-600">{form.purpose.includes('rent') ? 'Security Deposit' : 'Expected Booking Amount'} <span className="text-rose-500">*</span></label>
+                <label className="text-xs font-bold uppercase tracking-wider text-indigo-600">{form.purpose.includes('rent') ? 'Security Deposit' : 'Expected Booking Amount'} <span className="text-slate-400 font-medium normal-case tracking-normal">(Optional)</span></label>
                 <input name="deposit" value={form.deposit} onChange={handleInputChange} placeholder="e.g. 50000" type="number" className={`input-field ${errors.deposit ? "border-rose-500 ring-4 ring-rose-500/10" : ""}`} />
                 {errors.deposit && <p className="text-xs font-medium text-rose-500">{errors.deposit}</p>}
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-indigo-600">Property Size <span className="text-rose-500">*</span></label>
+                <label className="text-xs font-bold uppercase tracking-wider text-indigo-600">Property Size <span className="text-slate-400 font-medium normal-case tracking-normal">(Optional)</span></label>
                 <div className="flex">
                   <input name="size" value={form.size} onChange={handleInputChange} placeholder="e.g. 1200" type="number" className={`flex-1 input-field rounded-r-none ${errors.size ? "border-rose-500 ring-4 ring-rose-500/10" : ""}`} />
                   <select name="sizeUnit" value={form.sizeUnit} onChange={handleInputChange} className="px-4 bg-slate-900 dark:bg-indigo-600 text-white rounded-r-xl text-xs font-bold uppercase tracking-wider outline-none cursor-pointer">

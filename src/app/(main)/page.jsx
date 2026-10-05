@@ -5,7 +5,8 @@ export const metadata = {
   description: "Find your dream home, apartment, or commercial space without paying any brokerage. Direct connection between owners and tenants.",
 };
 
-export const revalidate = 60; // Revalidate every minute
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function Home() {
   return <HomeClient />;

@@ -132,42 +132,42 @@ export default function SellerProfile() {
             <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">Full Name</label>
             <div className="relative">
               <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input type="text" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} className="input-field pl-10" />
+              <input type="text" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} className="input-field !pl-10" />
             </div>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">Email Address</label>
             <div className="relative">
               <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input type="email" value={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })} className="input-field pl-10" />
+              <input type="email" value={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })} className="input-field !pl-10" />
             </div>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">Phone Number</label>
             <div className="relative">
               <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input type="tel" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} className="input-field pl-10" />
+              <input type="tel" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} className="input-field !pl-10" />
             </div>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">Business Name</label>
             <div className="relative">
               <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input type="text" value={profile.company} onChange={(e) => setProfile({ ...profile, company: e.target.value })} className="input-field pl-10" />
+              <input type="text" value={profile.company} onChange={(e) => setProfile({ ...profile, company: e.target.value })} className="input-field !pl-10" />
             </div>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">Years of Experience</label>
             <div className="relative">
               <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input type="text" value={profile.experience} onChange={(e) => setProfile({ ...profile, experience: e.target.value })} placeholder="e.g. 5 Years" className="input-field pl-10" />
+              <input type="text" value={profile.experience} onChange={(e) => setProfile({ ...profile, experience: e.target.value })} placeholder="e.g. 5 Years" className="input-field !pl-10" />
             </div>
           </div>
           <div className="space-y-1.5 md:col-span-2">
             <label className="text-xs font-bold uppercase text-slate-400 tracking-wider">Full Address</label>
             <div className="relative">
               <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input type="text" value={profile.address} onChange={(e) => setProfile({ ...profile, address: e.target.value })} className="input-field pl-10" />
+              <input type="text" value={profile.address} onChange={(e) => setProfile({ ...profile, address: e.target.value })} className="input-field !pl-10" />
             </div>
           </div>
         </div>

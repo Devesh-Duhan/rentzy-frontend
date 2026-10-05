@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axiosInstance from "@/lib/axios";
-import { UserEditModal, DeleteConfirmationModal } from "../_components/AdminComponents";
+import { UserEditModal, DeleteConfirmationModal, InviteUserModal } from "../_components/AdminComponents";
 import { toast } from "react-hot-toast";
 
 export default function UsersSection() {
@@ -31,6 +31,7 @@ export default function UsersSection() {
   const [roleFilter, setRoleFilter] = useState("All Roles");
 
   // Modal states
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [userForm, setUserForm] = useState({ name: "", email: "", role: "buyer", status: "Active" });
   const [isUserEditMode, setIsUserEditMode] = useState(false);
@@ -60,6 +61,12 @@ export default function UsersSection() {
     setIsUserEditMode(true);
     setUserForm({ name: user.name, email: user.email, role: user.role, status: "Active" });
     setIsUserModalOpen(true);
+  };
+
+  const handleInviteUser = async (inviteData) => {
+    await axiosInstance.post('/admin/users/invite', inviteData);
+    toast.success(`Invitation sent to ${inviteData.email}`);
+    fetchUsers();
   };
 
   const handleUserSubmit = async () => {
@@ -127,14 +134,10 @@ export default function UsersSection() {
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-bold mt-2">Manage all registered entities and their platform permissions.</p>
         </div>
         <button
-          onClick={() => {
-            setIsUserEditMode(false);
-            setUserForm({ name: "", email: "", role: "buyer", status: "Active" });
-            setIsUserModalOpen(true);
-          }}
-          className="w-full md:w-auto px-6 md:px-8 py-3.5 md:py-4 bg-indigo-600 text-white rounded-[20px] md:rounded-[24px] font-black text-xs md:text-sm uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 shadow-2xl shadow-indigo-100 dark:shadow-none hover:bg-slate-900 transition-all"
+          onClick={() => setIsInviteModalOpen(true)}
+          className="w-full md:w-auto px-6 md:px-8 py-3.5 md:py-4 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-[20px] md:rounded-[24px] font-black text-xs md:text-sm uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 shadow-2xl shadow-indigo-200 dark:shadow-none transition-all"
         >
-          <UserPlus size={18} /> Invite New Entity
+          <UserPlus size={18} /> Invite New User
         </button>
       </div>
 
@@ -318,6 +321,12 @@ export default function UsersSection() {
           </div>
         </div>
       </div>
+
+      <InviteUserModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        onInviteSuccess={handleInviteUser}
+      />
 
       <UserEditModal
         isOpen={isUserModalOpen}

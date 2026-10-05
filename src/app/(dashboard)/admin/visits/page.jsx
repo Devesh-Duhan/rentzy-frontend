@@ -44,8 +44,10 @@ export default function VisitManagement() {
   const fetchVisits = async () => {
     try {
       setIsLoading(true);
-      const { data } = await axios.get("/admin/visits");
-      setVisits(Array.isArray(data) ? data : data.visits || []);
+      // Admins are scoped to "all visits" server-side, so /visits is the
+      // correct endpoint. There is no /admin/visits route on the API.
+      const { data } = await axios.get("/visits");
+      setVisits(Array.isArray(data) ? data : data?.data || data?.visits || []);
     } catch {
       toast.error("Failed to fetch visit records.");
     } finally {
@@ -60,7 +62,10 @@ export default function VisitManagement() {
   const handleConfirm = async (id) => {
     const loading = toast.loading("Confirming visit...");
     try {
-      await axios.put(`/admin/visits/${id}/status`, { status: "confirmed" });
+      await axios.put(`/visits/${id}/confirm`, {
+        confirmedDate: new Date().toISOString(),
+        adminNotes: "Confirmed by admin",
+      });
       toast.success("Visit confirmed successfully.", { id: loading });
       fetchVisits();
     } catch {
@@ -75,7 +80,7 @@ export default function VisitManagement() {
     }
     const loading = toast.loading("Cancelling visit...");
     try {
-      await axios.put(`/admin/visits/${id}/status`, { status: "cancelled", reason: cancelReason });
+      await axios.put(`/visits/${id}/cancel`, { reason: cancelReason.trim() });
       toast.success("Visit cancelled.", { id: loading });
       setCancellingId(null);
       setCancelReason("");

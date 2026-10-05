@@ -7,8 +7,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "./ThemeProvider";
-import LanguageSwitcher from "./LanguageSwitcher";
 import { logout } from "@/store/slices/authSlice";
+import axiosInstance from "@/lib/axios";
 import {
   Search, X, ChevronDown, Home, PlusCircle, Building2,
   UserCircle, Heart, MapPin, Bell, Menu, LogOut,
@@ -73,11 +73,8 @@ export default function Navbar() {
     if (!user) return;
     const fetchNotifs = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notifications`);
-        if (res.ok) {
-          const data = await res.json();
-          setNotifications(data.notifications || []);
-        }
+        const res = await axiosInstance.get('/notifications');
+        setNotifications(res.data.notifications || res.data || []);
       } catch (e) { /* silent */ }
     };
     fetchNotifs();
@@ -118,8 +115,6 @@ export default function Navbar() {
               { label: "Buy", href: "/buy" },
               { label: "Rent", href: "/rent" },
               { label: "Sell", href: "/sell" },
-              { label: "Agents", href: "/agents" },
-              { label: "Map", href: "/map" },
             ].map((item) => (
               <Link
                 key={item.href}
@@ -138,9 +133,9 @@ export default function Navbar() {
           {/* Right Actions */}
           <div className="flex items-center gap-1">
             {/* Desktop Quick Nav Icons (moved from bottom nav) */}
-            <div className="hidden md:flex items-center gap-0.5 mr-1">
+            <div className="hidden md:flex items-center gap-0.5 mr-1 min-w-[120px] justify-end">
               {BOTTOM_NAV_ITEMS.map((item) => {
-                if (item.auth && !user) return null;
+                if (item.auth && (!mounted || !user)) return null;
                 const active = isActive(item.href);
                 const Icon = item.icon;
                 return (
@@ -172,9 +167,6 @@ export default function Navbar() {
                 {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
               </button>
             )}
-
-            {/* Language */}
-            <div className="hidden sm:block"><LanguageSwitcher /></div>
 
             {/* Notifications */}
             <div className="relative" ref={notifRef}>
@@ -349,8 +341,8 @@ export default function Navbar() {
               {/* Quick Actions (bottom nav items) */}
               <div className="px-3 pt-4 pb-2">
                 <p className="px-2 text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Quick Actions</p>
-                <div className="grid grid-cols-4 gap-2">
-                  {BOTTOM_NAV_ITEMS.map((item) => {
+                <div className="grid grid-cols-4 gap-2 min-h-[58px]">
+                  {mounted && BOTTOM_NAV_ITEMS.map((item) => {
                     if (item.auth && !user) return null;
                     const active = isActive(item.href);
                     const Icon = item.icon;
@@ -381,11 +373,6 @@ export default function Navbar() {
                     { label: "Buy", href: "/buy", icon: Building2 },
                     { label: "Rent", href: "/rent", icon: Building2 },
                     { label: "Sell", href: "/sell", icon: PlusCircle },
-                    { label: "Agents", href: "/agents", icon: UserCircle },
-                    { label: "Map View", href: "/map", icon: MapPin },
-                    { label: "AI Recommendations", href: "/ai-recommendations", icon: LayoutGrid },
-                    { label: "Virtual Tours", href: "/virtual-tours", icon: Search },
-                    { label: "Home Loans", href: "/home-loans", icon: Building2 },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
@@ -454,7 +441,7 @@ export default function Navbar() {
       {/* Mobile Bottom Navigation */}
       <nav className="bottom-nav md:hidden flex items-center px-2 safe-bottom">
         {BOTTOM_NAV_ITEMS.map((item) => {
-          if (item.auth && !user) return null;
+          if (item.auth && (!mounted || !user)) return null;
           const active = isActive(item.href);
           const Icon = item.icon;
           return (

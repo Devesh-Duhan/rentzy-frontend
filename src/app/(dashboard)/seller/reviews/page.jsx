@@ -18,7 +18,7 @@ export default function SellerReviews() {
   const { data, isLoading } = useQuery({
     queryKey: ['seller-reviews'],
     queryFn: async () => {
-      const response = await axios.get('/reviews');
+      const response = await axios.get('/reviews/seller');
       return response.data;
     },
     staleTime: 2 * 60 * 1000,
@@ -27,7 +27,7 @@ export default function SellerReviews() {
   const { data: propertiesData } = useQuery({
     queryKey: ['seller-properties-list'],
     queryFn: async () => {
-      const response = await axios.get('/properties/seller');
+      const response = await axios.get('/properties/my');
       return response.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -87,7 +87,7 @@ export default function SellerReviews() {
             <select
               value={propertyFilter}
               onChange={(e) => setPropertyFilter(e.target.value)}
-              className="input-field pl-10 pr-8 appearance-none"
+              className="input-field !pl-10 pr-8 appearance-none"
             >
               <option value="all">All Properties</option>
               {uniqueProperties.map((p) => (
@@ -100,7 +100,7 @@ export default function SellerReviews() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="input-field pl-10 pr-8 appearance-none"
+              className="input-field !pl-10 pr-8 appearance-none"
             >
               <option value="date">Newest First</option>
               <option value="rating">Highest Rated</option>

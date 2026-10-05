@@ -29,15 +29,26 @@ export default function ChatPage() {
       return;
     }
 
-    const ENDPOINT = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') : 'http://localhost:5000';
-    socket = io(ENDPOINT);
-    socket.emit("setup", user);
+    const ENDPOINT = process.env.NEXT_PUBLIC_API_URL
+      ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
+      : 'http://localhost:5001';
+
+    // The backend now requires a valid JWT on the Socket.IO handshake.
+    const token = localStorage.getItem("token");
+    socket = io(ENDPOINT, {
+      auth: { token },
+      transports: ["websocket", "polling"],
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("Socket connection failed:", err.message);
+      setSocketConnected(false);
+    });
     socket.on("connected", () => setSocketConnected(true));
 
     socket.on("message recieved", (newMessageReceived) => {
-      if (!selectedChat || selectedChat._id !== newMessageReceived.chatId._id) {
-        // Notification logic could go here
-      } else {
+      const incomingChatId = newMessageReceived?.chatId?._id || newMessageReceived?.chatId;
+      if (selectedChat && selectedChat._id === incomingChatId) {
         setMessages((prev) => [...prev, newMessageReceived]);
       }
     });
@@ -51,7 +62,7 @@ export default function ChatPage() {
     const fetchChats = async () => {
       try {
         const { data } = await axiosInstance.get('/chats');
-        setChats(data);
+        setChats(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching chats:", error);
       }
@@ -68,7 +79,7 @@ export default function ChatPage() {
     try {
       setLoading(true);
       const { data } = await axiosInstance.get(`/chats/${selectedChat._id}/messages`);
-      setMessages(data);
+      setMessages(Array.isArray(data) ? data : []);
       setLoading(false);
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
@@ -85,11 +96,11 @@ export default function ChatPage() {
     e.preventDefault();
     if (newMessage.trim() && selectedChat) {
       try {
-        const { data } = await axiosInstance.post('/chats/message', {
-          content: newMessage,
-          chatId: selectedChat._id,
-        });
+        const messageText = newMessage.trim();
         setNewMessage("");
+        const { data } = await axiosInstance.post(`/chats/${selectedChat._id}/message`, {
+          content: messageText,
+        });
         socket.emit("new message", data);
         setMessages((prev) => [...prev, data]);
       } catch (error) {
@@ -99,8 +110,15 @@ export default function ChatPage() {
   };
 
   const getOtherUser = (chat) => {
-    if (!chat.users || chat.users.length === 0) return null;
-    return chat.users.find(u => u._id !== user?._id);
+    if (!chat) return null;
+    const buyerId = chat.buyer?._id || chat.buyer;
+    const sellerId = chat.seller?._id || chat.seller;
+    const myId = user?._id;
+
+    if (buyerId === myId) return chat.seller;
+    if (sellerId === myId) return chat.buyer;
+    if (Array.isArray(chat.users)) return chat.users.find(u => (u._id || u) !== myId);
+    return chat.seller || chat.buyer || null;
   };
 
   return (
@@ -165,7 +183,8 @@ export default function ChatPage() {
                     <div className="text-center font-medium text-slate-400 mt-10">Loading messages...</div>
                   ) : (
                     messages.map((m, i) => {
-                      const isMine = m.sender._id === user._id;
+                      const senderId = (m.sender?._id || m.sender)?.toString();
+                      const isMine = senderId === user?._id?.toString();
                       return (
                         <div key={m._id || i} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-[75%] p-4 rounded-2xl ${isMine ? 'bg-indigo-600 text-white rounded-tr-sm' : 'app-card rounded-tl-sm'} shadow-sm`}>

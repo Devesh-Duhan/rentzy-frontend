@@ -71,9 +71,17 @@ const ScheduleVisit = ({ propertyId }) => {
 
     setSubmitting(true);
     try {
+      // Field names must match the backend PropertyVisit schema exactly:
+      // property, visitorName, visitorPhone, visitorEmail, preferredDate,
+      // preferredTime, notes
       await axios.post("/visits", {
-        ...formData,
-        propertyId,
+        property: propertyId,
+        visitorName: name.trim(),
+        visitorPhone: phone.trim(),
+        visitorEmail: formData.email?.trim() || undefined,
+        preferredDate,
+        preferredTime,
+        notes: formData.notes?.trim() || undefined,
       });
       toast.success("Visit scheduled successfully! We'll contact you shortly.");
       setIsOpen(false);

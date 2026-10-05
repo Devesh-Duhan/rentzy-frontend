@@ -70,7 +70,7 @@ export default function SellerProperties() {
               placeholder="Search my properties..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-field pl-10"
+              className="input-field !pl-10"
             />
           </div>
           <Link href="/add" className="btn-primary flex items-center gap-2 text-sm px-5 py-3">
@@ -90,8 +90,8 @@ export default function SellerProperties() {
               key={prop._id}
               className="app-card overflow-hidden group hover:shadow-lg transition-all flex flex-col"
             >
-              <div className="h-48 relative overflow-hidden">
-                <Image src={prop.images[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=400"} width={400} height={224} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={prop.title} unoptimized />
+              <div className="h-48 relative overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <Image src={prop.images?.[0]} width={400} height={224} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={prop.title} unoptimized />
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
                   <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm ${
                     prop.status === "available" ? "bg-emerald-100 text-emerald-700" : prop.status === "rented" ? "bg-amber-100 text-amber-700" : "bg-white text-slate-700"
@@ -111,7 +111,14 @@ export default function SellerProperties() {
                 <div className="flex items-center justify-between py-3 border-y border-slate-100 dark:border-slate-700/50 mb-4">
                   <div>
                     <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Monthly Rent</p>
-                    <p className="text-lg font-bold text-slate-900 dark:text-white">₹{prop.price.toLocaleString()}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">₹{prop.price.toLocaleString()}</p>
+                      {(prop.pricePerSqft || (prop.areaSqFt ? Math.round(prop.price / prop.areaSqFt) : null)) && (
+                        <span className="text-[10px] font-medium text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 px-1.5 py-0.5 rounded whitespace-nowrap">
+                          ₹{prop.pricePerSqft || Math.round(prop.price / prop.areaSqFt)}/sqft
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Views</p>

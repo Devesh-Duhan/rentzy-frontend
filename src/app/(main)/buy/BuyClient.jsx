@@ -336,8 +336,9 @@ export default function BuyClient() {
                   className="app-grid"
                 >
                   {properties.map((prop, i) => (
-                    <motion.div key={prop._id || prop.id || i} variants={itemVariants}>
+                    <motion.div key={prop._id || prop.id || i} variants={itemVariants} className="h-full flex">
                       <PropertyCard
+                        {...prop}
                         id={prop._id || prop.id}
                         title={prop.title}
                         location={typeof prop.location === "object" ? prop.location.address || prop.location.city || "" : prop.location}
@@ -345,6 +346,11 @@ export default function BuyClient() {
                         images={prop.images?.length > 0 ? prop.images : [prop.image].filter(Boolean)}
                         type={Array.isArray(prop.type) ? prop.type[0] : prop.type}
                         purpose="sell"
+                        area={prop.areaSqFt || prop.area}
+                        bhk={prop.bedrooms || prop.bhk}
+                        bathrooms={prop.bathrooms}
+                        furnishing={prop.furnishing}
+                        pricePerSqft={prop.pricePerSqft}
                       />
                     </motion.div>
                   ))}

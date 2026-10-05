@@ -162,9 +162,7 @@ export default function SearchClient() {
         ? `${prop.location.city || ""}, ${prop.location.state || ""}`
         : prop.location || "",
     price: prop.price?.toLocaleString("en-IN") || "0",
-    images: prop.images?.length
-      ? prop.images
-      : [prop.image || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"],
+    images: prop.images?.filter(Boolean) ?? [],
     type: prop.type,
     purpose: prop.purpose || "rent",
     isNew:
@@ -390,6 +388,7 @@ export default function SearchClient() {
                     {properties.map((prop, i) => (
                       <motion.div
                         key={prop._id || prop.id}
+                        className="h-full flex"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: i * 0.03 }}

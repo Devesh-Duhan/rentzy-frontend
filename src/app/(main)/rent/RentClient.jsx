@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building, MapPin, DollarSign, Home, BedDouble, Filter } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building, MapPin, DollarSign, Home, BedDouble, Filter, ChevronDown } from "lucide-react";
 import axios from "@/lib/axios";
 import PropertyCard from "@/components/PropertyCard";
 import PropertySkeleton from "@/components/PropertySkeleton";
@@ -50,7 +50,7 @@ export default function RentClient() {
       }
       if (filters.bhk !== "Any") params.append("bhk", filters.bhk);
       if (filters.bedrooms !== "Any") params.append("bedrooms", filters.bedrooms);
-      if (searchTerm.trim()) params.append("search", searchTerm.trim());
+      if (searchTerm.trim()) params.append("keyword", searchTerm.trim());
       const response = await axios.get(`/properties?${params.toString()}`);
       return response.data;
     },
@@ -78,107 +78,135 @@ export default function RentClient() {
   const hasActiveFilters = Object.values(filters).some((v) => v !== "All" && v !== "Any") || searchTerm.trim();
 
   const FilterContent = () => (
-    <div className="space-y-5">
+    <div className="space-y-7">
+      {/* Property Type */}
       <div>
-        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">
-          <Building size={14} /> Property Type
+        <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
+          <Building size={16} className="text-slate-400" /> Property Type
         </label>
         <div className="flex flex-wrap gap-2">
-          {PROPERTY_TYPES.map((t) => (
-            <button
-              key={t}
-              onClick={() => handleFilterChange("type", t)}
-              className={`pill text-xs ${
-                filters.type === t
-                  ? "active"
-                  : ""
-              }`}
-            >
-              {t}
-            </button>
-          ))}
+          {PROPERTY_TYPES.map((t) => {
+            const isActive = filters.type === t;
+            return (
+              <button
+                key={t}
+                onClick={() => handleFilterChange("type", t)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
+                  isActive
+                    ? "bg-slate-900 text-white border-slate-900 shadow-md dark:bg-white dark:text-slate-900 dark:border-white"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-400 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:border-slate-500"
+                }`}
+              >
+                {t}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div>
-        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">
-          <MapPin size={14} /> City
-        </label>
-        <select
-          value={filters.city}
-          onChange={(e) => handleFilterChange("city", e.target.value)}
-          className="input-field"
-        >
-          {CITIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">
-          <DollarSign size={14} /> Price Range
-        </label>
-        <select
-          value={filters.priceRange}
-          onChange={(e) => handleFilterChange("priceRange", e.target.value)}
-          className="input-field"
-        >
-          {PRICE_RANGES.map((r) => (
-            <option key={r.label} value={r.label}>{r.label}</option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">
-          <BedDouble size={14} /> BHK
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {BHK_OPTIONS.map((b) => (
-            <button
-              key={b}
-              onClick={() => handleFilterChange("bhk", b)}
-              className={`pill text-xs ${
-                filters.bhk === b
-                  ? "active"
-                  : ""
-              }`}
+      {/* Dropdowns (City & Price) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-5">
+        <div>
+          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
+            <MapPin size={16} className="text-slate-400" /> City
+          </label>
+          <div className="relative">
+            <select
+              value={filters.city}
+              onChange={(e) => handleFilterChange("city", e.target.value)}
+              className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-white dark:focus:border-white dark:focus:ring-white"
             >
-              {b}
-            </button>
-          ))}
+              {CITIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+              <ChevronDown size={16} />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
+            <DollarSign size={16} className="text-slate-400" /> Price Range
+          </label>
+          <div className="relative">
+            <select
+              value={filters.priceRange}
+              onChange={(e) => handleFilterChange("priceRange", e.target.value)}
+              className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-white dark:focus:border-white dark:focus:ring-white"
+            >
+              {PRICE_RANGES.map((r) => (
+                <option key={r.label} value={r.label}>{r.label}</option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+              <ChevronDown size={16} />
+            </div>
+          </div>
         </div>
       </div>
 
+      {/* BHK */}
       <div>
-        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">
-          <Home size={14} /> Bedrooms
+        <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
+          <BedDouble size={16} className="text-slate-400" /> BHK
         </label>
         <div className="flex flex-wrap gap-2">
-          {BEDROOM_OPTIONS.map((b) => (
-            <button
-              key={b}
-              onClick={() => handleFilterChange("bedrooms", b)}
-              className={`pill text-xs ${
-                filters.bedrooms === b
-                  ? "active"
-                  : ""
-              }`}
-            >
-              {b}
-            </button>
-          ))}
+          {BHK_OPTIONS.map((b) => {
+            const isActive = filters.bhk === b;
+            return (
+              <button
+                key={b}
+                onClick={() => handleFilterChange("bhk", b)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
+                  isActive
+                    ? "bg-slate-900 text-white border-slate-900 shadow-md dark:bg-white dark:text-slate-900 dark:border-white"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-400 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:border-slate-500"
+                }`}
+              >
+                {b}
+              </button>
+            );
+          })}
         </div>
       </div>
 
+      {/* Bedrooms */}
+      <div>
+        <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
+          <Home size={16} className="text-slate-400" /> Bedrooms
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {BEDROOM_OPTIONS.map((b) => {
+            const isActive = filters.bedrooms === b;
+            return (
+              <button
+                key={b}
+                onClick={() => handleFilterChange("bedrooms", b)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
+                  isActive
+                    ? "bg-slate-900 text-white border-slate-900 shadow-md dark:bg-white dark:text-slate-900 dark:border-white"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-400 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:border-slate-500"
+                }`}
+              >
+                {b}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Clear Filters */}
       {hasActiveFilters && (
-        <button
-          onClick={clearFilters}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-semibold hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
-        >
-          <X size={14} /> Clear All Filters
-        </button>
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+          <button
+            onClick={clearFilters}
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+          >
+            <X size={16} /> Clear All Filters
+          </button>
+        </div>
       )}
     </div>
   );
@@ -335,8 +363,9 @@ export default function RentClient() {
                   className="app-grid"
                 >
                   {properties.map((prop, i) => (
-                    <motion.div key={prop._id || prop.id || i} variants={itemVariants}>
+                    <motion.div key={prop._id || prop.id || i} variants={itemVariants} className="h-full flex">
                       <PropertyCard
+                        {...prop}
                         id={prop._id || prop.id}
                         title={prop.title}
                         location={typeof prop.location === "object" ? prop.location.address || prop.location.city || "" : prop.location}
@@ -344,6 +373,11 @@ export default function RentClient() {
                         images={prop.images?.length > 0 ? prop.images : [prop.image].filter(Boolean)}
                         type={Array.isArray(prop.type) ? prop.type[0] : prop.type}
                         purpose="rent"
+                        area={prop.areaSqFt || prop.area}
+                        bhk={prop.bedrooms || prop.bhk}
+                        bathrooms={prop.bathrooms}
+                        furnishing={prop.furnishing}
+                        pricePerSqft={prop.pricePerSqft}
                       />
                     </motion.div>
                   ))}

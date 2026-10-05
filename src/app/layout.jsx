@@ -44,7 +44,7 @@ export default function RootLayout({ children }) {
         <OrganizationSchema />
         <meta name="theme-color" content="#4f46e5" />
       </head>
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <StoreProvider>
           <ReactQueryProvider>
             <ThemeProvider>

@@ -1,50 +1,95 @@
-const CACHE_NAME = 'rentzypro-v1';
-const urlsToCache = [
-  '/',
-  '/properties',
-  '/about',
-  '/contact',
-  '/privacy',
-  '/terms',
-];
+// Bump this whenever the caching strategy changes so old caches get purged.
+const CACHE_NAME = 'rentzypro-v2';
+const OFFLINE_URLS = ['/', '/offline'];
+
+// Static assets under /_next/static are content-hashed, so they are safe to
+// serve from cache forever. Everything else must hit the network first,
+// otherwise users get a stale HTML document pointing at stale JS chunks
+// (old UI + hydration mismatches).
+const isImmutableAsset = (url) =>
+  url.pathname.startsWith('/_next/static/') ||
+  url.pathname.startsWith('/_next/image') ||
+  /\.(?:css|js|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|avif|ico)$/i.test(url.pathname);
+
+const isHtmlRequest = (request) =>
+  request.mode === 'navigate' ||
+  (request.headers.get('accept') || '').includes('text/html');
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(OFFLINE_URLS))
+      .catch(() => {})
+      .then(() => self.skipWaiting())
   );
 });
+
+// Take over immediately so a new SW doesn't sit waiting for all tabs to close.
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
+      )
+      .then(() => self.clients.claim())
+  );
+});
+
+// Network-first, falling back to cache only when the network is unavailable.
+const networkFirst = async (request) => {
+  try {
+    const response = await fetch(request);
+    if (response && response.status === 200 && response.type === 'basic') {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    if (isHtmlRequest(request)) {
+      const offline = await caches.match('/offline');
+      if (offline) return offline;
+    }
+    return Response.error();
+  }
+};
+
+// Cache-first, safe only for content-hashed immutable assets.
+const cacheFirst = async (request) => {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  try {
+    const response = await fetch(request);
+    if (response && response.status === 200 && response.type === 'basic') {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    return Response.error();
+  }
+};
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) return response;
-        return fetch(event.request).then((response) => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        });
-      })
-  );
-});
+  const { request } = event;
 
-self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
+  // Only handle same-origin GETs. Never touch API calls or cross-origin
+  // requests (Cloudinary images, auth endpoints, etc.).
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/api/')) return;
+
+  if (isHtmlRequest(request)) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  if (isImmutableAsset(url)) {
+    event.respondWith(cacheFirst(request));
+  }
+  // Anything else falls through to the network untouched.
 });

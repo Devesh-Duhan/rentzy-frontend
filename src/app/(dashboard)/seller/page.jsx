@@ -22,7 +22,10 @@ export default function SellerOverview() {
   const { data: leadsData } = useQuery({
     queryKey: ['seller-leads-count'],
     queryFn: async () => {
-      const response = await axios.get('/leads');
+      // /api/leads is admin-only. A seller sees leads raised against their own
+      // properties, which is already what /api/visits-style scoping gives us,
+      // so derive inquiries from sellerStats instead of calling a 403 endpoint.
+      const response = await axios.get('/properties/seller-stats');
       return response.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -31,6 +34,7 @@ export default function SellerOverview() {
   const { data: visitsData } = useQuery({
     queryKey: ['seller-visits-count'],
     queryFn: async () => {
+      // Scoped server-side to visits on this seller's properties.
       const response = await axios.get('/visits');
       return response.data;
     },
@@ -40,29 +44,30 @@ export default function SellerOverview() {
   const { data: reviewsData } = useQuery({
     queryKey: ['seller-reviews-count'],
     queryFn: async () => {
-      const response = await axios.get('/reviews');
+      // /api/reviews is admin-only. /api/reviews/seller returns only reviews on
+      // this seller's own properties.
+      const response = await axios.get('/reviews/seller');
       return response.data;
     },
     staleTime: 5 * 60 * 1000,
   });
 
-  const leads = Array.isArray(leadsData?.leads) ? leadsData.leads : Array.isArray(leadsData) ? leadsData : [];
-  const visits = Array.isArray(visitsData?.visits) ? visitsData.visits : Array.isArray(visitsData) ? visitsData : [];
-  const reviews = Array.isArray(reviewsData?.reviews) ? reviewsData.reviews : Array.isArray(reviewsData) ? reviewsData : [];
+  const visits = visitsData?.data || visitsData?.visits || (Array.isArray(visitsData) ? visitsData : []);
+  const reviews = reviewsData?.reviews || (Array.isArray(reviewsData) ? reviewsData : []);
 
   const stats = [
     { label: "Total Properties", value: sellerStats?.totalProperties || "0", icon: Building2, color: "blue" },
     { label: "Total Views", value: sellerStats?.totalViews?.toLocaleString() || "0", icon: Eye, color: "emerald" },
     { label: "Total Inquiries", value: sellerStats?.totalInquiries || "0", icon: Mail, color: "amber" },
     { label: "Avg Rating", value: `${sellerStats?.avgRating || "0"}⭐`, icon: Star, color: "rose" },
-    { label: "Leads", value: leads.length.toString(), icon: MessageSquare, color: "purple" },
-    { label: "Pending Visits", value: visits.filter(v => v.status === "pending").length.toString(), icon: CalendarCheck, color: "cyan" },
     { label: "Recent Reviews", value: reviews.length.toString(), icon: Star, color: "yellow" },
     { label: "Performance", value: `${sellerStats?.totalViews > 0 ? "+" : ""}${Math.round((sellerStats?.totalViews || 0) * 0.15)}%`, icon: Eye, color: "emerald" },
   ];
 
   const notifications = [
-    ...(leads.filter(l => l.status === "new").slice(0, 2).map(l => ({ icon: MessageSquare, color: "text-blue-500", text: `New lead from ${l.name || "Unknown"}` }))),
+    ...(leadsData?.totalInquiries
+      ? [{ icon: MessageSquare, color: "text-blue-500", text: `${leadsData.totalInquiries} total inquiries received` }]
+      : []),
     ...(visits.filter(v => v.status === "pending").slice(0, 2).map(v => ({ icon: CalendarCheck, color: "text-amber-500", text: `Pending site visit: ${v.visitorName || "Unknown"}` }))),
     { icon: CheckCircle2, color: "text-emerald-500", text: `Property performance up ${Math.round((sellerStats?.totalViews || 0) * 0.15)}% this month` },
   ];
@@ -90,15 +95,12 @@ export default function SellerOverview() {
         <h3 className="section-title text-lg mb-4 flex items-center gap-2">
           <Bolt className="text-amber-500" size={20} /> Quick Actions
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Link href="/add" className="btn-primary flex items-center justify-center gap-2 text-sm py-4">
             <Plus size={18} /> Add New Property
           </Link>
           <Link href="/seller/profile" className="btn-secondary flex items-center justify-center gap-2 text-sm py-4">
             Edit Profile
-          </Link>
-          <Link href="/seller/insights" className="btn-secondary flex items-center justify-center gap-2 text-sm py-4">
-            Insights
           </Link>
         </div>
       </div>

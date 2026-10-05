@@ -85,6 +85,7 @@ const RecentlyViewed = () => {
           {properties.map((property) => (
             <div key={property._id} className="min-w-[280px] md:min-w-[320px] snap-start flex-shrink-0">
               <PropertyCard
+                {...property}
                 id={property._id}
                 title={property.title}
                 location={property.location}
@@ -94,6 +95,11 @@ const RecentlyViewed = () => {
                 type={property.type}
                 purpose={property.purpose}
                 isNew={property.isNew}
+                area={property.areaSqFt || property.area}
+                bhk={property.bedrooms || property.bhk}
+                bathrooms={property.bathrooms}
+                furnishing={property.furnishing}
+                pricePerSqft={property.pricePerSqft}
               />
             </div>
           ))}

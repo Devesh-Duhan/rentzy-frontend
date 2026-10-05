@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, Users, Zap, ChevronRight, Star, Plus, MessageCircle, DollarSign, HelpCircle, Camera, Home } from "lucide-react";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 import axios from "@/lib/axios";
 import Footer from "@/components/Footer";
 
@@ -161,6 +162,7 @@ export default function SellClient() {
     },
   });
 
+  const { user } = useSelector((state) => state.auth);
   const [openFaq, setOpenFaq] = useState(null);
 
   const testimonials = Array.isArray(testimonialsData) ? testimonialsData : [];
@@ -187,7 +189,7 @@ export default function SellClient() {
               List your property for free and connect directly with verified buyers. No middlemen, no commission.
             </p>
             <Link
-              href="/add"
+              href={user ? "/add" : "/register?role=seller"}
               className="btn-primary inline-flex items-center gap-3 !px-8 !py-4 !rounded-2xl text-sm !font-bold uppercase tracking-widest active:scale-95"
             >
               <Plus size={18} />

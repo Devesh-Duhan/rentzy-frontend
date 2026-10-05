@@ -22,7 +22,7 @@ export default function SEOPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    axios.get("/admin/settings")
+    axios.get("/settings/admin")
       .then((res) => {
         const d = res.data;
         setForm({
@@ -49,7 +49,7 @@ export default function SEOPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.put("/admin/settings", form);
+      await axios.put("/settings", form);
       toast.success("SEO settings saved");
     } catch {
       toast.error("Failed to save");

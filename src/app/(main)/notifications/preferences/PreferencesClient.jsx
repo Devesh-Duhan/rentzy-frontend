@@ -46,7 +46,7 @@ export default function PreferencesClient() {
   const { isLoading } = useQuery({
     queryKey: ["notificationPreferences"],
     queryFn: async () => {
-      const res = await axios.get("/notifications/preferences");
+      const res = await axios.get("/notification-preferences");
       const data = res.data?.preferences || res.data || {};
       setPreferences(data);
       return data;
@@ -56,7 +56,7 @@ export default function PreferencesClient() {
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
-      const res = await axios.put("/notifications/preferences", data);
+      const res = await axios.put("/notification-preferences", data);
       return res.data;
     },
     onSuccess: () => {

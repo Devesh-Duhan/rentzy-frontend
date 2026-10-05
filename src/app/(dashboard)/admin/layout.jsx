@@ -42,7 +42,6 @@ const MENU_ITEMS = [
   { id: "properties", label: "Properties", icon: Building2, href: "/admin/properties" },
   { id: "categories", label: "Categories", icon: Tags, href: "/admin/categories" },
   { id: "locations", label: "Locations", icon: MapPin, href: "/admin/locations" },
-  { id: "amenities", label: "Amenities", icon: Star, href: "/admin/amenities" },
   { id: "blogs", label: "Blogs", icon: FileText, href: "/admin/blogs" },
   { id: "seo", label: "SEO", icon: FileText, href: "/admin/seo" },
   { id: "featured", label: "Featured", icon: Star, href: "/admin/featured" },

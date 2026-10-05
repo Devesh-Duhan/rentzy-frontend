@@ -8,15 +8,15 @@ export default function FeaturedPropertiesPage() {
   const searchParams = useSearchParams();
   const district = searchParams.get("district");
   const area = searchParams.get("area");
-  
+
   const [properties, setProperties] = useState([]);
-  
+
   useEffect(() => {
     setProperties(getProperties());
   }, []);
 
-  const filteredProps = area 
-    ? properties.filter(p => p.location.includes(area))
+  const filteredProps = area
+    ? properties.filter(p => (p.location || "").includes(area))
     : properties;
 
   return (
@@ -32,20 +32,29 @@ export default function FeaturedPropertiesPage() {
             </div>
           </div>
           {/* Actual property cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr items-stretch">
             {filteredProps.length > 0 ? (
               filteredProps.map((prop) => (
-                <PropertyCard
-                  key={prop.id}
-                  id={prop.id}
-                  title={prop.title}
-                  location={typeof prop.location === "object" ? (prop.location?.address || prop.location?.city || "") : prop.location}
-                  price={prop.price}
-                  image={prop.image || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"}
-                  type={prop.type}
-                  purpose={prop.purpose}
-                  isNew={prop.isNew}
-                />
+                <div key={prop.id} className="h-full flex">
+                  <PropertyCard
+                    id={prop.id}
+                    title={prop.title}
+                    location={typeof prop.location === "object" ? (prop.location?.address || prop.location?.city || "") : prop.location}
+                    price={prop.price}
+                    images={(prop.images || []).filter(Boolean)}
+                    type={prop.type}
+                    purpose={prop.purpose}
+                    isNew={prop.isNew}
+                    bhk={prop.bhk}
+                    bedrooms={prop.bedrooms}
+                    bathrooms={prop.bathrooms}
+                    area={prop.area}
+                    areaSqFt={prop.areaSqFt}
+                    furnishing={prop.furnishing}
+                    postedBy={prop.postedBy}
+                    pricePerSqft={prop.pricePerSqft}
+                  />
+                </div>
               ))
             ) : (
               <p className="text-gray-500 italic col-span-full">No properties found in this location yet.</p>
@@ -58,4 +67,3 @@ export default function FeaturedPropertiesPage() {
     </main>
   );
 }
-

@@ -71,13 +71,25 @@ export default function FeaturedProperties() {
   const formatProperty = (prop) => ({
     id: prop._id || prop.id,
     title: prop.title,
-    location: `${prop.location?.address || ''}, ${prop.location?.city || ''}`,
+    location: typeof prop.location === "object" && prop.location !== null
+      ? [prop.location.address, prop.location.city, prop.location.state, prop.location.zipcode].filter(Boolean).join(", ")
+      : (prop.location || ""),
     price: prop.price?.toLocaleString(),
-    images: prop.images && prop.images.length > 0 ? prop.images : [prop.image || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"],
-    type: prop.type,
-    purpose: prop.purpose || 'rent',
+    images: prop.images?.filter(Boolean) ?? [],
+    type: Array.isArray(prop.type) ? prop.type[0] : prop.type,
+    purpose: Array.isArray(prop.purpose) ? prop.purpose[0] : (prop.purpose || 'rent'),
     isNew: prop.isNew || (new Date() - new Date(prop.createdAt) < 7 * 24 * 60 * 60 * 1000),
-    hasPrivateMedia: prop.images?.length > 1
+    hasPrivateMedia: prop.images?.length > 1,
+    bhk: prop.bhk,
+    bedrooms: prop.bedrooms,
+    bathrooms: prop.bathrooms,
+    area: prop.area,
+    areaSqFt: prop.areaSqFt,
+    furnishing: prop.furnishing,
+    postedBy: prop.postedBy,
+    pricePerSqft: prop.pricePerSqft,
+    contactNumber: prop.contactNumber,
+    phone: prop.phone
   });
 
   const handleSortChange = (e) => {
@@ -258,15 +270,18 @@ export default function FeaturedProperties() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className={`grid gap-8 mb-16 ${viewType === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 lg:grid-cols-2 lg:gap-6"}`}
+                className={`grid gap-8 mb-16 auto-rows-fr items-stretch ${viewType === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 lg:grid-cols-2 lg:gap-6"}`}
               >
                 {[...Array(12)].map((_, i) => (
-                  <div key={i} className="bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-sm h-[420px] animate-pulse">
-                    <div className="bg-slate-100 dark:bg-slate-800 h-52 w-full"></div>
-                    <div className="p-8 space-y-4">
-                      <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-3/4"></div>
-                      <div className="h-4 bg-slate-50 dark:bg-slate-800/50 rounded-full w-1/2"></div>
-                      <div className="h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl w-full mt-6"></div>
+                  <div key={i} className="h-full flex">
+                    <div className="h-full w-full flex flex-col bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-sm animate-pulse">
+                      <div className="bg-slate-100 dark:bg-slate-800 aspect-[4/3] w-full flex-shrink-0"></div>
+                      <div className="p-4 md:p-5 flex-1 flex flex-col">
+                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-full w-3/4"></div>
+                        <div className="h-3 bg-slate-50 dark:bg-slate-800/50 rounded-full w-1/2 mt-2"></div>
+                        <div className="h-5 bg-slate-50 dark:bg-slate-800/50 rounded-full w-1/3 mt-2.5"></div>
+                        <div className="h-7 bg-slate-100 dark:bg-slate-800 rounded-xl w-2/3 mt-auto pt-3"></div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -277,10 +292,10 @@ export default function FeaturedProperties() {
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                className={`grid gap-8 mb-20 ${viewType === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 lg:grid-cols-2 lg:gap-6"}`}
+                className={`grid gap-8 mb-20 auto-rows-fr items-stretch ${viewType === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 lg:grid-cols-2 lg:gap-6"}`}
               >
                 {properties.map((prop) => (
-                  <motion.div key={prop._id || prop.id} variants={itemVariants}>
+                  <motion.div key={prop._id || prop.id} variants={itemVariants} className="h-full flex">
                     <PropertyCard {...formatProperty(prop)} layout={viewType} />
                   </motion.div>
                 ))}

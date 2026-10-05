@@ -20,6 +20,17 @@ const LoginPage = () => {
   const [status, setStatus] = useState({ text: "", type: "" });
 
   const redirectUser = useCallback((u) => {
+    // Honour the destination captured by src/middleware.js, but only for
+    // same-origin absolute paths (never "//evil.com" or "https://...").
+    const next = new URLSearchParams(window.location.search).get("next");
+    const isSafeNext =
+      typeof next === "string" && next.startsWith("/") && !next.startsWith("//");
+
+    if (isSafeNext) {
+      router.push(next);
+      return;
+    }
+
     if (u.role === "admin") router.push("/admin");
     else if (u.role === "seller") router.push("/seller");
     else router.push("/");
@@ -53,15 +64,15 @@ const LoginPage = () => {
     <div className="min-h-screen flex">
       {/* Left Brand Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 items-center justify-center p-12 overflow-hidden">
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/4 -left-20 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/10 rounded-full" />
         </div>
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative text-center">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white/15 backdrop-blur rounded-3xl mb-8 border border-white/20">
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative z-50 text-center pointer-events-auto">
+          <a href="/" className="inline-flex items-center justify-center w-20 h-20 bg-white/15 backdrop-blur rounded-3xl mb-8 border border-white/20 hover:bg-white/25 transition-all cursor-pointer shadow-xl relative z-50">
             <Home className="text-white" size={36} />
-          </div>
+          </a>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">rentzypro</h1>
           <p className="text-lg text-indigo-200 max-w-sm mx-auto leading-relaxed">
             India&apos;s trusted platform for finding rental properties directly from owners.
@@ -79,9 +90,9 @@ const LoginPage = () => {
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+            <Link href="/" className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/30">
               <Home className="text-white" size={20} />
-            </div>
+            </Link>
             <span className="text-xl font-bold text-slate-900 dark:text-white">rentzypro</span>
           </div>
 

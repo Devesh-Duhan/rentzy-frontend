@@ -441,14 +441,20 @@ export default function CompareClient() {
                               onClick={() => addProperty(p._id)}
                               className="w-full flex items-center gap-3 p-2.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-xl transition-colors text-left"
                             >
-                              <Image
-                                src={p.images?.[0] || "/placeholder.jpg"}
-                                alt=""
-                                width={40}
-                                height={40}
-                                className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
-                                unoptimized
-                              />
+                              {p.images?.[0] ? (
+                                <Image
+                                  src={p.images[0]}
+                                  alt=""
+                                  width={40}
+                                  height={40}
+                                  className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                                  unoptimized
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                                  <i className="fas fa-image text-slate-300 dark:text-slate-600 text-xs"></i>
+                                </div>
+                              )}
                               <div className="min-w-0 flex-1">
                                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 truncate">
                                   {p.title}

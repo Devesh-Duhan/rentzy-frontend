@@ -12,19 +12,27 @@ const ReportProperty = ({ propertyId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const openModal = () => {
     const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    let userName = "";
     let userEmail = "";
+    let userPhone = "";
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
+        userName = user.name || "";
         userEmail = user.email || "";
+        userPhone = user.phone || "";
       } catch {}
     }
+    setName(userName);
     setEmail(userEmail);
+    setPhone(userPhone);
     setReason("");
     setDescription("");
     setIsOpen(true);
@@ -36,12 +44,28 @@ const ReportProperty = ({ propertyId }) => {
       toast.error("Please select a reason");
       return;
     }
+    // The ContactLead schema requires name, email, phone and message.
+    if (!name.trim()) {
+      toast.error("Please enter your name");
+      return;
+    }
+    if (!email.trim()) {
+      toast.error("Please enter your email");
+      return;
+    }
+    if (!phone.trim()) {
+      toast.error("Please enter your phone number");
+      return;
+    }
     setSubmitting(true);
     try {
       await axios.post("/leads", {
         source: "property_enquiry",
         message: `REPORT: ${reason}${description ? ` - ${description}` : ""}${propertyId ? ` (Property ID: ${propertyId})` : ""}`,
-        email,
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        property: propertyId || undefined,
       });
       toast.success("Report submitted successfully");
       setIsOpen(false);
@@ -120,8 +144,38 @@ const ReportProperty = ({ propertyId }) => {
                   />
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
+                      Name <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your name"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
+                      Phone <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Your phone"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">Email</label>
+                  <label className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
+                    Email <span className="text-rose-500">*</span>
+                  </label>
                   <input
                     type="email"
                     value={email}

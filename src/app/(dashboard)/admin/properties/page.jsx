@@ -104,7 +104,13 @@ export default function PropertiesSection() {
         {backendProperties.map((property) => (
           <div key={property._id} className="bg-white dark:bg-slate-800/40 p-4 md:p-6 rounded-[24px] md:rounded-[32px] border border-slate-100 dark:border-white/5 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center hover:shadow-lg transition-all group">
             <div className="w-20 h-20 md:w-28 md:h-28 rounded-xl md:rounded-3xl overflow-hidden shrink-0 border border-slate-100 dark:border-white/5 shadow-inner">
-              <Image src={property.images?.[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=200"} width={112} height={112} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="" unoptimized />
+              {property.images?.[0] ? (
+                <Image src={property.images[0]} width={112} height={112} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="" unoptimized />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                  <i className="fas fa-image text-slate-300 dark:text-slate-600"></i>
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
@@ -148,10 +154,17 @@ export default function PropertiesSection() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 md:gap-3 shrink-0 w-full md:w-auto mt-2 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-slate-50 dark:border-white/5 pl-0 md:pl-6">
-               <div className="mr-0 md:mr-4 text-left md:text-right flex-1 md:flex-none">
-                  <p className="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Monthly Rent</p>
-                  <p className="text-sm md:text-xl font-black text-indigo-600 dark:text-indigo-400">₹{property.price?.toLocaleString()}</p>
-               </div>
+                <div className="mr-0 md:mr-4 text-left md:text-right flex-1 md:flex-none">
+                   <p className="text-[8px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Monthly Rent</p>
+                   <div className="flex items-center gap-2">
+                     <p className="text-sm md:text-xl font-black text-indigo-600 dark:text-indigo-400">₹{property.price?.toLocaleString()}</p>
+                     {(property.pricePerSqft || (property.areaSqFt ? Math.round(property.price / property.areaSqFt) : null)) && (
+                       <span className="text-[10px] font-medium text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 px-1.5 py-0.5 rounded whitespace-nowrap">
+                         ₹{property.pricePerSqft || Math.round(property.price / property.areaSqFt)}/sqft
+                       </span>
+                     )}
+                   </div>
+                </div>
               <button onClick={() => handlePropertyEdit({ id: property._id })} className="p-3 bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-900 hover:text-white transition-all shadow-sm">
                 <Edit2 size={18} />
               </button>

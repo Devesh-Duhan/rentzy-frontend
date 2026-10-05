@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import Footer from "@/components/Footer";
+import axios from "@/lib/axios";
 
 const screeningFeatures = [
   { icon: Search, title: "Background Check", desc: "Comprehensive criminal and civil background verification" },
@@ -46,11 +47,22 @@ export default function TenantScreeningClient() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleStartScreening = (e) => {
+  const handleStartScreening = async (e) => {
     e.preventDefault();
     setScreening(true);
+    try {
+      await axios.post('/leads', {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        message: `Tenant Screening Request for ${formData.name}. Employer: ${formData.employerName || 'N/A'}, Income: ₹${formData.monthlyIncome || 'N/A'}, Address: ${formData.currentAddress || 'N/A'}`,
+        source: 'property_enquiry',
+      });
+    } catch (err) {
+      console.error("Failed to record screening lead:", err);
+    }
     setTimeout(() => {
-      const score = Math.floor(Math.random() * 30) + 70;
+      const score = Math.floor(Math.random() * 20) + 78;
       setReport({
         ...formData,
         status: score >= 80 ? "Clear" : "Flagged",
@@ -64,7 +76,7 @@ export default function TenantScreeningClient() {
         ],
       });
       setScreening(false);
-    }, 3000);
+    }, 2000);
   };
 
   if (!user || user.role !== "seller") {

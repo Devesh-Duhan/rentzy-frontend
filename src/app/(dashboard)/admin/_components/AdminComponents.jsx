@@ -173,6 +173,11 @@ export const NewListingModal = ({ isOpen, onClose, form, preview, onFormChange, 
   </AnimatePresence>
 );
 
+export { default as InviteUserModal } from "./InviteUserModal";
+export { default as CategoryModal } from "./CategoryModal";
+export { default as LocationModal } from "./LocationModal";
+export { default as BlogModal } from "./BlogModal";
+
 export const UserEditModal = ({ isOpen, onClose, form, onFormChange, onSubmit, isEditMode }) => (
   <AnimatePresence>
     {isOpen && (
@@ -188,61 +193,58 @@ export const UserEditModal = ({ isOpen, onClose, form, onFormChange, onSubmit, i
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="fixed inset-x-4 bottom-8 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 w-[calc(100%-32px)] md:max-w-lg bg-white z-[110] rounded-[40px] shadow-2xl overflow-hidden flex flex-col border border-slate-100"
+          className="fixed inset-x-4 bottom-8 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 w-[calc(100%-32px)] md:max-w-lg bg-white dark:bg-slate-900 z-[110] rounded-[32px] md:rounded-[40px] shadow-2xl overflow-hidden flex flex-col border border-slate-100 dark:border-white/10"
         >
-          <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+          <div className="p-6 md:p-8 border-b border-slate-100 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-white/[0.02]">
             <div>
-              <h3 className="text-2xl font-black text-slate-900">{isEditMode ? "Edit User" : "Invite New User"}</h3>
-              <p className="text-sm text-slate-500 font-medium">Manage user permissions and profile.</p>
+              <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white">{isEditMode ? "Edit User Profile" : "User Profile"}</h3>
+              <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-medium">Manage user permissions and profile details.</p>
             </div>
-            <button onClick={onClose} className="p-3 bg-white text-slate-400 rounded-2xl hover:text-rose-500 transition-colors shadow-sm">
+            <button onClick={onClose} className="p-2.5 md:p-3 bg-white dark:bg-slate-800 text-slate-400 rounded-2xl hover:text-rose-500 transition-colors shadow-sm">
               <X size={20} />
             </button>
           </div>
 
-          <div className="p-8 space-y-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name</label>
+          <div className="p-6 md:p-8 space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-300">Full Name</label>
               <input
                 name="name"
                 value={form.name}
                 placeholder="John Doe"
                 onChange={onFormChange}
                 type="text"
-                className="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-indigo-100 transition-all"
+                className="w-full p-3.5 md:p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition-all"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Address</label>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-300">Email Address</label>
               <input
                 name="email"
                 value={form.email}
                 placeholder="john@example.com"
                 onChange={onFormChange}
                 type="email"
-                className="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-indigo-100 transition-all"
+                className="w-full p-3.5 md:p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition-all"
               />
             </div>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Role</label>
+            <div className="grid grid-cols-2 gap-4 md:gap-6">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-300">Role</label>
                 <select 
                   name="role" 
                   value={form.role} 
                   onChange={onFormChange} 
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-indigo-100 transition-all appearance-none cursor-pointer"
+                  className="w-full p-3.5 md:p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition-all appearance-none cursor-pointer"
                 >
                   <option value="admin">Admin</option>
                   <option value="seller">Seller</option>
                   <option value="buyer">Buyer</option>
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300 hidden md:block">
-                   <ChevronRight size={14} className="rotate-90" />
-                </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Status</label>
-                <select name="status" value={form.status} onChange={onFormChange} className="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-indigo-100 transition-all appearance-none">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-300">Status</label>
+                <select name="status" value={form.status} onChange={onFormChange} className="w-full p-3.5 md:p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 transition-all appearance-none cursor-pointer">
                   <option>Active</option>
                   <option>Warning</option>
                   <option>Banned</option>
@@ -251,10 +253,10 @@ export const UserEditModal = ({ isOpen, onClose, form, onFormChange, onSubmit, i
             </div>
           </div>
 
-          <div className="p-8 border-t border-slate-50 flex gap-4">
-            <button onClick={onClose} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-[20px] font-black text-sm hover:bg-slate-200 transition-all">Discard</button>
-            <button onClick={onSubmit} className="flex-1 py-4 bg-indigo-600 text-white rounded-[20px] font-black text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">
-              {isEditMode ? "Save Changes" : "Send Invite"}
+          <div className="p-6 md:p-8 border-t border-slate-100 dark:border-white/5 flex gap-3 md:gap-4">
+            <button onClick={onClose} className="flex-1 py-3.5 md:py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-[20px] font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Cancel</button>
+            <button onClick={onSubmit} className="flex-1 py-3.5 md:py-4 bg-indigo-600 text-white rounded-[20px] font-black text-sm shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-indigo-700 transition-all">
+              Save Changes
             </button>
           </div>
         </motion.div>

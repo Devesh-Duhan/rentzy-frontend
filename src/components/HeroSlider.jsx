@@ -4,15 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, TrendingUp, ShieldCheck, Users } from "lucide-react";
-
-const CATEGORIES = [
-  { id: "residential", label: "Residential", icon: "🏡" },
-  { id: "commercial", label: "Commercial", icon: "💼" },
-  { id: "land", label: "Land/Plots", icon: "🌱" },
-  { id: "pg-hostel", label: "PG/Hostel", icon: "🏘️" },
-  { id: "industrial", label: "Industrial", icon: "🏭" },
-  { id: "short-term", label: "Short-Term", icon: "📅" },
-];
+import axios from "@/lib/axios";
 
 const FEATURES = [
   { icon: ShieldCheck, label: "0% Brokerage", desc: "Direct owner deals" },
@@ -27,11 +19,25 @@ const HERO_IMAGES = [
 ];
 
 export default function HeroSlider({ onSelectCategory }) {
+  const [categories, setCategories] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const { data } = await axios.get("/categories");
+        const list = Array.isArray(data) ? data : data?.data || data?.categories || [];
+        setCategories(list);
+      } catch (err) {
+        console.error("Failed to load categories in hero slider:", err);
+      }
+    };
+    fetchCats();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -153,21 +159,21 @@ export default function HeroSlider({ onSelectCategory }) {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
-                  className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50"
+                  className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 max-h-60 overflow-y-auto"
                 >
-                  {CATEGORIES.filter((c) => c.label.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 ? (
-                    CATEGORIES.filter((c) => c.label.toLowerCase().includes(searchQuery.toLowerCase())).map((cat) => (
+                  {categories.filter((c) => (c.name || "").toLowerCase().includes(searchQuery.toLowerCase())).length > 0 ? (
+                    categories.filter((c) => (c.name || "").toLowerCase().includes(searchQuery.toLowerCase())).map((cat) => (
                       <button
-                        key={cat.id}
+                        key={cat._id || cat.slug || cat.name}
                         onClick={() => {
-                          router.push(`/search?type=${cat.id}`);
+                          router.push(`/category/${cat.slug || cat.name?.toLowerCase().replace(/\s+/g, '-')}`);
                           setShowResults(false);
                           setSearchQuery("");
                         }}
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-left"
                       >
-                        <span className="text-xl">{cat.icon}</span>
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{cat.label}</span>
+                        <span className="text-xl">{cat.icon || "🏠"}</span>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{cat.name}</span>
                       </button>
                     ))
                   ) : (
@@ -179,23 +185,25 @@ export default function HeroSlider({ onSelectCategory }) {
           </motion.div>
 
           {/* Category Pills */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex gap-2 mt-5 sm:mt-8 overflow-x-auto no-scrollbar pb-1 sm:pb-2"
-          >
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => router.push(`/search?type=${cat.id}`)}
-                className="category-pill flex items-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3.5 py-2 sm:px-5 sm:py-2.5"
-              >
-                <span className="text-base sm:text-lg">{cat.icon}</span>
-                <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">{cat.label}</span>
-              </button>
-            ))}
-          </motion.div>
+          {categories.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="flex gap-2 mt-5 sm:mt-8 overflow-x-auto no-scrollbar pb-1 sm:pb-2"
+            >
+              {categories.map((cat) => (
+                <button
+                  key={cat._id || cat.slug || cat.name}
+                  onClick={() => router.push(`/category/${cat.slug || cat.name?.toLowerCase().replace(/\s+/g, '-')}`)}
+                  className="category-pill flex items-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full backdrop-blur-md transition-all active:scale-95 shrink-0"
+                >
+                  <span className="text-base sm:text-lg">{cat.icon || "🏠"}</span>
+                  <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">{cat.name}</span>
+                </button>
+              ))}
+            </motion.div>
+          )}
 
           {/* Feature Badges */}
           <motion.div

@@ -23,12 +23,6 @@ const REVIEWS = [
   { property: "Downtown Studio", rating: 5, date: "2026-06-28", text: "Exactly as described. Very smooth process." },
 ];
 
-const RECENT_VIEWS = [
-  { id: "1", title: "Skyline Apartments", location: "Andheri West, Mumbai", price: 25000, images: ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"], type: "Apartment", purpose: "rent" },
-  { id: "2", title: "Greenwood Villa", location: "Whitefield, Bangalore", price: 45000, images: ["https://images.unsplash.com/photo-1564013799919-ab600027ffc6"], type: "Villa", purpose: "rent" },
-  { id: "3", title: "Downtown Studio", location: "Connaught Place, Delhi", price: 18000, images: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688"], type: "Studio", purpose: "rent" },
-];
-
 export default function ProfilePage() {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -50,7 +44,29 @@ export default function ProfilePage() {
     enabled: !!user && activeTab === "saved",
   });
 
-  const savedProperties = savedData?.savedProperties || savedData?.properties || savedData || [];
+  // Backend responds with { success, count, data: [...] } - a bare object, not
+  // an array. Falling through to `savedData` would call .slice() on an object.
+  const savedProperties = savedData?.data || savedData?.savedProperties || savedData?.properties ||
+    (Array.isArray(savedData) ? savedData : []);
+
+  const { data: recentData } = useQuery({
+    queryKey: ["recentlyViewed"],
+    queryFn: async () => {
+      let ids = [];
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("recentlyViewed");
+        ids = stored ? JSON.parse(stored) : [];
+      }
+      if (ids.length === 0) return [];
+      const results = await Promise.all(
+        ids.slice(0, 8).map((id) => axios.get(`/properties/${id}`).then((res) => res.data).catch(() => null))
+      );
+      return results.filter(Boolean);
+    },
+    enabled: !!user && activeTab === "recent",
+  });
+
+  const RECENT_VIEWS = recentData || [];
 
   if (!user) return null;
 
@@ -218,7 +234,7 @@ export default function ProfilePage() {
                             title={prop.title}
                             location={typeof prop.location === "object" ? `${prop.location?.city || ""}, ${prop.location?.state || ""}` : prop.location}
                             price={prop.price?.toLocaleString("en-IN") || "0"}
-                            images={prop.images?.length ? prop.images : ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"]}
+                            images={prop.images?.filter(Boolean) ?? []}
                             type={prop.type}
                             purpose={prop.purpose || "rent"}
                           />
@@ -255,12 +271,27 @@ export default function ProfilePage() {
                     <div className="app-grid">
                       {RECENT_VIEWS.map((property, i) => (
                         <motion.div
-                          key={property.id}
+                          key={property._id || property.id}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.1 }}
+                          className="h-full flex"
                         >
-                          <PropertyCard {...property} />
+                          <PropertyCard
+                            id={property._id || property.id}
+                            title={property.title}
+                            location={typeof property.location === "object" ? [property.location?.address, property.location?.city, property.location?.state].filter(Boolean).join(", ") : property.location}
+                            price={property.price?.toLocaleString("en-IN") || "0"}
+                            images={property.images?.filter(Boolean) ?? []}
+                            type={property.type}
+                            purpose={Array.isArray(property.purpose) ? property.purpose[0] : property.purpose || "rent"}
+                            isNew={property.isNew}
+                            area={property.areaSqFt || property.area}
+                            bhk={property.bedrooms || property.bhk}
+                            bathrooms={property.bathrooms}
+                            furnishing={property.furnishing}
+                            pricePerSqft={property.pricePerSqft}
+                          />
                         </motion.div>
                       ))}
                     </div>

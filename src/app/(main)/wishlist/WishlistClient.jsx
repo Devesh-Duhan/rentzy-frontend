@@ -84,13 +84,7 @@ export default function WishlistClient() {
       prop.price?.toLocaleString("en-IN") ||
       prop.property?.price?.toLocaleString("en-IN") ||
       "0",
-    images: prop.images?.length
-      ? prop.images
-      : prop.property?.images?.length
-        ? prop.property.images
-        : [
-            "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
-          ],
+    images: prop.images?.filter(Boolean) ?? prop.property?.images?.filter(Boolean) ?? [],
     type: prop.type || prop.property?.type,
     purpose: prop.purpose || prop.property?.purpose || "rent",
     isNew:
@@ -207,7 +201,7 @@ export default function WishlistClient() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: i * 0.03 }}
-                      className="relative group"
+                      className="relative group h-full flex flex-col"
                     >
                       {/* Saved Info Bar */}
                       <div className="mb-2 flex items-center justify-between px-1">
@@ -227,7 +221,9 @@ export default function WishlistClient() {
                         </span>
                       </div>
 
-                      <PropertyCard {...formatProperty(prop)} />
+                      <div className="flex-1 flex">
+                        <PropertyCard {...formatProperty(prop)} />
+                      </div>
 
                       {/* Remove Button */}
                       <button

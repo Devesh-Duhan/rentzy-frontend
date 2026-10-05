@@ -26,17 +26,23 @@ export default function ReraClient() {
   const { data: reraProperties, isLoading } = useQuery({
     queryKey: ["rera-properties"],
     queryFn: async () => {
-      try {
-        const res = await axios.get("/property-documents?type=rera_certificate");
-        return res.data.documents || res.data || [];
-      } catch {
-        const res = await axios.get("/properties?limit=30");
-        const props = res.data.properties || res.data || [];
-        return props.filter((p) => p.reraNumber || p.reraRegNumber).map((p) => ({
-          ...p,
-          reraNumber: p.reraNumber || p.reraRegNumber || `RERA/UP/2024/${String(Math.floor(Math.random() * 99999)).padStart(5, "0")}`,
-        }));
-      }
+      // Public, read-only endpoint - no auth required.
+      const res = await axios.get("/property-documents/public?type=rera_certificate&limit=50");
+      const documents = res.data?.documents || res.data || [];
+      return documents
+        .map((doc) => {
+          const property = doc.property || {};
+          return {
+            ...property,
+            _id: property._id || doc._id,
+            reraNumber: property.reraNumber || property.reraRegNumber || null,
+            projectName: property.title || doc.title,
+            documentUrl: doc.fileUrl,
+            isVerified: doc.isVerified,
+          };
+        })
+        // Never invent a RERA number - only show what is actually on record
+        .filter((p) => p.reraNumber);
     },
   });
 

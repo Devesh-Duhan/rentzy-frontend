@@ -31,15 +31,8 @@ const SELLER_MENU = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/seller" },
   { id: "profile", label: "My Profile", icon: User, href: "/seller/profile" },
   { id: "properties", label: "My Properties", icon: Building2, href: "/seller/properties" },
-  { id: "leads", label: "Leads", icon: MessageSquare, href: "/seller/leads" },
-  { id: "visits", label: "Site Visits", icon: CalendarCheck, href: "/seller/visits" },
-  { id: "performance", label: "Performance", icon: BarChart3, href: "/seller/performance" },
   { id: "reviews", label: "Reviews", icon: Star, href: "/seller/reviews" },
-  { id: "insights", label: "Insights", icon: TrendingUp, href: "/seller/insights" },
-  { id: "competitor", label: "Competitor Analysis", icon: TrendingUp, href: "/seller/competitor" },
-  { id: "exports", label: "Export Reports", icon: Download, href: "/seller/exports" },
   { id: "bulk-upload", label: "Bulk Upload", icon: Upload, href: "/seller/bulk-upload" },
-  { id: "rent-collection", label: "Rent Collection", icon: Wallet, href: "/seller/rent-collection" },
 ];
 
 export default function SellerLayout({ children }) {

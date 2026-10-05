@@ -1,6 +1,22 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../lib/axios';
 
+// The JWT lives in localStorage for XHR, and is mirrored into a cookie so the
+// Next.js middleware can guard /admin and /seller on the server. These two
+// stores MUST be kept in sync - setToken/clearToken are the only writers.
+const setToken = (token) => {
+  if (typeof window === 'undefined' || !token) return;
+  localStorage.setItem('token', token);
+  document.cookie = `rentzy_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+};
+
+const clearToken = () => {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  document.cookie = 'rentzy_token=; path=/; max-age=0; SameSite=Lax';
+};
+
 // Get user from localStorage safely in Next.js
 const getUserFromStorage = () => {
   if (typeof window !== 'undefined') {
@@ -27,7 +43,8 @@ export const register = createAsyncThunk(
       const response = await axios.post('/auth/register', data);
       if (response.data && typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(response.data));
-        localStorage.setItem('token', response.data.token);
+
+        setToken(response.data.token);
       }
       return response.data;
     } catch (error) {
@@ -84,7 +101,8 @@ export const verifyRegisterOtp = createAsyncThunk(
       const response = await axios.post('/auth/verify-register-otp', data);
       if (response.data && typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(response.data));
-        localStorage.setItem('token', response.data.token);
+
+        setToken(response.data.token);
       }
       return response.data;
     } catch (error) {
@@ -104,7 +122,8 @@ export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) =
     const response = await axios.post('/auth/login', data);
     if (response.data && typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(response.data));
-      localStorage.setItem('token', response.data.token);
+
+      setToken(response.data.token);
     }
     return response.data;
   } catch (error) {
@@ -141,10 +160,9 @@ export const logout = createAsyncThunk('auth/logout', async () => {
     console.error("Logout API failed", error);
   }
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    
-    // Clear all cookies
+    clearToken();
+
+    // Clear any remaining cookies this app may have set
     try {
       const cookies = document.cookie.split(";");
       for (let i = 0; i < cookies.length; i++) {
@@ -205,17 +223,14 @@ export const becomeSeller = createAsyncThunk(
 // Google Login
 export const googleLogin = createAsyncThunk(
   'auth/googleLogin',
-  async (userData, thunkAPI) => {
+  async (idToken, thunkAPI) => {
     try {
-      const response = await axios.post('/auth/google', {
-        name: userData.name,
-        email: userData.email.toLowerCase(),
-        uid: userData.uid,
-        picture: userData.picture,
-      });
+      const token = typeof idToken === 'object' && idToken !== null ? idToken.idToken : idToken;
+      const response = await axios.post('/auth/google', { idToken: token });
       if (response.data && typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(response.data));
-        localStorage.setItem('token', response.data.token);
+
+        setToken(response.data.token);
       }
       return response.data;
     } catch (error) {

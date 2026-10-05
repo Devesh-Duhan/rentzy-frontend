@@ -26,8 +26,8 @@ export default function NewsletterManagement() {
   const fetchSubscribers = async () => {
     try {
       setIsLoading(true);
-      const { data } = await axios.get("/admin/newsletter");
-      setSubscribers(Array.isArray(data) ? data : data.subscribers || []);
+      const { data } = await axios.get("/admin/newsletter-subscribers");
+      setSubscribers(Array.isArray(data) ? data : data?.subscribers || data?.data || []);
     } catch {
       toast.error("Failed to fetch subscribers.");
     } finally {
@@ -42,7 +42,7 @@ export default function NewsletterManagement() {
   const handleDelete = async (id) => {
     const loading = toast.loading("Removing subscriber...");
     try {
-      await axios.delete(`/admin/newsletter/${id}`);
+      await axios.delete(`/admin/newsletter-subscribers/${id}`);
       toast.success("Subscriber removed.", { id: loading });
       setDeleteConfirmId(null);
       fetchSubscribers();
