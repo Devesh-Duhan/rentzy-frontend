@@ -12,9 +12,10 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: 'select_account' });
+const configured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.authDomain);
+const app = configured ? (getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)) : null;
+const auth = app ? getAuth(app) : null;
+const googleProvider = app ? new GoogleAuthProvider() : null;
+googleProvider?.setCustomParameters({ prompt: 'select_account' });
 
 export { auth, googleProvider };

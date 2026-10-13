@@ -1,5 +1,5 @@
 const baseUrl = (process.env.NEXT_PUBLIC_URL || 'https://rentzypro.com').replace(/\/$/, '');
-const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api').replace(/\/$/, '');
+const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
 const staticPages = [
   { url: baseUrl, changeFrequency: 'daily', priority: 1.0 },

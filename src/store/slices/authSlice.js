@@ -7,7 +7,7 @@ import axios from '../../lib/axios';
 const setToken = (token) => {
   if (typeof window === 'undefined' || !token) return;
   localStorage.setItem('token', token);
-  document.cookie = `rentzy_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+  document.cookie = `rentzy_token=${token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
 };
 
 const clearToken = () => {
@@ -20,8 +20,10 @@ const clearToken = () => {
 // Get user from localStorage safely in Next.js
 const getUserFromStorage = () => {
   if (typeof window !== 'undefined') {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    try {
+      const user = localStorage.getItem('user');
+      return user ? JSON.parse(user) : null;
+    } catch { return null; }
   }
   return null;
 };
@@ -177,6 +179,17 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   }
 });
 
+export const verifyLoginOtp = createAsyncThunk('auth/verifyLoginOtp', async (credentials, thunkAPI) => {
+  try {
+    const { data } = await axios.post('/auth/verify-otp', credentials);
+    localStorage.setItem('user', JSON.stringify(data));
+    setToken(data.token);
+    return data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Verification failed');
+  }
+});
+
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
   async (userData, thunkAPI) => {
@@ -189,6 +202,7 @@ export const updateProfile = createAsyncThunk(
       const response = await axios.put('/users/profile', userData, config);
       if (response.data && typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(response.data));
+        setToken(response.data.token);
       }
       return response.data;
     } catch (error) {
@@ -208,6 +222,7 @@ export const becomeSeller = createAsyncThunk(
       const response = await axios.post('/users/become-seller', userData);
       if (response.data && typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(response.data));
+        setToken(response.data.token);
       }
       return response.data;
     } catch (error) {
@@ -319,6 +334,7 @@ export const authSlice = createSlice({
         state.isLoading = false; state.isError = true; state.message = action.payload; state.user = null;
       })
       .addCase(logout.fulfilled, (state) => { state.user = null; })
+      .addCase(verifyLoginOtp.fulfilled, (state, action) => { state.user = action.payload; })
       .addCase(updateProfile.pending, (state) => { state.isLoading = true; })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true; state.user = action.payload;

@@ -137,7 +137,7 @@ const PropertyDetailContent = () => {
       });
 
       const cashfree = window.Cashfree({
-        mode: process.env.NEXT_PUBLIC_CASHFREE_ENV === 'PROD' ? 'production' : 'sandbox'
+        mode: ['PROD', 'PRODUCTION'].includes((process.env.NEXT_PUBLIC_CASHFREE_ENV || '').toUpperCase()) ? 'production' : 'sandbox'
       });
 
       await cashfree.checkout({

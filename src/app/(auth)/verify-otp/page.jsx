@@ -5,7 +5,8 @@ import { useDispatch } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, Mail, ArrowLeft, CheckCircle2, AlertCircle, Timer } from "lucide-react";
-import { verifyRegisterOtp, resendRegisterOtp } from "@/store/slices/authSlice";
+import { verifyRegisterOtp, resendRegisterOtp, sendForgotPasswordOtp, verifyLoginOtp } from "@/store/slices/authSlice";
+import axios from '@/lib/axios';
 
 const VerifyOtpContent = () => {
   const router = useRouter();
@@ -61,6 +62,8 @@ const VerifyOtpContent = () => {
         await dispatch(resendRegisterOtp(email)).unwrap();
         setMessage({ text: "A new verification code has been sent to your email.", type: "success" });
       } else {
+        if (type === 'reset') await dispatch(sendForgotPasswordOtp(email)).unwrap();
+        else await axios.post('/auth/login-otp', { email });
         setMessage({ text: "A new OTP has been sent to your email.", type: "success" });
       }
     } catch (error) {
@@ -83,20 +86,22 @@ const VerifyOtpContent = () => {
           else router.push("/");
         }, 1500);
       } else if (type === "reset") {
-        setMessage({ text: "OTP Verified! Please set a new password.", type: "success" });
+        sessionStorage.setItem('passwordResetOtp', otpValue);
+        setMessage({ text: "Please set a new password to complete verification.", type: "success" });
         setTimeout(() => {
-          router.push(`/reset-password?email=${encodeURIComponent(email)}&otp=${otpValue}`);
+          router.push(`/reset-password?email=${encodeURIComponent(email)}`);
         }, 1200);
       } else {
+        const user = await dispatch(verifyLoginOtp({ email, otp: otpValue })).unwrap();
         setMessage({ text: "Verification Successful!", type: "success" });
         setTimeout(() => {
-          router.push("/");
+          router.push(user.role === 'admin' ? '/admin' : user.role === 'seller' ? '/seller' : '/');
         }, 1500);
       }
     } catch (error) {
       const errMessage = error?.toString().includes("Network Error")
         ? "Network Error: Cannot connect to the server. Please check your internet connection or ensure the backend is running."
-        : error || "Invalid or expired code.";
+        : error?.response?.data?.message || error?.message || String(error || "Invalid or expired code.");
       setMessage({ text: errMessage, type: "error" });
     } finally {
       setIsLoading(false);

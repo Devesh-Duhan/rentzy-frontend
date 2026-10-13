@@ -3,7 +3,6 @@
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -28,9 +27,7 @@ const PROPERTY_TYPES = [
 ];
 
 export default function PaginatedProperties() {
-  const params = useParams();
-  const router = useRouter();
-  const pageParam = parseInt(params.page) || 1;
+  const [pageParam, setPageParam] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [showMap, setShowMap] = useState(false);
@@ -66,13 +63,13 @@ export default function PaginatedProperties() {
 
   const queryString = buildQueryString(appliedFilters);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['properties', queryString],
     queryFn: async () => {
       const response = await axios.get(`/properties?${queryString}`);
       return response.data;
     },
-    keepPreviousData: true,
+    placeholderData: previous => previous,
   });
 
   const propertiesData = data?.properties || [];
@@ -89,12 +86,14 @@ export default function PaginatedProperties() {
       if (value !== "" && value !== null) applied[key] = value;
     });
     setAppliedFilters(applied);
+    setPageParam(1);
     setFiltersOpen(false);
   };
 
   const clearFilters = () => {
     setFilters({ type: "", purpose: "", minPrice: "", maxPrice: "", bedrooms: "", bathrooms: "", city: "", keyword: "", sort: "-createdAt" });
     setAppliedFilters({});
+    setPageParam(1);
   };
 
   const removeFilter = (key) => {
@@ -406,6 +405,11 @@ export default function PaginatedProperties() {
               <div className="app-card overflow-hidden">
                 <PropertyMap properties={propertiesData} height="600px" zoom={5} />
               </div>
+            ) : isError ? (
+              <div role="alert" className="py-16 text-center">
+                <p>Properties could not be loaded.</p>
+                <button className="btn-primary mt-4" onClick={() => refetch()}>Try again</button>
+              </div>
             ) : isLoading ? (
               <div className="app-grid">
                 {[...Array(6)].map((_, i) => <PropertySkeleton key={i} />)}
@@ -443,7 +447,7 @@ export default function PaginatedProperties() {
 
                 <div className="flex justify-center items-center gap-2">
                   <button
-                    onClick={() => router.push(`/properties/${currentPage - 1}`)}
+                    onClick={() => setPageParam(currentPage - 1)}
                     disabled={currentPage === 1}
                     className="w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:text-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
                   >
@@ -456,7 +460,7 @@ export default function PaginatedProperties() {
                     ) : (
                       <button
                         key={p}
-                        onClick={() => router.push(`/properties/${p}`)}
+                        onClick={() => setPageParam(p)}
                         className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all shadow-sm ${
                           currentPage === p
                             ? "btn-primary shadow-lg shadow-indigo-200"
@@ -469,7 +473,7 @@ export default function PaginatedProperties() {
                   )}
 
                   <button
-                    onClick={() => router.push(`/properties/${currentPage + 1}`)}
+                    onClick={() => setPageParam(currentPage + 1)}
                     disabled={currentPage === TOTAL_PAGES}
                     className="w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:text-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
                   >

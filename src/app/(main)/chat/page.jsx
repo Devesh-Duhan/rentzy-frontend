@@ -31,7 +31,7 @@ export default function ChatPage() {
 
     const ENDPOINT = process.env.NEXT_PUBLIC_API_URL
       ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
-      : 'http://localhost:5001';
+      : 'http://localhost:5000';
 
     // The backend now requires a valid JWT on the Socket.IO handshake.
     const token = localStorage.getItem("token");
@@ -49,7 +49,7 @@ export default function ChatPage() {
     socket.on("message recieved", (newMessageReceived) => {
       const incomingChatId = newMessageReceived?.chatId?._id || newMessageReceived?.chatId;
       if (selectedChat && selectedChat._id === incomingChatId) {
-        setMessages((prev) => [...prev, newMessageReceived]);
+        setMessages((prev) => prev.some(message => message._id === newMessageReceived._id) ? prev : [...prev, newMessageReceived]);
       }
     });
 
@@ -101,8 +101,7 @@ export default function ChatPage() {
         const { data } = await axiosInstance.post(`/chats/${selectedChat._id}/message`, {
           content: messageText,
         });
-        socket.emit("new message", data);
-        setMessages((prev) => [...prev, data]);
+        setMessages((prev) => prev.some(message => message._id === data._id) ? prev : [...prev, data]);
       } catch (error) {
         console.error("Failed to send message", error);
       }

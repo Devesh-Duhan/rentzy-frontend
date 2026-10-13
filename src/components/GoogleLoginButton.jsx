@@ -13,6 +13,7 @@ const GoogleLoginButton = ({ text = "signin_with", onSuccess }) => {
 
   const handleGoogleLogin = async () => {
     if (isConnecting) return;
+    if (!auth || !googleProvider) { toast.error('Google login is currently unavailable. Please use email login.'); return; }
     setIsConnecting(true);
     const loadingToast = toast.loading("Connecting to Google...");
 

@@ -65,7 +65,6 @@ const AddPropertyPage = () => {
   const [errors, setErrors] = useState({});
   const [isPaymentSelection, setIsPaymentSelection] = useState(false);
   const [createdPropertyId, setCreatedPropertyId] = useState(null);
-  const [paymentOrder, setPaymentOrder] = useState(null);
   const [isPaying, setIsPaying] = useState(false);
 
   useEffect(() => {
@@ -87,7 +86,7 @@ const AddPropertyPage = () => {
     if (editId) {
       const fetchProperty = async () => {
         try {
-          const { data } = await axiosInstance.get(`/properties/${editId}`);
+          const { data } = await axiosInstance.get(`/properties/my/${editId}`);
           setForm({
             title: data.title,
             type: Array.isArray(data.type) ? data.type.map(t => t.charAt(0).toUpperCase() + t.slice(1)) : [data.type.charAt(0).toUpperCase() + data.type.slice(1)],
@@ -107,6 +106,7 @@ const AddPropertyPage = () => {
             contactNumber: data.contactNumber || ""
           });
           setPreviews(data.images || []);
+          setCreatedPropertyId(data._id);
         } catch (e) {
           console.error(e);
           toast.error("Failed to fetch property details");
@@ -166,8 +166,9 @@ const AddPropertyPage = () => {
   };
 
   const removeImage = (index) => {
+    const fileIndex = previews.slice(0, index).filter(src => src.startsWith('data:')).length;
+    if (previews[index]?.startsWith('data:')) setFiles(files.filter((_, i) => i !== fileIndex));
     setPreviews(previews.filter((_, i) => i !== index));
-    setFiles(files.filter((_, i) => i !== index));
   };
 
   const handlePrivateImageChange = (e) => {
@@ -206,11 +207,12 @@ const AddPropertyPage = () => {
     document.body.appendChild(script);
   });
 
-  const handleRazorpayPayment = async (order) => {
+  const handleRazorpayPayment = async () => {
     try {
       setIsPaying(true);
       const res = await loadRazorpayScript();
       if (!res) { toast.error('Razorpay SDK failed to load.'); return; }
+      const { data: order } = await axiosInstance.post('/properties/create-listing-order', { propertyId: createdPropertyId });
       const options = {
         key: order.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount,
@@ -248,7 +250,7 @@ const AddPropertyPage = () => {
       if (!res) { toast.error('Cashfree SDK failed to load.'); return; }
       const response = await axiosInstance.post('/properties/create-cashfree-listing-order', { propertyId: createdPropertyId });
       const { payment_session_id, order_id } = response.data;
-      const cashfree = window.Cashfree({ mode: process.env.NEXT_PUBLIC_CASHFREE_ENV === 'PROD' ? 'production' : 'sandbox' });
+      const cashfree = window.Cashfree({ mode: ['PROD', 'PRODUCTION'].includes((process.env.NEXT_PUBLIC_CASHFREE_ENV || '').toUpperCase()) ? 'production' : 'sandbox' });
       await cashfree.checkout({ paymentSessionId: payment_session_id, redirectTarget: "_modal" }).then(async (result) => {
         if (result.error) toast.error(result.error.message);
         if (result.paymentDetails) {
@@ -293,11 +295,24 @@ const AddPropertyPage = () => {
         files.forEach(file => formData.append("images", file));
         privateFiles.forEach(file => formData.append("images", file));
         if (editId) {
-          await axiosInstance.put(`/properties/${editId}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          formData.append('existingImages', JSON.stringify(previews.filter(src => !src.startsWith('data:'))));
+          const { data } = await axiosInstance.put(`/properties/${editId}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          if (!data.isPaid) {
+            setCreatedPropertyId(data._id);
+            setIsPaymentSelection(true);
+            toast.success('Property saved. Complete the listing payment to publish.');
+            return;
+          }
           toast.success("Property updated successfully!");
           router.push(isAdminFlow ? "/admin/properties" : "/seller/properties");
         } else {
           const response = await axiosInstance.post('/properties', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          if (!response.data.property.isPaid) {
+            setCreatedPropertyId(response.data.property._id);
+            setIsPaymentSelection(true);
+            toast.success('Property saved. Complete the listing payment to publish.');
+            return;
+          }
           toast.success("Property published successfully!");
           router.push(isAdminFlow ? "/admin/properties" : "/seller/properties");
         }
@@ -564,7 +579,7 @@ const AddPropertyPage = () => {
               <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">Choose Payment Method</h1>
               <p className="section-subtitle mb-8 max-w-md mx-auto">Complete your listing fee to make your property live on RentzyPro.</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button onClick={() => handleRazorpayPayment(paymentOrder)} disabled={isPaying} className="group relative overflow-hidden bg-indigo-600 p-6 rounded-2xl text-white transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50">
+                <button onClick={handleRazorpayPayment} disabled={isPaying} className="group relative overflow-hidden bg-indigo-600 p-6 rounded-2xl text-white transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50">
                   <div className="relative z-10 flex flex-col items-center gap-3"><div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center"><CheckCircle2 size={22} /></div><span className="font-bold uppercase tracking-wider text-xs">Pay with Razorpay</span></div>
                 </button>
                 <button onClick={handleCashfreePayment} disabled={isPaying} className="group relative overflow-hidden bg-slate-900 p-6 rounded-2xl text-white transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50">

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
@@ -10,7 +10,30 @@ export default function PropertyDetailGallery({ images, title }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
 
-    const list = images?.filter(Boolean) ?? [];
+    const list = Array.isArray(images) ? images.filter(Boolean) : [];
+    const dialogRef = useRef(null);
+    useEffect(() => { setCurrentIndex(0); }, [images]);
+    useEffect(() => {
+        if (!isOpen) return;
+        const previousFocus = document.activeElement;
+        const overflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        dialogRef.current?.querySelector('button')?.focus();
+        const handleKey = event => {
+            if (event.key === 'Escape') setIsOpen(false);
+            if (event.key === 'ArrowRight' && list.length) setCurrentIndex(index => (index + 1) % list.length);
+            if (event.key === 'ArrowLeft' && list.length) setCurrentIndex(index => (index - 1 + list.length) % list.length);
+            if (event.key === 'Tab') {
+                const buttons = dialogRef.current?.querySelectorAll('button');
+                if (!buttons?.length) return;
+                const first = buttons[0], last = buttons[buttons.length - 1];
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+            }
+        };
+        document.addEventListener('keydown', handleKey);
+        return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', handleKey); previousFocus?.focus(); };
+    }, [isOpen, list.length]);
 
     const handleNext = (e) => {
         e?.stopPropagation();
@@ -112,6 +135,10 @@ export default function PropertyDetailGallery({ images, title }) {
             <AnimatePresence>
                 {isOpen && list.length > 0 && typeof document !== "undefined" && createPortal(
                     <motion.div
+                        ref={dialogRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={`${title || 'Property'} image gallery`}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}

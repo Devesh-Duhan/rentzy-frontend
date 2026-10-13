@@ -1,5 +1,5 @@
 // Bump this whenever the caching strategy changes so old caches get purged.
-const CACHE_NAME = 'rentzypro-v2';
+const CACHE_NAME = 'rentzypro-v3';
 const OFFLINE_URLS = ['/', '/offline'];
 
 // Static assets under /_next/static are content-hashed, so they are safe to
@@ -82,6 +82,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/')) return;
+  if (/^\/(admin|seller|add|profile|wishlist|alerts|chat|notifications|login|register|verify-otp|reset-password)(\/|$)/.test(url.pathname)) return;
 
   if (isHtmlRequest(request)) {
     event.respondWith(networkFirst(request));

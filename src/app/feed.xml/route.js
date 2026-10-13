@@ -1,5 +1,5 @@
 const BASE_URL = (process.env.NEXT_PUBLIC_URL || 'https://rentzypro.com').replace(/\/$/, '');
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api').replace(/\/$/, '');
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
 const escapeXml = (value = '') =>
   String(value)

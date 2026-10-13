@@ -11,7 +11,6 @@ function ResetPasswordContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const email = searchParams.get("email") || "";
-    const otp = searchParams.get("otp") || "";
     const [form, setForm] = useState({ password: "", confirm: "" });
     const [status, setStatus] = useState({ text: "", type: "" });
     const [isLoading, setIsLoading] = useState(false);
@@ -25,6 +24,7 @@ function ResetPasswordContent() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const otp = sessionStorage.getItem('passwordResetOtp') || searchParams.get('otp') || '';
         if (!form.password || !form.confirm) {
             setStatus({ text: "All fields are required.", type: "error" });
             return;
@@ -44,6 +44,7 @@ function ResetPasswordContent() {
         setIsLoading(true);
         try {
             await dispatch(resetPassword({ email, password: form.password, otp })).unwrap();
+            sessionStorage.removeItem('passwordResetOtp');
             setStatus({ text: "Password reset successful! Redirecting to login...", type: "success" });
             setTimeout(() => router.push("/login"), 1800);
         } catch (error) {
