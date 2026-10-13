@@ -1,229 +1,55 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, TrendingUp, ShieldCheck, Users } from "lucide-react";
-import axios from "@/lib/axios";
+import { useState } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { ArrowUpRight, MapPin, Search, SlidersHorizontal, Check, Home } from 'lucide-react';
 
-const FEATURES = [
-  { icon: ShieldCheck, label: "0% Brokerage", desc: "Direct owner deals" },
-  { icon: Users, label: "10K+ Listings", desc: "Verified properties" },
-  { icon: TrendingUp, label: "Best Prices", desc: "Negotiate directly" },
-];
+const CITIES = ['Hisar', 'Gurugram', 'Delhi', 'Bengaluru'];
 
-const HERO_IMAGES = [
-  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1920&q=80",
-];
-
-export default function HeroSlider({ onSelectCategory }) {
-  const [categories, setCategories] = useState([]);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showResults, setShowResults] = useState(false);
-  const searchRef = useRef(null);
+export default function HeroSlider() {
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchCats = async () => {
-      try {
-        const { data } = await axios.get("/categories");
-        const list = Array.isArray(data) ? data : data?.data || data?.categories || [];
-        setCategories(list);
-      } catch (err) {
-        console.error("Failed to load categories in hero slider:", err);
-      }
-    };
-    fetchCats();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (searchRef.current && !searchRef.current.contains(e.target)) setShowResults(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      router.push("/properties");
-    }
-  };
-
+  const [purpose, setPurpose] = useState('rent');
+  const [city, setCity] = useState('');
+  const [type, setType] = useState('');
+  const [budget, setBudget] = useState('');
+  function search(event) {
+    event.preventDefault();
+    const params = new URLSearchParams({ purpose });
+    if (city.trim()) params.set('city', city.trim());
+    if (type) params.set('type', type);
+    if (budget) params.set('maxPrice', budget);
+    router.push(`/search?${params}`);
+  }
   return (
-    <section className="relative h-[70svh] min-h-[480px] md:min-h-[700px] overflow-hidden">
-      {/* Background Images */}
-      {HERO_IMAGES.map((img, i) => (
-        <div
-          key={i}
-          className={`absolute inset-0 transition-opacity duration-1000 ${i === currentSlide ? "opacity-100" : "opacity-0"}`}
-          style={{
-            background: `linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.7) 100%), url(${img})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
-      ))}
-
-      {/* Animated gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/40 via-transparent to-indigo-900/20" />
-
-      {/* Slide indicators */}
-      <div className="absolute bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-        {HERO_IMAGES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentSlide(i)}
-            className={`h-1.5 rounded-full transition-all duration-500 ${
-              i === currentSlide ? "w-8 bg-white" : "w-1.5 bg-white/40 hover:bg-white/60"
-            }`}
-          />
-        ))}
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-        <div className="max-w-3xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-[10px] sm:text-xs font-semibold mb-4 sm:mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              India&apos;s #1 Direct Property Platform
+    <section className="relative overflow-hidden bg-[#f4f5fb] dark:bg-slate-950">
+      <div className="app-container grid gap-10 pb-12 pt-12 sm:pb-16 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-14 lg:pb-24 lg:pt-20">
+        <div className="relative z-10 min-w-0">
+          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white px-3.5 py-2 text-xs font-semibold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-300"><span className="h-1.5 w-1.5 rounded-full bg-indigo-500" /> A better way to find your place</span>
+          <h1 className="max-w-xl text-[2.75rem] font-semibold leading-[1.08] tracking-[-0.05em] text-slate-950 sm:text-6xl xl:text-7xl dark:text-white">Find a place.<br /><span className="text-indigo-600 dark:text-indigo-400">Make it home.</span></h1>
+          <p className="mb-8 mt-6 max-w-md text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-400">Your next chapter starts with the right space. Explore homes, compare the details, and connect directly with owners.</p>
+          <form onSubmit={search} className="relative rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_16px_50px_-20px_rgba(49,46,129,0.2)] sm:p-4 dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-4 flex gap-1 border-b border-slate-100 pb-3 dark:border-slate-800" role="group" aria-label="Listing purpose">
+              {[['rent', 'Rent a home'], ['sell', 'Buy a home']].map(([value, label]) => <button key={value} type="button" aria-pressed={purpose === value} onClick={() => setPurpose(value)} className={`min-h-10 rounded-lg px-4 text-sm font-semibold transition-colors ${purpose === value ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>{label}</button>)}
             </div>
-
-            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight mb-3 sm:mb-4">
-              Find Your Perfect
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300">
-                Home Sweet Home
-              </span>
-            </h1>
-
-            <p className="text-sm sm:text-lg md:text-xl text-white/80 max-w-xl mb-6 sm:mb-8 font-medium">
-              Rent or buy directly from owners — zero brokerage, 100% verified properties across India.
-            </p>
-          </motion.div>
-
-          {/* Search Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            ref={searchRef}
-            className="relative max-w-2xl"
-          >
-            <form onSubmit={handleSearch} className="flex items-center gap-2 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-1.5 sm:p-2 shadow-2xl">
-              <div className="flex-1 flex items-center gap-2 sm:gap-3 px-3 sm:px-4">
-                <Search size={18} className="text-slate-400 flex-shrink-0" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowResults(true);
-                  }}
-                  onFocus={() => setShowResults(true)}
-                  placeholder="Search by city, locality, or property type..."
-                  className="flex-1 py-2 sm:py-3 bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none text-sm sm:text-base font-medium"
-                />
-              </div>
-              <button
-                type="submit"
-                className="btn-primary flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl whitespace-nowrap"
-              >
-                <Search size={16} />
-                <span className="hidden sm:inline">Search</span>
-              </button>
-            </form>
-
-            {/* Search Suggestions */}
-            <AnimatePresence>
-              {showResults && searchQuery.trim() && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 max-h-60 overflow-y-auto"
-                >
-                  {categories.filter((c) => (c.name || "").toLowerCase().includes(searchQuery.toLowerCase())).length > 0 ? (
-                    categories.filter((c) => (c.name || "").toLowerCase().includes(searchQuery.toLowerCase())).map((cat) => (
-                      <button
-                        key={cat._id || cat.slug || cat.name}
-                        onClick={() => {
-                          router.push(`/category/${cat.slug || cat.name?.toLowerCase().replace(/\s+/g, '-')}`);
-                          setShowResults(false);
-                          setSearchQuery("");
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-left"
-                      >
-                        <span className="text-xl">{cat.icon || "🏠"}</span>
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{cat.name}</span>
-                      </button>
-                    ))
-                  ) : (
-                    <div className="px-4 py-3 text-sm text-slate-400">No matching categories</div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Category Pills */}
-          {categories.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex gap-2 mt-5 sm:mt-8 overflow-x-auto no-scrollbar pb-1 sm:pb-2"
-            >
-              {categories.map((cat) => (
-                <button
-                  key={cat._id || cat.slug || cat.name}
-                  onClick={() => router.push(`/category/${cat.slug || cat.name?.toLowerCase().replace(/\s+/g, '-')}`)}
-                  className="category-pill flex items-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full backdrop-blur-md transition-all active:scale-95 shrink-0"
-                >
-                  <span className="text-base sm:text-lg">{cat.icon || "🏠"}</span>
-                  <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">{cat.name}</span>
-                </button>
-              ))}
-            </motion.div>
-          )}
-
-          {/* Feature Badges */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="hidden md:flex items-center gap-8 mt-12"
-          >
-            {FEATURES.map((f, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
-                  <f.icon size={18} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-white text-sm font-semibold">{f.label}</p>
-                  <p className="text-white/60 text-xs">{f.desc}</p>
-                </div>
-              </div>
-            ))}
-          </motion.div>
+            <label className="mb-3 flex items-center gap-3 rounded-xl bg-slate-50 px-3 dark:bg-slate-800"><MapPin size={19} className="shrink-0 text-indigo-500" /><span className="sr-only">City or neighbourhood</span><input value={city} onChange={event => setCity(event.target.value)} placeholder="Enter a city or neighbourhood" className="min-h-12 w-full min-w-0 bg-transparent text-sm outline-none dark:text-white" maxLength={100} /></label>
+            <div className="grid grid-cols-2 gap-3">
+              <label><span className="sr-only">Property type</span><select value={type} onChange={event => setType(event.target.value)} className="input-field h-12 !px-3"><option value="">Property type</option><option value="apartment">Apartment</option><option value="villa">Villa</option><option value="room">Room</option><option value="pg_hostel">PG / Hostel</option><option value="office">Office</option><option value="shop">Shop</option></select></label>
+              <label><span className="sr-only">Maximum budget</span><select value={budget} onChange={event => setBudget(event.target.value)} className="input-field h-12 !px-3"><option value="">Any budget</option>{(purpose === 'rent' ? [10000, 20000, 35000, 50000, 100000] : [2500000, 5000000, 10000000, 20000000]).map(value => <option key={value} value={value}>Up to ₹{value.toLocaleString('en-IN')}</option>)}</select></label>
+            </div>
+            <button type="submit" className="btn-primary mt-3 flex min-h-12 w-full items-center justify-center gap-2"><Search size={18} /> Find my place <ArrowUpRight size={18} className="ml-auto" /></button>
+          </form>
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500 dark:text-slate-400"><span className="font-semibold">Popular cities</span>{CITIES.map(value => <button key={value} onClick={() => router.push(`/search?city=${encodeURIComponent(value)}&purpose=${purpose}`)} className="underline-offset-4 hover:text-indigo-600 hover:underline">{value}</button>)}</div>
+        </div>
+        <div className="relative mx-auto hidden w-full max-w-xl lg:block">
+          <div className="absolute -right-8 -top-8 h-36 w-36 rounded-full border border-indigo-200 dark:border-indigo-900" />
+          <div className="relative aspect-[0.91] overflow-hidden rounded-[2rem] bg-slate-200">
+            <Image src="/images/home-interior.jpg" alt="Sunlit living room with warm natural materials" fill priority sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+            <div className="absolute bottom-8 left-8 right-8 text-white"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/75">Room for what matters</p><p className="max-w-sm text-3xl font-medium leading-tight tracking-tight">A space that feels<br />like you.</p></div>
+          </div>
+          <div className="absolute -left-7 top-8 flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-950/5 dark:border-slate-700 dark:bg-slate-900"><span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950"><Check size={22} /></span><div><p className="text-sm font-semibold dark:text-white">Your search, simplified.</p><p className="mt-0.5 text-xs text-slate-500">Details that help you decide</p></div></div>
+          <div className="absolute -bottom-5 right-5 flex items-center gap-3 rounded-2xl bg-white px-5 py-4 shadow-xl shadow-slate-950/5 dark:bg-slate-900"><Home size={24} className="text-indigo-600" /><div><p className="text-sm font-semibold dark:text-white">Less searching. More living.</p><p className="text-xs text-slate-500">Find your next home with RentzyPro</p></div></div>
         </div>
       </div>
     </section>

@@ -121,7 +121,7 @@ export const propertySlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getProperties.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading = true; state.isError = false; state.message = "";
       })
       .addCase(getProperties.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -135,7 +135,7 @@ export const propertySlice = createSlice({
         state.message = action.payload;
       })
       .addCase(getProperty.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading = true; state.isError = false; state.message = "";
       })
       .addCase(getProperty.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -148,12 +148,12 @@ export const propertySlice = createSlice({
         state.message = action.payload;
       })
       .addCase(createProperty.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading = true; state.isError = false; state.message = "";
       })
       .addCase(createProperty.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.properties = [action.payload, ...state.properties];
+        state.properties = [action.payload.property || action.payload, ...state.properties];
       })
       .addCase(createProperty.rejected, (state, action) => {
         state.isLoading = false;
@@ -161,7 +161,7 @@ export const propertySlice = createSlice({
         state.message = action.payload;
       })
       .addCase(getSellerProperties.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading = true; state.isError = false; state.message = "";
       })
       .addCase(getSellerProperties.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -174,7 +174,7 @@ export const propertySlice = createSlice({
         state.message = action.payload;
       })
       .addCase(getSellerStats.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading = true; state.isError = false; state.message = "";
       })
       .addCase(getSellerStats.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -187,7 +187,7 @@ export const propertySlice = createSlice({
         state.message = action.payload;
       })
       .addCase(getAllPropertiesAdmin.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading = true; state.isError = false; state.message = "";
       })
       .addCase(getAllPropertiesAdmin.fulfilled, (state, action) => {
         state.isLoading = false;

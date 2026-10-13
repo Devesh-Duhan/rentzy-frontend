@@ -55,7 +55,7 @@ export default function LeadsPage() {
     if (!noteText.trim()) return;
     const loading = toast.loading("Adding note...");
     try {
-      await axios.post(`/admin/leads/${id}/notes`, { content: noteText });
+      await axios.post(`/admin/leads/${id}/notes`, { text: noteText });
       toast.success("Note added.", { id: loading });
       setNoteText("");
       fetchLeads();
@@ -302,9 +302,9 @@ export default function LeadsPage() {
                                     <div className="space-y-3 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
                                       {lead.notes.map((note, i) => (
                                         <div key={i} className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-white/5">
-                                          <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{note.content}</p>
+                                          <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{note.text}</p>
                                           <p className="text-[10px] font-bold text-slate-400 mt-2">
-                                            {new Date(note.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                                            {new Date(note.addedAt || note.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                                           </p>
                                         </div>
                                       ))}

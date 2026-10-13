@@ -287,3 +287,17 @@
   opacity: 1 !important;
   background: #6366f1 !important;
 }
+/* Shared responsive foundations for public pages and management panels. */
+@layer base {
+  :focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
+  input, select, textarea { min-width: 0; }
+  img, video { max-width: 100%; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto !important; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+}
+@layer components {
+  .eyebrow { @apply mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-400; }
+  .section-heading { @apply text-2xl font-semibold leading-tight tracking-[-0.035em] text-slate-950 sm:text-3xl dark:text-white; }
+}

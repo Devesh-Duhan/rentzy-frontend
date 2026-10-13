@@ -17,8 +17,8 @@ export default function SubscriptionPlansPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({
-    name: "", price: "", discountPrice: "", duration: "monthly",
-    maxProperties: 1, features: [""], popular: false, active: true
+    name: "", price: "", discountPrice: "", duration: "30",
+    maxProperties: 1, features: [""], popular: false, isActive: true
   });
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -64,7 +64,8 @@ export default function SubscriptionPlansPage() {
       price: Number(form.price),
       discountPrice: form.discountPrice ? Number(form.discountPrice) : undefined,
       maxProperties: Number(form.maxProperties),
-      features: form.features.filter((f) => f.trim()),
+      features: form.features.filter(f => f.trim()).map(name => ({ name, included: true })),
+      duration: Number(form.duration),
     };
     const loading = toast.loading(isEditMode ? "Updating plan..." : "Creating plan...");
     try {
@@ -89,11 +90,11 @@ export default function SubscriptionPlansPage() {
       name: plan.name,
       price: plan.price?.toString() || "",
       discountPrice: plan.discountPrice?.toString() || "",
-      duration: plan.duration || "monthly",
+      duration: String(plan.duration || 30),
       maxProperties: plan.maxProperties || 1,
-      features: plan.features?.length ? plan.features : [""],
+      features: plan.features?.length ? plan.features.map(feature => typeof feature === "string" ? feature : feature.name || "") : [""],
       popular: plan.popular ?? false,
-      active: plan.active ?? true,
+      isActive: plan.isActive ?? true,
     });
     setIsModalOpen(true);
   };
@@ -118,8 +119,8 @@ export default function SubscriptionPlansPage() {
 
   const toggleActive = async (plan) => {
     try {
-      await axios.put(`/admin/subscription-plans/${plan._id}`, { ...plan, active: !plan.active });
-      toast.success(plan.active ? "Deactivated" : "Activated");
+      await axios.put(`/admin/subscription-plans/${plan._id}`, { ...plan, isActive: !plan.isActive });
+      toast.success(plan.isActive ? "Deactivated" : "Activated");
       fetchPlans();
     } catch {
       toast.error("Toggle failed.");
@@ -138,7 +139,7 @@ export default function SubscriptionPlansPage() {
         <button
           onClick={() => {
             setIsEditMode(false);
-            setForm({ name: "", price: "", discountPrice: "", duration: "monthly", maxProperties: 1, features: [""], popular: false, active: true });
+            setForm({ name: "", price: "", discountPrice: "", duration: "30", maxProperties: 1, features: [""], popular: false, isActive: true });
             setIsModalOpen(true);
           }}
           className="w-full md:w-auto px-6 md:px-8 py-3.5 md:py-4 bg-indigo-600 text-white rounded-[20px] md:rounded-[24px] font-black text-xs md:text-sm uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 shadow-2xl shadow-indigo-100 dark:shadow-none hover:bg-slate-900 transition-all"
@@ -189,7 +190,7 @@ export default function SubscriptionPlansPage() {
                 <div className="flex items-start justify-between mb-6">
                   <div>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white">{plan.name}</h3>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1 capitalize">{plan.duration}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1 capitalize">{plan.duration} days</p>
                   </div>
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${plan.popular ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-white/5 text-slate-400"}`}>
                     <Crown size={22} />
@@ -211,7 +212,7 @@ export default function SubscriptionPlansPage() {
                       <div className="w-5 h-5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 mt-0.5 shrink-0">
                         <Check size={12} />
                       </div>
-                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{feature}</span>
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{typeof feature === "string" ? feature : feature.name}</span>
                     </div>
                   ))}
                 </div>
@@ -224,13 +225,13 @@ export default function SubscriptionPlansPage() {
                     <button
                       onClick={() => toggleActive(plan)}
                       className={`p-2.5 rounded-xl transition-all ${
-                        plan.active
+                        plan.isActive
                           ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 hover:bg-emerald-100"
                           : "bg-slate-50 dark:bg-white/5 text-slate-400 hover:bg-slate-100"
                       }`}
-                      title={plan.active ? "Deactivate" : "Activate"}
+                      title={plan.isActive ? "Deactivate" : "Activate"}
                     >
-                      {plan.active ? <Eye size={16} /> : <EyeOff size={16} />}
+                      {plan.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
                     </button>
                     <button
                       onClick={() => handleEdit(plan)}
@@ -288,10 +289,10 @@ export default function SubscriptionPlansPage() {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Duration</label>
                     <select value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all appearance-none cursor-pointer">
-                      <option value="monthly">Monthly</option>
-                      <option value="yearly">Yearly</option>
-                      <option value="quarterly">Quarterly</option>
-                      <option value="lifetime">Lifetime</option>
+                      <option value="30">Monthly</option>
+                      <option value="365">Yearly</option>
+                      <option value="90">Quarterly</option>
+                      <option value="3650">10 years</option>
                     </select>
                   </div>
                 </div>
@@ -358,10 +359,10 @@ export default function SubscriptionPlansPage() {
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Status</span>
                     <button
                       type="button"
-                      onClick={() => setForm({ ...form, active: !form.active })}
-                      className={`relative w-14 h-7 rounded-full transition-all ${form.active ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"}`}
+                      onClick={() => setForm({ ...form, isActive: !form.isActive })}
+                      className={`relative w-14 h-7 rounded-full transition-all ${form.isActive ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"}`}
                     >
-                      <div className={`absolute w-5 h-5 bg-white rounded-full top-1 shadow transition-all ${form.active ? "left-8" : "left-1"}`} />
+                      <div className={`absolute w-5 h-5 bg-white rounded-full top-1 shadow transition-all ${form.isActive ? "left-8" : "left-1"}`} />
                     </button>
                   </div>
                 </div>

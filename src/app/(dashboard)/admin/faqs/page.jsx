@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
 
-const CATEGORIES = ["General", "Pricing", "Booking", "Payments", "Technical", "Other"];
+const CATEGORIES = ["general", "buying", "selling", "renting", "payment", "account", "property", "legal"];
 
 export default function FaqsPage() {
   const [faqs, setFaqs] = useState([]);
@@ -20,7 +20,7 @@ export default function FaqsPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({
-    question: "", answer: "", category: "General", displayOrder: 0, active: true
+    question: "", answer: "", category: "general", displayOrder: 0, isActive: true
   });
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -65,8 +65,8 @@ export default function FaqsPage() {
     setEditingId(faq._id);
     setIsEditMode(true);
     setForm({
-      question: faq.question, answer: faq.answer, category: faq.category || "General",
-      displayOrder: faq.displayOrder ?? 0, active: faq.active ?? true
+      question: faq.question, answer: faq.answer, category: faq.category || "general",
+      displayOrder: faq.displayOrder ?? 0, isActive: faq.isActive ?? true
     });
     setIsModalOpen(true);
   };
@@ -91,8 +91,8 @@ export default function FaqsPage() {
 
   const toggleActive = async (faq) => {
     try {
-      await axios.put(`/admin/faqs/${faq._id}`, { ...faq, active: !faq.active });
-      toast.success(faq.active ? "Deactivated" : "Activated");
+      await axios.put(`/admin/faqs/${faq._id}`, { ...faq, isActive: !faq.isActive });
+      toast.success(faq.isActive ? "Deactivated" : "Activated");
       fetchFaqs();
     } catch {
       toast.error("Toggle failed.");
@@ -106,7 +106,7 @@ export default function FaqsPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const activeCount = faqs.filter(f => f.active).length;
+  const activeCount = faqs.filter(f => f.isActive).length;
 
   return (
     <div className="space-y-10 animate-fade-in pb-20">
@@ -120,7 +120,7 @@ export default function FaqsPage() {
         <button
           onClick={() => {
             setIsEditMode(false);
-            setForm({ question: "", answer: "", category: "General", displayOrder: 0, active: true });
+            setForm({ question: "", answer: "", category: "general", displayOrder: 0, isActive: true });
             setIsModalOpen(true);
           }}
           className="w-full md:w-auto px-6 md:px-8 py-3.5 md:py-4 bg-indigo-600 text-white rounded-[20px] md:rounded-[24px] font-black text-xs md:text-sm uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 shadow-2xl shadow-indigo-100 dark:shadow-none hover:bg-slate-900 transition-all"
@@ -229,11 +229,11 @@ export default function FaqsPage() {
                       </td>
                       <td className="px-8 py-6">
                         <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${
-                          faq.active
+                          faq.isActive
                             ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border-emerald-100 dark:border-emerald-500/20"
                             : "bg-slate-50 dark:bg-white/5 text-slate-400 border-slate-100 dark:border-white/10"
                         }`}>
-                          {faq.active ? "Active" : "Inactive"}
+                          {faq.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
                       <td className="px-10 py-6 text-right">
@@ -241,12 +241,12 @@ export default function FaqsPage() {
                           <button
                             onClick={() => toggleActive(faq)}
                             className={`w-11 h-11 flex items-center justify-center rounded-xl shadow-sm border transition-all active:scale-90 ${
-                              faq.active
+                              faq.isActive
                                 ? "bg-white dark:bg-slate-800 text-slate-400 hover:bg-amber-500 hover:text-white border-slate-100 dark:border-white/5"
                                 : "bg-white dark:bg-slate-800 text-slate-400 hover:bg-emerald-500 hover:text-white border-slate-100 dark:border-white/5"
                             }`}
                           >
-                            {faq.active ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {faq.isActive ? <EyeOff size={18} /> : <Eye size={18} />}
                           </button>
                           <button
                             onClick={() => handleEdit(faq)}
@@ -338,10 +338,10 @@ export default function FaqsPage() {
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Status</span>
                   <button
                     type="button"
-                    onClick={() => setForm({ ...form, active: !form.active })}
-                    className={`relative w-14 h-7 rounded-full transition-all ${form.active ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"}`}
+                    onClick={() => setForm({ ...form, isActive: !form.isActive })}
+                    className={`relative w-14 h-7 rounded-full transition-all ${form.isActive ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"}`}
                   >
-                    <div className={`absolute w-5 h-5 bg-white rounded-full top-1 shadow transition-all ${form.active ? "left-8" : "left-1"}`} />
+                    <div className={`absolute w-5 h-5 bg-white rounded-full top-1 shadow transition-all ${form.isActive ? "left-8" : "left-1"}`} />
                   </button>
                 </div>
               </div>

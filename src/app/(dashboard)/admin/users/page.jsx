@@ -64,8 +64,9 @@ export default function UsersSection() {
   };
 
   const handleInviteUser = async (inviteData) => {
-    await axiosInstance.post('/admin/users/invite', inviteData);
-    toast.success(`Invitation sent to ${inviteData.email}`);
+    const { data } = await axiosInstance.post('/admin/users/invite', inviteData);
+    if (data.invitationSent) toast.success(`Invitation sent to ${inviteData.email}`);
+    else toast.error('Account created. Email delivery failed; the user can use Forgot Password.');
     fetchUsers();
   };
 
@@ -82,7 +83,7 @@ export default function UsersSection() {
         await axiosInstance.put(`/admin/users/${editingUserId}`, userForm);
         toast.success("Identity updated successfully.", { id: loadingToast });
       } else {
-        await axiosInstance.post('/admin/users/invite', userForm);
+        const { data } = await axiosInstance.post('/admin/users/invite', userForm);
         toast.success("Invitation dispatched successfully.", { id: loadingToast });
       }
       fetchUsers();

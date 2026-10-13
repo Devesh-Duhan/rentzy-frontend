@@ -20,7 +20,7 @@ export default function TestimonialsPage() {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({
     name: "", photo: "", rating: 5, content: "",
-    designation: "", company: "", active: true, featured: false, displayOrder: 0
+    designation: "", company: "", isActive: true, isFeatured: false, displayOrder: 0
   });
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -67,7 +67,7 @@ export default function TestimonialsPage() {
     setForm({
       name: t.name, photo: t.photo || "", rating: t.rating, content: t.content,
       designation: t.designation || "", company: t.company || "",
-      active: t.active ?? true, featured: t.featured ?? false, displayOrder: t.displayOrder ?? 0
+      isActive: t.isActive ?? true, isFeatured: t.isFeatured ?? false, displayOrder: t.displayOrder ?? 0
     });
     setIsModalOpen(true);
   };
@@ -92,8 +92,8 @@ export default function TestimonialsPage() {
 
   const toggleActive = async (t) => {
     try {
-      await axios.put(`/admin/testimonials/${t._id}`, { ...t, active: !t.active });
-      toast.success(t.active ? "Deactivated" : "Activated");
+      await axios.put(`/admin/testimonials/${t._id}`, { ...t, isActive: !t.isActive });
+      toast.success(t.isActive ? "Deactivated" : "Activated");
       fetchTestimonials();
     } catch {
       toast.error("Toggle failed.");
@@ -107,8 +107,8 @@ export default function TestimonialsPage() {
 
   const stats = [
     { label: "Total", count: testimonials.length, icon: MessageSquare, color: "indigo" },
-    { label: "Active", count: testimonials.filter(t => t.active).length, icon: Eye, color: "emerald" },
-    { label: "Featured", count: testimonials.filter(t => t.featured).length, icon: Heart, color: "rose" },
+    { label: "Active", count: testimonials.filter(t => t.isActive).length, icon: Eye, color: "emerald" },
+    { label: "Featured", count: testimonials.filter(t => t.isFeatured).length, icon: Heart, color: "rose" },
   ];
 
   return (
@@ -121,7 +121,7 @@ export default function TestimonialsPage() {
         <button
           onClick={() => {
             setIsEditMode(false);
-            setForm({ name: "", photo: "", rating: 5, content: "", designation: "", company: "", active: true, featured: false, displayOrder: 0 });
+            setForm({ name: "", photo: "", rating: 5, content: "", designation: "", company: "", isActive: true, isFeatured: false, displayOrder: 0 });
             setIsModalOpen(true);
           }}
           className="w-full md:w-auto px-6 md:px-8 py-3.5 md:py-4 bg-indigo-600 text-white rounded-[20px] md:rounded-[24px] font-black text-xs md:text-sm uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 shadow-2xl shadow-indigo-100 dark:shadow-none hover:bg-slate-900 transition-all"
@@ -240,13 +240,13 @@ export default function TestimonialsPage() {
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-2">
-                          <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${t.active
+                          <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${t.isActive
                             ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border-emerald-100 dark:border-emerald-500/20"
                             : "bg-slate-50 dark:bg-white/5 text-slate-400 border-slate-100 dark:border-white/10"
                           }`}>
-                            {t.active ? "Active" : "Inactive"}
+                            {t.isActive ? "Active" : "Inactive"}
                           </span>
-                          {t.featured && (
+                          {t.isFeatured && (
                             <span className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-rose-50 dark:bg-rose-500/10 text-rose-600 border border-rose-100 dark:border-rose-500/20">
                               Featured
                             </span>
@@ -258,13 +258,13 @@ export default function TestimonialsPage() {
                           <button
                             onClick={() => toggleActive(t)}
                             className={`w-11 h-11 flex items-center justify-center rounded-xl shadow-sm border transition-all active:scale-90 ${
-                              t.active
+                              t.isActive
                                 ? "bg-white dark:bg-slate-800 text-slate-400 hover:bg-amber-500 hover:text-white border-slate-100 dark:border-white/5"
                                 : "bg-white dark:bg-slate-800 text-slate-400 hover:bg-emerald-500 hover:text-white border-slate-100 dark:border-white/5"
                             }`}
-                            title={t.active ? "Deactivate" : "Activate"}
+                            title={t.isActive ? "Deactivate" : "Activate"}
                           >
-                            {t.active ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {t.isActive ? <EyeOff size={18} /> : <Eye size={18} />}
                           </button>
                           <button
                             onClick={() => handleEdit(t)}
@@ -366,15 +366,15 @@ export default function TestimonialsPage() {
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Featured</label>
                     <button
                       type="button"
-                      onClick={() => setForm({ ...form, featured: !form.featured })}
+                      onClick={() => setForm({ ...form, isFeatured: !form.isFeatured })}
                       className={`flex items-center gap-3 p-4 rounded-2xl border transition-all font-black text-sm ${
-                        form.featured
+                        form.isFeatured
                           ? "bg-rose-50 dark:bg-rose-500/10 text-rose-600 border-rose-100 dark:border-rose-500/20"
                           : "bg-slate-50 dark:bg-white/5 text-slate-400 border-slate-100 dark:border-white/10"
                       }`}
                     >
-                      <Heart size={18} className={form.featured ? "fill-rose-500" : ""} />
-                      {form.featured ? "Featured" : "Set as Featured"}
+                      <Heart size={18} className={form.isFeatured ? "fill-rose-500" : ""} />
+                      {form.isFeatured ? "Featured" : "Set as Featured"}
                     </button>
                   </div>
                 </div>
@@ -383,10 +383,10 @@ export default function TestimonialsPage() {
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Status</span>
                   <button
                     type="button"
-                    onClick={() => setForm({ ...form, active: !form.active })}
-                    className={`relative w-14 h-7 rounded-full transition-all ${form.active ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"}`}
+                    onClick={() => setForm({ ...form, isActive: !form.isActive })}
+                    className={`relative w-14 h-7 rounded-full transition-all ${form.isActive ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"}`}
                   >
-                    <div className={`absolute w-5 h-5 bg-white rounded-full top-1 shadow transition-all ${form.active ? "left-8" : "left-1"}`} />
+                    <div className={`absolute w-5 h-5 bg-white rounded-full top-1 shadow transition-all ${form.isActive ? "left-8" : "left-1"}`} />
                   </button>
                 </div>
               </div>

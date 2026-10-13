@@ -11,6 +11,8 @@ export default function ReactQueryProvider({ children }) {
           queries: {
             staleTime: 60 * 1000, // 1 minute
             refetchOnWindowFocus: false,
+            retry: (attempt, error) => attempt < 1 && (!error.response || error.response.status >= 500),
+            gcTime: 5 * 60 * 1000,
           },
         },
       })

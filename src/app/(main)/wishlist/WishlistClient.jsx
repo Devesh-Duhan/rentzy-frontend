@@ -40,7 +40,7 @@ export default function WishlistClient() {
   }, [user, router]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["savedProperties"],
+    queryKey: ["savedProperties", user?._id],
     queryFn: async () => {
       const res = await axios.get("/saved-properties");
       return res.data;
@@ -176,7 +176,7 @@ export default function WishlistClient() {
                     : "Move some properties to this folder or browse for new ones."}
                 </p>
                 <button
-                  onClick={() => router.push("/properties/1")}
+                  onClick={() => router.push("/properties")}
                   className="btn-primary inline-flex items-center gap-2 shadow-lg shadow-indigo-200 dark:shadow-none"
                 >
                   <Home size={16} /> Browse Properties

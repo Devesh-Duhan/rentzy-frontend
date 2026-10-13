@@ -99,8 +99,8 @@ export default function ReportsSection() {
              <tbody className="divide-y divide-slate-50 dark:divide-white/5">
                 {payments.map((p) => (
                    <tr key={p._id} className="hover:bg-slate-50/80 dark:hover:bg-white/5 transition-all">
-                      <td className="px-8 py-5 font-bold text-slate-900 dark:text-white">{p.user?.name}</td>
-                      <td className="px-6 py-5 text-sm text-slate-500 font-medium">{p.property?.title}</td>
+                      <td className="px-8 py-5 font-bold text-slate-900 dark:text-white">{p.userId?.name}</td>
+                      <td className="px-6 py-5 text-sm text-slate-500 font-medium">{p.propertyId?.title}</td>
                       <td className="px-6 py-5 font-black text-slate-900 dark:text-white">₹{p.totalPrice?.toLocaleString()}</td>
                       <td className="px-6 py-5 text-xs text-slate-400 font-bold">{new Date(p.createdAt).toLocaleDateString()}</td>
                       <td className="px-8 py-5 text-right">

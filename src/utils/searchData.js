@@ -1,7 +1,7 @@
 export const SEARCH_DATA = [
   { title: "Home", type: "Page", url: "/" },
   { title: "Featured Properties", type: "Page", url: "/featured-properties/1" },
-  { title: "All Properties", type: "Page", url: "/properties/1" },
+  { title: "All Properties", type: "Page", url: "/properties" },
   { title: "Add Property", type: "Action", url: "/become-seller" },
   { title: "Seller Dashboard", type: "Dashboard", url: "/seller" },
   { title: "Admin Panel", type: "Dashboard", url: "/admin" },

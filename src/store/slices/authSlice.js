@@ -18,7 +18,7 @@ const clearToken = () => {
 };
 
 // Get user from localStorage safely in Next.js
-const getUserFromStorage = () => {
+export const getUserFromStorage = () => {
   if (typeof window !== 'undefined') {
     try {
       const user = localStorage.getItem('user');
@@ -29,7 +29,8 @@ const getUserFromStorage = () => {
 };
 
 const initialState = {
-  user: getUserFromStorage(),
+  user: null,
+  isHydrated: false,
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -279,6 +280,7 @@ export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    hydrateSession: (state, action) => { state.user = action.payload; state.isHydrated = true; },
     reset: (state) => {
       state.isLoading = false;
       state.isSuccess = false;
@@ -288,21 +290,21 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(register.pending, (state) => { state.isLoading = true; })
+      .addCase(register.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(register.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true; state.user = action.payload;
       })
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false; state.isError = true; state.message = action.payload; state.user = null;
       })
-      .addCase(login.pending, (state) => { state.isLoading = true; })
+      .addCase(login.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true; state.user = action.payload;
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false; state.isError = true; state.message = action.payload; state.user = null;
       })
-      .addCase(sendForgotPasswordOtp.pending, (state) => { state.isLoading = true; })
+      .addCase(sendForgotPasswordOtp.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(sendForgotPasswordOtp.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true;
         state.message = action.payload.message || 'OTP sent successfully';
@@ -310,7 +312,7 @@ export const authSlice = createSlice({
       .addCase(sendForgotPasswordOtp.rejected, (state, action) => {
         state.isLoading = false; state.isError = true; state.message = action.payload;
       })
-      .addCase(sendRegisterOtp.pending, (state) => { state.isLoading = true; })
+      .addCase(sendRegisterOtp.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(sendRegisterOtp.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true;
         state.message = action.payload.message || 'Verification code sent to your email';
@@ -318,7 +320,7 @@ export const authSlice = createSlice({
       .addCase(sendRegisterOtp.rejected, (state, action) => {
         state.isLoading = false; state.isError = true; state.message = action.payload;
       })
-      .addCase(resendRegisterOtp.pending, (state) => { state.isLoading = true; })
+      .addCase(resendRegisterOtp.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(resendRegisterOtp.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true;
         state.message = action.payload.message || 'A new verification code has been sent';
@@ -326,7 +328,7 @@ export const authSlice = createSlice({
       .addCase(resendRegisterOtp.rejected, (state, action) => {
         state.isLoading = false; state.isError = true; state.message = action.payload;
       })
-      .addCase(verifyRegisterOtp.pending, (state) => { state.isLoading = true; })
+      .addCase(verifyRegisterOtp.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(verifyRegisterOtp.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true; state.user = action.payload;
       })
@@ -335,28 +337,28 @@ export const authSlice = createSlice({
       })
       .addCase(logout.fulfilled, (state) => { state.user = null; })
       .addCase(verifyLoginOtp.fulfilled, (state, action) => { state.user = action.payload; })
-      .addCase(updateProfile.pending, (state) => { state.isLoading = true; })
+      .addCase(updateProfile.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true; state.user = action.payload;
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.isLoading = false; state.isError = true; state.message = action.payload;
       })
-      .addCase(becomeSeller.pending, (state) => { state.isLoading = true; })
+      .addCase(becomeSeller.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(becomeSeller.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true; state.user = action.payload;
       })
       .addCase(becomeSeller.rejected, (state, action) => {
         state.isLoading = false; state.isError = true; state.message = action.payload;
       })
-      .addCase(googleLogin.pending, (state) => { state.isLoading = true; })
+      .addCase(googleLogin.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(googleLogin.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true; state.user = action.payload;
       })
       .addCase(googleLogin.rejected, (state, action) => {
         state.isLoading = false; state.isError = true; state.message = action.payload;
       })
-      .addCase(resetPassword.pending, (state) => { state.isLoading = true; })
+      .addCase(resetPassword.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(resetPassword.fulfilled, (state, action) => {
         state.isLoading = false; state.isSuccess = true;
         state.message = action.payload.message || 'Password reset successful';
@@ -367,5 +369,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { reset } = authSlice.actions;
+export const { reset, hydrateSession } = authSlice.actions;
 export default authSlice.reducer;

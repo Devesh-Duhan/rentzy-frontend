@@ -62,7 +62,10 @@ export default function ChatPage() {
     const fetchChats = async () => {
       try {
         const { data } = await axiosInstance.get('/chats');
-        setChats(Array.isArray(data) ? data : []);
+        const list = Array.isArray(data) ? data : [];
+        setChats(list);
+        const requestedChat = new URLSearchParams(window.location.search).get('chat');
+        if (requestedChat) setSelectedChat(list.find(chat => chat._id === requestedChat) || null);
       } catch (error) {
         console.error("Error fetching chats:", error);
       }

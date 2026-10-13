@@ -43,7 +43,7 @@ export default function SellerLayout({ children }) {
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (!user || user.role !== 'seller') {
+    if (!user || !['seller', 'admin'].includes(user.role)) {
       router.push("/login");
     }
   }, [user, router]);

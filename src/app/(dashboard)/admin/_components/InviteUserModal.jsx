@@ -196,7 +196,7 @@ export default function InviteUserModal({ isOpen, onClose, onInviteSuccess }) {
                     Invite New User
                   </h3>
                   <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-                    Send an invitation with provisioned platform credentials.
+                    Create an account and email password setup instructions.
                   </p>
                 </div>
               </div>
@@ -225,10 +225,10 @@ export default function InviteUserModal({ isOpen, onClose, onInviteSuccess }) {
                     <CheckCircle2 size={32} />
                   </div>
                   <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                    Invitation Dispatched!
+                    Account Created!
                   </h4>
                   <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs">
-                    Account created for <span className="font-semibold text-slate-800 dark:text-slate-200">{formData.email}</span> with default access key.
+                    Account created for <span className="font-semibold text-slate-800 dark:text-slate-200">{formData.email}</span>. They can set a password through Forgot Password.
                   </p>
                 </motion.div>
               )}

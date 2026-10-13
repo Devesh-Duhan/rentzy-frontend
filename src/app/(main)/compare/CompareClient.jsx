@@ -381,7 +381,7 @@ export default function CompareClient() {
               Select properties to see them side by side and find the best deal.
             </p>
             <Link
-              href="/properties/1"
+              href="/properties"
               className="btn-primary shadow-lg shadow-indigo-200 dark:shadow-none"
             >
               Browse Properties
