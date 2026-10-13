@@ -7,7 +7,11 @@ import { useEffect, useRef } from "react";
 // Place this in root layout to run on every page
 
 const PING_INTERVAL_MS = 14 * 60 * 1000; // 14 minutes (Render sleeps after 15)
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === "production"
+    ? "https://rentzy-backend-lh5y.onrender.com/api"
+    : "http://localhost:5000/api");
 
 export default function KeepAlive() {
   const intervalRef = useRef(null);

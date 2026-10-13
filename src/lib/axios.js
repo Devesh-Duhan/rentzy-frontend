@@ -2,7 +2,11 @@ import axios from 'axios';
 
 import toast from 'react-hot-toast';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://rentzy-backend-lh5y.onrender.com/api'
+    : 'http://localhost:5000/api');
 
 const PUBLIC_ROUTES = [
   '/login',
@@ -14,8 +18,8 @@ const PUBLIC_ROUTES = [
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
-  // Never let a request hang forever - a stuck promise freezes the whole UI
-  timeout: 20000,
+  // 60s timeout accommodates Render free-tier cold starts without aborting prematurely
+  timeout: 60000,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -31,7 +31,7 @@ export default function ChatPage() {
 
     const ENDPOINT = process.env.NEXT_PUBLIC_API_URL
       ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
-      : 'http://localhost:5000';
+      : (process.env.NODE_ENV === 'production' ? 'https://rentzy-backend-lh5y.onrender.com' : 'http://localhost:5000');
 
     // The backend now requires a valid JWT on the Socket.IO handshake.
     const token = localStorage.getItem("token");

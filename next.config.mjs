@@ -28,6 +28,11 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 const nextConfig = {
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://rentzy-backend-lh5y.onrender.com/api',
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://rentzy-backend-lh5y.onrender.com',
+    NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL || 'https://rentzypro.com',
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
