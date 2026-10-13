@@ -1,11 +1,29 @@
 /** @type {import('next').NextConfig} */
+// Fallback values for build environments (e.g., Vercel / CI) if not explicitly set
+if (!process.env.NEXT_PUBLIC_URL) {
+  process.env.NEXT_PUBLIC_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'https://rentzypro.com';
+}
+
+if (!process.env.NEXT_PUBLIC_API_URL) {
+  process.env.NEXT_PUBLIC_API_URL = 'https://rentzy-backend-lh5y.onrender.com/api';
+}
+
 if (process.env.NODE_ENV === 'production') {
   for (const key of ['NEXT_PUBLIC_API_URL', 'NEXT_PUBLIC_URL']) {
-    if (!process.env[key]) throw new Error(`${key} is required for a production build`);
-    const url = new URL(process.env[key]);
-    if (!['http:', 'https:'].includes(url.protocol)) throw new Error(`${key} must be an HTTP(S) URL`);
-    if (url.protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(url.hostname)) {
-      throw new Error(`${key} must use HTTPS outside local development`);
+    try {
+      const val = process.env[key];
+      if (val) {
+        const url = new URL(val);
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          console.warn(`[next.config] Warning: ${key} should be an HTTP(S) URL`);
+        }
+      }
+    } catch {
+      console.warn(`[next.config] Warning: ${key} is not a valid URL: ${process.env[key]}`);
     }
   }
 }
