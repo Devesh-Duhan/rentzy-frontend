@@ -56,6 +56,7 @@ export default function WishlistClient() {
       await axios.delete(`/saved-properties/${propertyId}`);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved-property-status', user?._id] });
       queryClient.invalidateQueries({ queryKey: ["savedProperties"] });
       toast.success("Property removed from saved");
     },

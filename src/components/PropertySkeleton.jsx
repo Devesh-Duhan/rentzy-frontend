@@ -1,24 +1,14 @@
-"use client";
-
-import { motion } from "framer-motion";
-
-const PropertySkeleton = () => {
+export default function PropertySkeleton() {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden group">
-      <div className="relative h-28 sm:h-48 bg-slate-200 dark:bg-slate-800 animate-pulse">
-        {/* Shiny sweep effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
-      </div>
-      <div className="p-2.5 sm:p-4 space-y-2 sm:space-y-3">
-        <div className="h-4 sm:h-5 bg-slate-200 dark:bg-slate-800 rounded-md sm:rounded-lg w-3/4 animate-pulse" />
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
-          <div className="h-3 sm:h-4 bg-slate-100 dark:bg-slate-800 rounded sm:rounded-lg w-1/2 animate-pulse" />
-        </div>
-        <div className="h-4 sm:h-6 bg-slate-200 dark:bg-slate-800 rounded-md sm:rounded-xl w-1/3 animate-pulse" />
+    <div aria-hidden="true" className="h-full w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <div className="aspect-[1.6] animate-pulse bg-slate-200 dark:bg-slate-800" />
+      <div className="p-4 sm:p-5">
+        <div className="mb-2 h-4 w-1/3 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+        <div className="flex h-12 flex-col justify-center gap-2"><div className="h-4 w-5/6 animate-pulse rounded bg-slate-200 dark:bg-slate-800" /><div className="h-4 w-2/3 animate-pulse rounded bg-slate-100 dark:bg-slate-800" /></div>
+        <div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+        <div className="my-4 flex h-10 items-center gap-3"><div className="h-4 w-1/4 animate-pulse rounded bg-slate-100 dark:bg-slate-800" /><div className="h-4 w-1/4 animate-pulse rounded bg-slate-100 dark:bg-slate-800" /><div className="h-4 w-1/4 animate-pulse rounded bg-slate-100 dark:bg-slate-800" /></div>
+        <div className="flex min-h-16 items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800"><div className="h-6 w-1/2 animate-pulse rounded bg-slate-200 dark:bg-slate-800" /><div className="h-11 w-11 animate-pulse rounded-full bg-indigo-50 dark:bg-indigo-950" /></div>
       </div>
     </div>
   );
-};
-
-export default PropertySkeleton;
+}

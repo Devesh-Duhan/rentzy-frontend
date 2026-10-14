@@ -1,0 +1,31 @@
+.rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(86%, 21rem);
+  gap: 1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: #a5b4fc transparent;
+  padding: 0.25rem 0.25rem 1rem;
+}
+
+.item {
+  min-width: 0;
+  height: 100%;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 640px) {
+  .rail { grid-auto-columns: calc((100% - 1rem) / 2); }
+}
+
+@media (min-width: 1024px) {
+  .rail { grid-auto-columns: calc((100% - 2rem) / 3); }
+}
+
+@media (min-width: 1280px) {
+  .rail { grid-auto-columns: calc((100% - 3rem) / 4); }
+}

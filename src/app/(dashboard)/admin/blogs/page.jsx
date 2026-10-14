@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -28,6 +29,7 @@ const STATUS_TABS = ["All", "published", "draft", "archived", "featured"];
 const ITEMS_PER_PAGE = 8;
 
 export default function BlogsPage() {
+  const queryClient = useQueryClient();
   const [blogs, setBlogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("All");
@@ -76,6 +78,7 @@ export default function BlogsPage() {
     const loadingToast = toast.loading("Removing blog article...");
     try {
       await axios.delete(`/admin/blogs/${deleteConfig.id}`);
+      queryClient.invalidateQueries({ queryKey: ['public-blogs'] });
       toast.success("Blog article deleted successfully!", { id: loadingToast });
       fetchBlogs();
     } catch {
@@ -86,14 +89,13 @@ export default function BlogsPage() {
   };
 
   const handleBlogSubmit = async (payload) => {
-    if (editingBlog) {
-      await axios.put(`/admin/blogs/${editingBlog._id}`, payload);
-      toast.success("Article updated successfully!");
-    } else {
-      await axios.post("/admin/blogs", payload);
-      toast.success("Article published successfully!");
-    }
-    fetchBlogs();
+    const { data } = editingBlog
+      ? await axios.put(`/admin/blogs/${editingBlog._id}`, payload)
+      : await axios.post('/admin/blogs', payload);
+    const status = (data.data || data).status || payload.status;
+    toast.success(status === 'published' ? 'Article is now live on the website!' : status === 'draft' ? 'Draft saved. Publish it when ready.' : 'Article archived.');
+    queryClient.invalidateQueries({ queryKey: ['public-blogs'] });
+    await fetchBlogs();
   };
 
   // Extract unique categories across all blogs

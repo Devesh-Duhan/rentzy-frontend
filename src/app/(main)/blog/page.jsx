@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,26 +22,16 @@ import Footer from "@/components/Footer";
 import axiosInstance from "@/lib/axios";
 
 export default function BlogPage() {
-  const [blogs, setBlogs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setIsLoading(true);
-        const { data } = await axiosInstance.get("/blogs");
-        const list = Array.isArray(data) ? data : data.data || data.blogs || [];
-        setBlogs(list);
-      } catch (err) {
-        console.error("Failed to load blogs on frontend:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchBlogs();
-  }, []);
+  const { data: blogs = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ['public-blogs'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get('/blogs');
+      return Array.isArray(data) ? data : data.data || data.blogs || [];
+    },
+  });
 
   // Extract unique categories across blogs
   const categories = useMemo(() => {
@@ -162,6 +153,11 @@ export default function BlogPage() {
               <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
                 Loading Latest Insights...
               </p>
+            </div>
+          ) : isError ? (
+            <div role="alert" className="py-24 text-center">
+              <p className="text-sm text-slate-500">Articles could not be loaded.</p>
+              <button type="button" onClick={() => refetch()} className="btn-primary mt-4">Try again</button>
             </div>
           ) : blogs.length === 0 ? (
             /* Empty State */

@@ -63,7 +63,7 @@ export default function BlogModal({
     coverImage: "",
     categories: [],
     tags: [],
-    status: "draft",
+    status: "published",
     featured: false,
     publishDate: "",
     metaTitle: "",
@@ -105,7 +105,7 @@ export default function BlogModal({
           coverImage: SAMPLE_COVERS[0],
           categories: ["Market Insights"],
           tags: ["RealEstate", "Property"],
-          status: "draft",
+          status: "published",
           featured: false,
           publishDate: new Date().toISOString().split("T")[0],
           metaTitle: "",
@@ -361,7 +361,7 @@ export default function BlogModal({
                     {isEditMode ? "Article Updated Successfully!" : "Article Created Successfully!"}
                   </h4>
                   <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs">
-                    "{formData.title}" has been saved and its publication settings updated.
+                    &quot;{formData.title}&quot; has been saved and its publication settings updated.
                   </p>
                 </motion.div>
               )}

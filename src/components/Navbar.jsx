@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "./ThemeProvider";
 import { logout } from "@/store/slices/authSlice";
@@ -27,7 +28,6 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
   const [showNotifPanel, setShowNotifPanel] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const notifRef = useRef(null);
@@ -39,6 +39,19 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const { user } = useSelector((s) => s.auth);
   const { theme, toggleTheme } = useTheme();
+  const isDashboard = pathname?.startsWith("/admin") || pathname?.startsWith("/seller") || pathname?.startsWith("/owners");
+  const isAuthPage = pathname?.startsWith("/login") || pathname?.startsWith("/register") || pathname?.startsWith("/verify-otp") || pathname?.startsWith("/forgot-password") || pathname?.startsWith("/reset-password");
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['navbar-notifications', user?._id],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get('/notifications');
+      return Array.isArray(data.notifications) ? data.notifications : Array.isArray(data) ? data : [];
+    },
+    enabled: Boolean(user?._id) && !isDashboard && !isAuthPage,
+    staleTime: 30000,
+    refetchInterval: 30000,
+    refetchIntervalInBackground: false,
+  });
 
   useEffect(() => setMounted(true), []);
 
@@ -68,22 +81,6 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
-
-  useEffect(() => {
-    if (!user) return;
-    const fetchNotifs = async () => {
-      try {
-        const res = await axiosInstance.get('/notifications');
-        setNotifications(res.data.notifications || res.data || []);
-      } catch (e) { /* silent */ }
-    };
-    fetchNotifs();
-    const interval = setInterval(fetchNotifs, 30000);
-    return () => clearInterval(interval);
-  }, [user]);
-
-  const isDashboard = pathname?.startsWith("/admin") || pathname?.startsWith("/seller") || pathname?.startsWith("/owners");
-  const isAuthPage = pathname?.startsWith("/login") || pathname?.startsWith("/register") || pathname?.startsWith("/verify-otp") || pathname?.startsWith("/forgot-password") || pathname?.startsWith("/reset-password");
 
   if (isDashboard || isAuthPage) return null;
 

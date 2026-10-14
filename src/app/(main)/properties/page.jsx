@@ -2,18 +2,21 @@
 
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import PropertySkeleton from "@/components/PropertySkeleton";
-import { Search, SlidersHorizontal, X, ChevronDown, ChevronUp, MapPin, ArrowUpDown, Filter, RotateCcw, MapIcon, Bed, Bath, IndianRupee, Home, Building2, Sparkles, GripVertical } from "lucide-react";
+import { cardProperty } from "@/lib/property";
+import { Search, SlidersHorizontal, X, ChevronDown, Filter, RotateCcw, MapIcon, Sparkles } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const PropertyMap = dynamic(() => import("@/components/PropertyMap"), { ssr: false });
 
 const PROPERTY_TYPES = [
+  { value: "commercial", label: "Commercial" },
+  { value: "residential", label: "Residential" },
   { value: "apartment", label: "Apartment" },
   { value: "villa", label: "Villa" },
   { value: "flat", label: "Flat" },
@@ -24,16 +27,19 @@ const PROPERTY_TYPES = [
   { value: "pg_hostel", label: "PG/Hostel" },
   { value: "building", label: "Building" },
   { value: "godown", label: "Godown" },
+  { value: "industrial", label: "Industrial" },
+  { value: "short_term", label: "Short-term" },
 ];
 
-export default function PaginatedProperties() {
+function PaginatedProperties() {
+  const searchParams = useSearchParams();
+  const initialType = PROPERTY_TYPES.some(type => type.value === searchParams.get('type')) ? searchParams.get('type') : '';
   const [pageParam, setPageParam] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
   const [filters, setFilters] = useState({
-    type: "",
+    type: initialType,
     purpose: "",
     minPrice: "",
     maxPrice: "",
@@ -44,7 +50,8 @@ export default function PaginatedProperties() {
     sort: "-createdAt",
   });
 
-  const [appliedFilters, setAppliedFilters] = useState({});
+  const [appliedFilters, setAppliedFilters] = useState(() => initialType ? { type: initialType } : {});
+  const gridClassName = `grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 ${filtersOpen ? 'xl:grid-cols-3' : 'lg:grid-cols-3 xl:grid-cols-4'}`;
 
   const buildQueryString = (f) => {
     const params = new URLSearchParams();
@@ -63,10 +70,10 @@ export default function PaginatedProperties() {
 
   const queryString = buildQueryString(appliedFilters);
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, isPlaceholderData, refetch } = useQuery({
     queryKey: ['properties', queryString],
-    queryFn: async () => {
-      const response = await axios.get(`/properties?${queryString}`);
+    queryFn: async ({ signal }) => {
+      const response = await axios.get(`/properties?${queryString}`, { signal });
       return response.data;
     },
     placeholderData: previous => previous,
@@ -101,11 +108,12 @@ export default function PaginatedProperties() {
     delete updated[key];
     setAppliedFilters(updated);
     setFilters((prev) => ({ ...prev, [key]: "" }));
+    setPageParam(1);
   };
 
   const activeFilterCount = Object.keys(appliedFilters).length;
 
-  const FilterContent = () => (
+  const renderFilters = () => (
     <div className="space-y-5">
       <div>
         <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Keyword</label>
@@ -281,6 +289,8 @@ export default function PaginatedProperties() {
             <div className="flex gap-2">
               <button
                 onClick={() => setShowMap(!showMap)}
+                aria-label={showMap ? 'Show property cards' : 'Show properties on map'}
+                aria-pressed={showMap}
                 className={`btn-secondary flex items-center gap-2 text-sm py-2.5 ${
                   showMap ? "bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700" : ""
                 }`}
@@ -290,6 +300,8 @@ export default function PaginatedProperties() {
               </button>
               <button
                 onClick={() => setFiltersOpen(!filtersOpen)}
+                aria-label="Filter properties"
+                aria-expanded={filtersOpen}
                 className="btn-secondary flex items-center gap-2 text-sm py-2.5 relative"
               >
                 <Filter size={16} />
@@ -350,7 +362,7 @@ export default function PaginatedProperties() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 md:hidden"
+                className="fixed inset-0 z-50 lg:hidden"
               >
                 <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setFiltersOpen(false)} />
                 <motion.div
@@ -369,7 +381,7 @@ export default function PaginatedProperties() {
                       <X size={18} />
                     </button>
                   </div>
-                  <FilterContent />
+                  {renderFilters()}
                 </motion.div>
               </motion.div>
             )}
@@ -382,7 +394,7 @@ export default function PaginatedProperties() {
                 initial={{ opacity: 0, x: -20, width: 0 }}
                 animate={{ opacity: 1, x: 0, width: 300 }}
                 exit={{ opacity: 0, x: -20, width: 0 }}
-                className="hidden md:block flex-shrink-0 overflow-hidden"
+                className="hidden lg:block flex-shrink-0 overflow-hidden"
               >
                 <div className="w-[300px] app-card p-5 sticky top-28">
                   <div className="flex items-center justify-between mb-5">
@@ -394,7 +406,7 @@ export default function PaginatedProperties() {
                       <X size={16} />
                     </button>
                   </div>
-                  <FilterContent />
+                  {renderFilters()}
                 </div>
               </motion.aside>
             )}
@@ -411,44 +423,30 @@ export default function PaginatedProperties() {
                 <button className="btn-primary mt-4" onClick={() => refetch()}>Try again</button>
               </div>
             ) : isLoading ? (
-              <div className="app-grid">
+              <div className={gridClassName}>
                 {[...Array(6)].map((_, i) => <PropertySkeleton key={i} />)}
               </div>
             ) : propertiesData.length > 0 ? (
               <>
-                <div className="app-grid mb-12">
+                <div className={`${gridClassName} mb-10`} aria-busy={isPlaceholderData}>
                   {propertiesData.map((prop, i) => (
                     <motion.div
                       key={prop._id}
-                      className="h-full flex"
+                      className="flex h-full min-w-0"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: i * 0.05 }}
                     >
-                      <PropertyCard
-                        {...prop}
-                        id={prop._id}
-                        title={prop.title}
-                        location={prop.location?.address || prop.location?.city || prop.location}
-                        price={prop.price}
-                        images={prop.images}
-                        image={prop.images?.[0]}
-                        type={prop.type}
-                        purpose={prop.purpose}
-                        area={prop.areaSqFt || prop.area}
-                        bhk={prop.bedrooms || prop.bhk}
-                        bathrooms={prop.bathrooms}
-                        furnishing={prop.furnishing}
-                        pricePerSqft={prop.pricePerSqft}
-                      />
+                      <PropertyCard {...cardProperty(prop)} />
                     </motion.div>
                   ))}
                 </div>
 
-                <div className="flex justify-center items-center gap-2">
+                <nav aria-label="Property pagination" className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
                   <button
                     onClick={() => setPageParam(currentPage - 1)}
-                    disabled={currentPage === 1}
+                    disabled={currentPage === 1 || isPlaceholderData}
+                    aria-label="Previous page"
                     className="w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:text-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
                   >
                     <ChevronDown size={16} className="rotate-90" />
@@ -461,6 +459,9 @@ export default function PaginatedProperties() {
                       <button
                         key={p}
                         onClick={() => setPageParam(p)}
+                        aria-label={`Page ${p}`}
+                        aria-current={currentPage === p ? 'page' : undefined}
+                        disabled={isPlaceholderData}
                         className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all shadow-sm ${
                           currentPage === p
                             ? "btn-primary shadow-lg shadow-indigo-200"
@@ -474,12 +475,13 @@ export default function PaginatedProperties() {
 
                   <button
                     onClick={() => setPageParam(currentPage + 1)}
-                    disabled={currentPage === TOTAL_PAGES}
+                    disabled={currentPage === TOTAL_PAGES || isPlaceholderData}
+                    aria-label="Next page"
                     className="w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:text-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
                   >
                     <ChevronDown size={16} className="-rotate-90" />
                   </button>
-                </div>
+                </nav>
               </>
             ) : (
               <div className="col-span-full py-20 flex flex-col items-center justify-center text-slate-500 app-card border-dashed">
@@ -500,4 +502,8 @@ export default function PaginatedProperties() {
       <Footer />
     </main>
   );
+}
+
+export default function PropertiesPage() {
+  return <Suspense fallback={<main className="app-container min-h-screen pt-28" role="status">Loading properties...</main>}><PaginatedProperties /></Suspense>;
 }

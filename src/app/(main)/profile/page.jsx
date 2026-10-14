@@ -96,7 +96,7 @@ export default function ProfilePage() {
               <div className="flex md:flex-col items-center md:text-center pb-8 border-b border-slate-100 dark:border-slate-700/50">
                 <div className="relative mb-4">
                   <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg overflow-hidden border-2 border-white dark:border-slate-800">
-                    {user.profileImage ? <Image src={user.profileImage} width={112} height={112} className="w-full h-full object-cover" unoptimized /> : user.name.charAt(0)}
+                    {user.profileImage ? <Image src={user.profileImage} alt={user.name ? `${user.name}'s profile photo` : 'Profile photo'} width={112} height={112} className="w-full h-full object-cover" unoptimized /> : user.name.charAt(0)}
                   </div>
                   {user.role === 'admin' && <div className="absolute -top-1 -right-1 p-1.5 bg-indigo-600 text-white rounded-xl"><ShieldCheck size={14} /></div>}
                 </div>

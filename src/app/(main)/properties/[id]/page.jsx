@@ -1,12 +1,11 @@
 import { cache } from 'react';
-import api from '@/lib/axios';
 import { notFound } from 'next/navigation';
 import PropertyDetailClient from './PropertyDetailClient';
 
 const getPropertyData = cache(async id => {
   if (!/^[a-f\d]{24}$/i.test(id)) return false;
   try {
-    const api = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+    const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
     const response = await fetch(`${apiUrl}/properties/${id}`, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
     if (response.status === 404 || response.status === 400) return false;
     if (!response.ok) return null;

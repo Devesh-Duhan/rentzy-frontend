@@ -1,27 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Home, Heart, ShieldCheck, ChevronRight } from "lucide-react";
 import axios from "@/lib/axios";
+import useNearViewport from "@/lib/useNearViewport";
 
 const Footer = () => {
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    const fetchCats = async () => {
-      try {
-        const { data } = await axios.get("/categories");
-        const list = Array.isArray(data) ? data : data?.data || data?.categories || [];
-        setCategories(list.slice(0, 6));
-      } catch (e) {
-        // fallback
-      }
-    };
-    fetchCats();
-  }, []);
+  const [footerRef, visible] = useNearViewport();
+  const { data: categories = [] } = useQuery({
+    queryKey: ['public', 'footer-categories'],
+    queryFn: async () => {
+      const { data } = await axios.get('/categories');
+      const list = Array.isArray(data) ? data : data?.data || data?.categories || [];
+      return list.slice(0, 6);
+    },
+    enabled: visible,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
   return (
-    <footer className="bg-slate-900 dark:bg-black text-slate-300 relative overflow-hidden">
+    <footer ref={footerRef} className="bg-slate-900 dark:bg-black text-slate-300 relative overflow-hidden">
       {/* Top gradient border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
 

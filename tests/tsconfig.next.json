@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "include": [
+    "../.next-playwright/types/**/*.ts",
+    "../next-env.d.ts",
+    "../src/**/*",
+    ".next-playwright/types/**/*.ts"
+  ],
+  "exclude": [
+    "../node_modules"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".."
+  }
+}

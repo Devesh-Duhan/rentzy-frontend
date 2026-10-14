@@ -2,14 +2,10 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, ArrowUpRight, Building2, Home, MapPin, KeyRound, Search, MessageCircle, ShieldCheck, SlidersHorizontal, Store, BedDouble } from 'lucide-react';
 import HeroSlider from '@/components/HeroSlider';
-import PropertyCard from '@/components/PropertyCard';
-import PropertySkeleton from '@/components/PropertySkeleton';
+import PropertyCategoryRows from '@/components/PropertyCategoryRows';
 import Footer from '@/components/Footer';
-import axios from '@/lib/axios';
-import { cardProperty } from '@/lib/property';
 
 const TYPES = [
   { name: 'Apartments', value: 'apartment', icon: Building2, text: 'A place in the heart of it all' },
@@ -24,16 +20,6 @@ const STEPS = [
 ];
 
 export default function HomeClient() {
-  const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ['home', 'properties'],
-    queryFn: async ({ signal }) => (await axios.get('/properties', { params: { limit: 12 }, signal })).data,
-    staleTime: 60000,
-    retry: 1,
-  });
-  const properties = data?.properties || [];
-  const featured = properties.filter(property => property.featured);
-  const listings = (featured.length >= 3 ? featured : properties).slice(0, 6);
-
   return (
     <div className="bg-white pt-[var(--header-height)] text-slate-900 dark:bg-slate-950 dark:text-white">
       <HeroSlider />
@@ -46,8 +32,8 @@ export default function HomeClient() {
       </section>
       <section className="bg-[#f8f9fc] py-14 sm:py-20 dark:bg-slate-900/40" aria-labelledby="listings-title">
         <div className="app-container">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Your next place could be right here</p><h2 id="listings-title" className="section-heading">{featured.length >= 3 ? 'Homes worth a closer look' : 'Fresh places. New possibilities.'}</h2><p className="mt-3 text-sm text-slate-500 sm:text-base dark:text-slate-400">Explore the latest spaces listed by our community.</p></div><Link href="/properties" className="btn-secondary flex items-center gap-2 !py-2.5 text-sm">View all properties <ArrowRight size={16} /></Link></div>
-          {isPending ? <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 6 }, (_, index) => <PropertySkeleton key={index} />)}</div> : isError ? <div role="alert" className="rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center dark:border-slate-800 dark:bg-slate-900"><p className="font-semibold">We couldn’t load the latest properties.</p><p className="mt-2 text-sm text-slate-500">Please try again in a moment.</p><button onClick={() => refetch()} className="btn-primary mt-5">Try again</button></div> : listings.length ? <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{listings.map(property => <PropertyCard key={property._id} {...cardProperty(property)} />)}</div> : <div className="rounded-2xl border border-dashed border-slate-300 p-12 text-center dark:border-slate-700"><Home className="mx-auto mb-4 text-indigo-500" size={36} /><h3 className="text-lg font-semibold">New homes are on the way.</h3><p className="mt-2 text-sm text-slate-500">Be the first to list a space or explore another city.</p><Link href="/become-seller" className="btn-primary mt-6 inline-block">List your property</Link></div>}
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Your next place could be right here</p><h2 id="listings-title" className="section-heading">Fresh places. New possibilities.</h2><p className="mt-3 text-sm text-slate-500 sm:text-base dark:text-slate-400">Explore the latest spaces listed by our community.</p></div><Link href="/properties" className="btn-secondary flex items-center gap-2 !py-2.5 text-sm">View all properties <ArrowRight size={16} /></Link></div>
+          <PropertyCategoryRows />
         </div>
       </section>
       <section className="app-container py-16 sm:py-24" aria-labelledby="how-title">

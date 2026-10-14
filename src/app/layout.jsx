@@ -5,7 +5,6 @@ import { Toaster } from "react-hot-toast";
 import ThemeProvider from "@/components/ThemeProvider";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
 import Navbar from "@/components/Navbar";
-import KeepAlive from "@/components/KeepAlive";
 import OrganizationSchema from "@/components/OrganizationSchema";
 import PWAProvider from "@/components/PWAProvider";
 
@@ -50,7 +49,6 @@ export default function RootLayout({ children }) {
         <StoreProvider>
           <ReactQueryProvider>
             <ThemeProvider>
-              <KeepAlive />
               <Navbar />
               <Toaster position="top-center" />
               <PWAProvider>

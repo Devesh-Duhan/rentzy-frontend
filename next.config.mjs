@@ -28,6 +28,7 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 const nextConfig = {
+  ...(process.env.PLAYWRIGHT_TEST === '1' ? { distDir: '.next-playwright', typescript: { tsconfigPath: 'tests/tsconfig.next.json' } } : {}),
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://rentzy-backend-lh5y.onrender.com/api',
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://rentzy-backend-lh5y.onrender.com',
