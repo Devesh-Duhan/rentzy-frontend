@@ -7,44 +7,54 @@ export default function TermsOfService() {
   const sections = [
     {
       title: "1. Introduction",
-      content: "Welcome to Seenu Property. These Terms and Conditions govern your use of our website and services. By accessing Seenu Property, you agree to abide by these terms. If you do not agree, please refrain from using our services."
+      content:
+        "Welcome to RentzyPro. These Terms and Conditions govern your use of our website and services. By accessing RentzyPro, you agree to abide by these terms. If you do not agree, please refrain from using our services.",
     },
     {
       title: "2. Nature of Service (Intermediary)",
-      content: "Seenu Property acts only as a mediator and listing service provider. We provide a platform that connects property sellers with potential buyers or tenants. We do not participate in actual deals or transactions."
+      content:
+        "RentzyPro acts only as a mediator and listing service provider. We provide a platform that connects property sellers with potential buyers or tenants. We do not participate in actual deals or transactions.",
     },
     {
       title: "3. No Responsibility / Disclaimer",
-      content: "Seenu Property is NOT responsible for the authenticity of property listings, any fraud, disputes, or payment issues that may arise between users. We do not verify the legal status of properties or the identity of users beyond basic registration. All deals happen directly between users at their own risk."
+      content:
+        "RentzyPro is NOT responsible for the authenticity of property listings, any fraud, disputes, or payment issues that may arise between users. We do not verify the legal status of properties or the identity of users beyond basic registration. All deals happen directly between users at their own risk.",
     },
     {
       title: "4. User Responsibilities",
-      content: "Users are responsible for verifying the property details, legal documents, and ownership before entering into any transaction. Users must provide accurate information and must not post misleading or fraudulent listings."
+      content:
+        "Users are responsible for verifying the property details, legal documents, and ownership before entering into any transaction. Users must provide accurate information and must not post misleading or fraudulent listings.",
     },
     {
       title: "5. Account & Security",
-      content: "You are responsible for maintaining the confidentiality of your account credentials. Any activity performed through your account is your responsibility. Notify us immediately if you suspect any unauthorized access."
+      content:
+        "You are responsible for maintaining the confidentiality of your account credentials. Any activity performed through your account is your responsibility. Notify us immediately if you suspect any unauthorized access.",
     },
     {
       title: "6. Listing Rules",
-      content: "Listings must be real estate related, accurate, and not violate any local laws. We reserve the right to remove any listing that we deem inappropriate, fraudulent, or in violation of these terms."
+      content:
+        "Listings must be real estate related, accurate, and not violate any local laws. We reserve the right to remove any listing that we deem inappropriate, fraudulent, or in violation of these terms.",
     },
     {
       title: "7. Limitation of Liability",
-      content: "To the maximum extent permitted by law, Seenu Property shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of the platform or any interactions between users."
+      content:
+        "To the maximum extent permitted by law, RentzyPro shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of the platform or any interactions between users.",
     },
     {
       title: "8. Termination of Access",
-      content: "We reserve the right to terminate or suspend your access to Seenu Property at our sole discretion, without notice, for conduct that we believe violates these Terms or is harmful to other users or our business interests."
+      content:
+        "We reserve the right to terminate or suspend your access to RentzyPro at our sole discretion, without notice, for conduct that we believe violates these Terms or is harmful to other users or our business interests.",
     },
     {
       title: "9. Changes to Terms",
-      content: "We may update these Terms & Conditions periodically. Continued use of the platform after changes are posted constitutes your acceptance of the new terms."
+      content:
+        "We may update these Terms & Conditions periodically. Continued use of the platform after changes are posted constitutes your acceptance of the new terms.",
     },
     {
       title: "10. Contact Information",
-      content: "For any legal inquiries, please contact us at legal@seenuproperty.com."
-    }
+      content:
+        "For any legal inquiries, please contact us at rentzyproperty@gmail.com",
+    },
   ];
 
   return (
@@ -66,7 +76,7 @@ export default function TermsOfService() {
               Terms & Conditions
             </h1>
             <p className="section-subtitle text-sm">
-              Last Updated: May 4, 2026 | Seenu Property
+              Last Updated: May 4, 2026 | RentzyPro
             </p>
           </motion.div>
         </div>
@@ -79,9 +89,12 @@ export default function TermsOfService() {
             <AlertTriangle size={24} />
           </div>
           <div>
-            <h3 className="text-base font-bold text-rose-700 dark:text-rose-400 mb-1">Crucial Disclaimer</h3>
+            <h3 className="text-base font-bold text-rose-700 dark:text-rose-400 mb-1">
+              Crucial Disclaimer
+            </h3>
             <p className="text-sm text-rose-600 dark:text-rose-300 font-medium">
-              "We only connect buyers and sellers and are not responsible for any transaction, deal, or dispute."
+              "We only connect buyers and sellers and are not responsible for
+              any transaction, deal, or dispute."
             </p>
           </div>
         </div>
@@ -101,7 +114,9 @@ export default function TermsOfService() {
                 <div className="flex items-start gap-3">
                   <div className="mt-1.5 w-2 h-2 rounded-full bg-indigo-600 shrink-0" />
                   <div>
-                    <h2 className="text-lg font-bold text-foreground mb-2">{section.title}</h2>
+                    <h2 className="text-lg font-bold text-foreground mb-2">
+                      {section.title}
+                    </h2>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {section.content}
                     </p>
@@ -119,13 +134,27 @@ export default function TermsOfService() {
           >
             <div className="flex items-center gap-3 mb-4">
               <Info size={24} className="text-indigo-200" />
-              <h2 className="text-xl font-bold">Hindi Summary (संक्षिप्त विवरण)</h2>
+              <h2 className="text-xl font-bold">
+                Hindi Summary (संक्षिप्त विवरण)
+              </h2>
             </div>
             <div className="space-y-3 text-sm text-indigo-50">
-              <p>1. Seenu Property केवल खरीदार और विक्रेता को मिलाने का एक माध्यम है।</p>
-              <p>2. हम किसी भी लेनदेन, पैसे के लेन-देया या प्रॉपर्टी की सच्चाई की जिम्मेदारी नहीं लेते।</p>
-              <p>3. कोई भी डील करने से पहले आप खुद प्रॉपर्टी के कागजात और मालिक की जांच करें।</p>
-              <p>4. किसी भी विवाद या धोखाधड़ी के लिए Seenu Property उत्तरदायी नहीं होगी।</p>
+              <p>
+                1. RentzyPro केवल खरीदार और विक्रेता को मिलाने का एक माध्यम
+                है।
+              </p>
+              <p>
+                2. हम किसी भी लेनदेन, पैसे के लेन-देया या प्रॉपर्टी की सच्चाई की
+                जिम्मेदारी नहीं लेते।
+              </p>
+              <p>
+                3. कोई भी डील करने से पहले आप खुद प्रॉपर्टी के कागजात और मालिक
+                की जांच करें।
+              </p>
+              <p>
+                4. किसी भी विवाद या धोखाधड़ी के लिए RentzyPro उत्तरदायी
+                नहीं होगी।
+              </p>
             </div>
           </motion.div>
         </div>

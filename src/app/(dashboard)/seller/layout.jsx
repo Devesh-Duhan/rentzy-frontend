@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import BrandLogo from "@/components/BrandLogo";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -131,22 +132,20 @@ export default function SellerLayout({ children }) {
       <main className="flex-1 flex flex-col min-w-0 h-screen">
         <header className="sticky top-0 z-[100] glass-effect border-b border-slate-200 dark:border-slate-800">
           <div className="flex justify-between items-center max-w-7xl mx-auto px-4 py-3 lg:px-8 lg:py-4">
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 items-center gap-3">
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden w-10 h-10 flex items-center justify-center app-card text-slate-600 dark:text-slate-300 active:scale-90 transition-transform"
+                className="lg:hidden w-10 h-10 shrink-0 flex items-center justify-center app-card text-slate-600 dark:text-slate-300 active:scale-90 transition-transform"
               >
                 <Menu size={20} />
               </button>
-              <h1 className="text-lg lg:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3 truncate">
-                <div className="hidden sm:flex w-9 h-9 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl items-center justify-center text-indigo-600">
-                  <LayoutDashboard size={18} />
-                </div>
+              <h1 className="min-w-0 text-lg lg:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3 truncate">
+                <BrandLogo size={36} className="h-9 w-9 rounded-xl" />
                 <span className="truncate">{SELLER_MENU.find(i => i.href === pathname)?.label || "Dashboard"}</span>
               </h1>
             </div>
 
-            <div className="flex items-center gap-2 lg:gap-3">
+            <div className="flex shrink-0 items-center gap-2 lg:gap-3">
               <Link href="/seller/notifications" className="relative w-10 h-10 flex items-center justify-center app-card text-slate-400 hover:text-indigo-600 transition overflow-hidden">
                 <Bell size={18} />
                 <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>

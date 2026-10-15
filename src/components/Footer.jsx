@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import BrandLogo from "@/components/BrandLogo";
 import { Home, Heart, ShieldCheck, ChevronRight } from "lucide-react";
 import axios from "@/lib/axios";
 import useNearViewport from "@/lib/useNearViewport";
@@ -30,9 +31,7 @@ const Footer = () => {
           {/* Brand Info */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-2 sm:mb-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
-                <span className="text-white text-xs font-black">R</span>
-              </div>
+              <BrandLogo size={32} className="h-7 w-7 rounded-lg shadow-md sm:h-8 sm:w-8" />
               <span className="text-base sm:text-lg font-bold text-white tracking-tight">Rentzy<span className="text-indigo-400">Pro</span></span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-3 sm:mb-5 max-w-sm">

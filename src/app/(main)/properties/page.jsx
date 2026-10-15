@@ -9,10 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import PropertySkeleton from "@/components/PropertySkeleton";
 import { cardProperty } from "@/lib/property";
-import { Search, SlidersHorizontal, X, ChevronDown, Filter, RotateCcw, MapIcon, Sparkles } from "lucide-react";
-import dynamic from "next/dynamic";
-
-const PropertyMap = dynamic(() => import("@/components/PropertyMap"), { ssr: false });
+import { Search, SlidersHorizontal, X, ChevronDown, Filter, RotateCcw, Sparkles } from "lucide-react";
 
 const PROPERTY_TYPES = [
   { value: "commercial", label: "Commercial" },
@@ -36,7 +33,6 @@ function PaginatedProperties() {
   const initialType = PROPERTY_TYPES.some(type => type.value === searchParams.get('type')) ? searchParams.get('type') : '';
   const [pageParam, setPageParam] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [showMap, setShowMap] = useState(false);
 
   const [filters, setFilters] = useState({
     type: initialType,
@@ -288,17 +284,6 @@ function PaginatedProperties() {
 
             <div className="flex gap-2">
               <button
-                onClick={() => setShowMap(!showMap)}
-                aria-label={showMap ? 'Show property cards' : 'Show properties on map'}
-                aria-pressed={showMap}
-                className={`btn-secondary flex items-center gap-2 text-sm py-2.5 ${
-                  showMap ? "bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700" : ""
-                }`}
-              >
-                <MapIcon size={16} />
-                <span className="hidden sm:inline">{showMap ? 'List' : 'Map'}</span>
-              </button>
-              <button
                 onClick={() => setFiltersOpen(!filtersOpen)}
                 aria-label="Filter properties"
                 aria-expanded={filtersOpen}
@@ -413,11 +398,7 @@ function PaginatedProperties() {
           </AnimatePresence>
 
           <div className="flex-1 min-w-0">
-            {showMap ? (
-              <div className="app-card overflow-hidden">
-                <PropertyMap properties={propertiesData} height="600px" zoom={5} />
-              </div>
-            ) : isError ? (
+            {isError ? (
               <div role="alert" className="py-16 text-center">
                 <p>Properties could not be loaded.</p>
                 <button className="btn-primary mt-4" onClick={() => refetch()}>Try again</button>

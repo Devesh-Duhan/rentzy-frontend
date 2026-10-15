@@ -1,3 +1,5 @@
+import { LOGO_SRC } from '@/lib/constants';
+
 export default function manifest() {
   return {
     name: "rentzypro - Find Your Perfect Property",
@@ -8,7 +10,7 @@ export default function manifest() {
     background_color: "#ffffff",
     theme_color: "#4f46e5",
     icons: [
-      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" },
+      { src: LOGO_SRC, sizes: "192x192", type: "image/png", purpose: "any" },
     ],
   };
 }

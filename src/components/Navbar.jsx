@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import BrandLogo from "@/components/BrandLogo";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -98,9 +99,7 @@ export default function Navbar() {
         <div className="app-container h-full flex items-center justify-between gap-2">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-              <span className="text-white text-sm font-black">R</span>
-            </div>
+            <BrandLogo size={36} priority className="h-9 w-9 rounded-xl shadow-lg" />
             <span className="text-sm sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap">
               Rentzy<span className="text-indigo-600">Pro</span>
             </span>
@@ -300,9 +299,7 @@ export default function Navbar() {
               {/* Sidebar Header */}
               <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-5 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-                    <span className="text-white text-xs font-black">R</span>
-                  </div>
+                  <BrandLogo size={32} className="h-8 w-8 rounded-lg shadow-lg" />
                   <span className="text-base font-bold text-slate-900 dark:text-white">
                     Menu
                   </span>

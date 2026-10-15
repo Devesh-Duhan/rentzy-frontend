@@ -21,9 +21,9 @@ export default function ContactPage() {
   };
 
   const contactInfo = [
-    { icon: Phone, title: "Phone Support", detail: "+91 800-RNTZ-PRO", desc: "Mon-Sat 9am to 6pm" },
-    { icon: Mail, title: "Email Support", detail: "contact@rentzypro.com", desc: "Response within 24h" },
-    { icon: MapPin, title: "Our Office", detail: "Cyber City, Gurgaon", desc: "Haryana, India 122002" },
+    { icon: Phone, title: "Phone Support", detail: "+91 9996002136", desc: "Mon-Sat 9am to 6pm" },
+    { icon: Mail, title: "Email Support", detail: "rentzyproperty@gmail.com", desc: "Response within 24h" },
+    { icon: MapPin, title: "Our Office", detail: "Hisar,Haryana", desc: "Haryana, India 125001" },
   ];
 
   return (
@@ -163,7 +163,7 @@ export default function ContactPage() {
                 <h4 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 mb-1">Emergency Help?</h4>
                 <p className="text-sm text-muted-foreground mb-4">Call our priority hotline for immediate safety assistance.</p>
                 <button className="btn-primary text-sm">
-                  Call 1-800-SAFE-RE
+                  Call 9996002136
                 </button>
               </div>
             </motion.div>

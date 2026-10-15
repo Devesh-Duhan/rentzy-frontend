@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import BrandLogo from "@/components/BrandLogo";
 import { motion } from "framer-motion";
 import {
   Smartphone,
@@ -99,9 +100,7 @@ export default function MobileAppClient() {
                     <div className="w-20 h-1.5 bg-slate-600 rounded-full" />
                   </div>
                   <div className="flex-1 p-4 flex flex-col items-center justify-center bg-gradient-to-b from-slate-800 to-slate-900">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mb-4 shadow-lg">
-                      <span className="text-white font-black text-lg">R</span>
-                    </div>
+                    <BrandLogo size={64} className="mb-4 h-16 w-16 rounded-2xl shadow-lg" />
                     <h3 className="text-white font-black text-xl mb-1">rentzypro</h3>
                     <p className="text-slate-400 text-xs font-medium mb-8">Find your perfect home</p>
                     <div className="w-full space-y-3">

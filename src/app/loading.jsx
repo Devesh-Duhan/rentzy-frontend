@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function Loading() {
   return (
@@ -16,8 +16,10 @@ export default function Loading() {
           <motion.div
             animate={{ scale: [1, 1.2, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="w-8 h-8 bg-indigo-600/10 rounded-full"
-          />
+            className="w-8 h-8"
+          >
+            <BrandLogo size={32} className="h-8 w-8 rounded-lg" />
+          </motion.div>
         </div>
       </div>
       <motion.div

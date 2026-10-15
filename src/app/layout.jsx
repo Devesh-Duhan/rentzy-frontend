@@ -7,11 +7,13 @@ import ReactQueryProvider from "@/components/ReactQueryProvider";
 import Navbar from "@/components/Navbar";
 import OrganizationSchema from "@/components/OrganizationSchema";
 import PWAProvider from "@/components/PWAProvider";
+import { LOGO_SRC } from "@/lib/constants";
 
 export async function generateMetadata() {
   return {
     ...await siteMetadata(),
     manifest: '/manifest.webmanifest',
+    icons: { icon: LOGO_SRC, shortcut: LOGO_SRC, apple: LOGO_SRC },
     other: {
       'mobile-web-app-capable': 'yes',
       'apple-mobile-web-app-capable': 'yes',

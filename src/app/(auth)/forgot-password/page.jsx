@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { sendForgotPasswordOtp, reset } from "@/store/slices/authSlice";
 import Link from "next/link";
+import BrandLogo from "@/components/BrandLogo";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, ArrowLeft, AlertCircle, CheckCircle2, Lock } from "lucide-react";
+import { Mail, ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-react";
 
 const ForgotPasswordPage = () => {
   const router = useRouter();
@@ -49,7 +50,7 @@ const ForgotPasswordPage = () => {
         </div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative text-center">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white/15 backdrop-blur rounded-3xl mb-8 border border-white/20">
-            <Lock className="text-white" size={36} />
+            <BrandLogo size={80} className="h-full w-full rounded-3xl" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">Reset password</h1>
           <p className="text-lg text-indigo-200 max-w-sm mx-auto leading-relaxed">
@@ -69,7 +70,7 @@ const ForgotPasswordPage = () => {
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
-              <Lock className="text-white" size={20} />
+              <BrandLogo size={40} className="h-full w-full rounded-xl" />
             </div>
             <span className="text-xl font-bold text-slate-900 dark:text-white">rentzypro</span>
           </div>

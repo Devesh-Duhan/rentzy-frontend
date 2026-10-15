@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import BrandLogo from "@/components/BrandLogo";
 import { useSelector, useDispatch } from "react-redux";
 import { logout, reset } from "@/store/slices/authSlice";
 import {
@@ -116,9 +117,7 @@ export default function AdminLayout({ children }) {
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-white/5 z-50 flex items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-lg shrink-0">
-            <ShieldCheck size={16} />
-          </div>
+          <BrandLogo size={32} className="h-8 w-8 rounded-lg shadow-lg" />
           <span className="font-black text-slate-900 dark:text-white tracking-tight uppercase text-[11px] sm:text-sm truncate">rentzypro Admin</span>
         </div>
         <button
@@ -148,9 +147,7 @@ export default function AdminLayout({ children }) {
               className="fixed left-0 top-0 bottom-0 w-[280px] bg-white dark:bg-slate-950 z-[70] lg:hidden p-6 flex flex-col shadow-2xl"
             >
               <div className="flex items-center gap-3 mb-10">
-                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white">
-                  <ShieldCheck size={24} />
-                </div>
+                <BrandLogo size={40} className="h-10 w-10 rounded-xl" />
                 <span className="text-xl font-black dark:text-white">Admin Panel</span>
               </div>
               <nav className="flex-1 space-y-1">
@@ -193,9 +190,7 @@ export default function AdminLayout({ children }) {
       <aside className="fixed left-6 top-6 bottom-6 w-72 z-40 hidden lg:block">
         <div className="h-full bg-white/80 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-2xl rounded-[40px] flex flex-col p-8 lg:p-6 transition-all">
           <div className="flex items-center gap-4 mb-12">
-            <div className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/20">
-              <ShieldCheck size={28} />
-            </div>
+            <BrandLogo size={48} className="h-12 w-12 rounded-2xl shadow-xl" />
             <div>
               <Link href="/" className="text-xl font-black tracking-tight dark:text-white block hover:text-indigo-600 transition-colors">rentzypro</Link>
               <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500">Master Console</p>
