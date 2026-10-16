@@ -109,18 +109,29 @@ function PaginatedProperties() {
 
   const activeFilterCount = Object.keys(appliedFilters).length;
 
-  const renderFilters = () => (
+  const renderFilterActions = () => (
+    <div className="flex gap-3">
+      <button type="button" onClick={clearFilters} className="btn-secondary flex min-h-11 flex-1 items-center justify-center gap-2 !px-3 text-sm">
+        <RotateCcw size={16} /> Clear
+      </button>
+      <button type="button" onClick={applyFilters} className="btn-primary flex min-h-11 flex-[2] items-center justify-center gap-2 !px-3 text-sm">
+        <Filter size={16} /> Apply Filters
+      </button>
+    </div>
+  );
+
+  const renderFilters = (showActions = true) => (
     <div className="space-y-5">
       <div>
         <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Keyword</label>
         <div className="relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={16} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={filters.keyword}
             onChange={(e) => setFilters({ ...filters, keyword: e.target.value })}
             placeholder="Search properties..."
-            className="input-field pl-10"
+            className="input-field !pl-10"
           />
         </div>
       </div>
@@ -235,20 +246,7 @@ function PaginatedProperties() {
         </select>
       </div>
 
-      <div className="flex gap-3 pt-1">
-        <button
-          onClick={clearFilters}
-          className="btn-secondary flex-1 flex items-center justify-center gap-2"
-        >
-          <RotateCcw size={16} /> Clear
-        </button>
-        <button
-          onClick={applyFilters}
-          className="btn-primary flex-[2] flex items-center justify-center gap-2"
-        >
-          <Filter size={16} /> Apply Filters
-        </button>
-      </div>
+      {showActions && renderFilterActions()}
     </div>
   );
 
@@ -347,7 +345,7 @@ function PaginatedProperties() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 lg:hidden"
+                className="fixed inset-0 z-[60] lg:hidden"
               >
                 <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setFiltersOpen(false)} />
                 <motion.div
@@ -355,18 +353,25 @@ function PaginatedProperties() {
                   animate={{ y: 0 }}
                   exit={{ y: "100%" }}
                   transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                  className="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-white dark:bg-slate-950 rounded-t-[32px] shadow-2xl p-6 overflow-y-auto safe-bottom"
+                  role="dialog"
+                  aria-label="Property filters"
+                  className="absolute bottom-0 left-0 right-0 flex max-h-[85dvh] flex-col overflow-hidden bg-white dark:bg-slate-950 rounded-t-[32px] shadow-2xl"
                 >
-                  <div className="flex items-center justify-between mb-5">
+                  <div className="flex shrink-0 items-center justify-between px-5 py-4">
                     <div className="flex items-center gap-2">
                       <SlidersHorizontal size={18} className="text-indigo-600" />
                       <h3 className="text-lg font-bold text-slate-900 dark:text-white">Filters</h3>
                     </div>
-                    <button onClick={() => setFiltersOpen(false)} className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-rose-500 bg-slate-100 dark:bg-white/5 rounded-xl transition-colors">
+                    <button type="button" aria-label="Close filters" onClick={() => setFiltersOpen(false)} className="w-11 h-11 flex items-center justify-center text-slate-400 hover:text-rose-500 bg-slate-100 dark:bg-white/5 rounded-xl transition-colors">
                       <X size={18} />
                     </button>
                   </div>
-                  {renderFilters()}
+                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
+                    {renderFilters(false)}
+                  </div>
+                  <div className="shrink-0 border-t border-slate-200 bg-white px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-slate-800 dark:bg-slate-950">
+                    {renderFilterActions()}
+                  </div>
                 </motion.div>
               </motion.div>
             )}

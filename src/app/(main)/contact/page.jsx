@@ -3,26 +3,41 @@
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "react-hot-toast";
+import axios from "@/lib/axios";
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const sending = useRef(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (sending.current) return;
+    const payload = Object.fromEntries(Object.entries(form).map(([key, value]) => [key, value.trim()]));
+    if (Object.values(payload).some(value => !value)) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+    sending.current = true;
     setIsSubmitting(true);
-    setTimeout(() => {
+    try {
+      const { data } = await axios.post("/leads/contact", payload);
+      if (!data.success) throw new Error("Message could not be sent. Please try again.");
       toast.success("Message sent! Our team will get back to you soon.");
       setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Message could not be sent. Please try again or email seenuc2221@gmail.com.");
+    } finally {
+      sending.current = false;
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   const contactInfo = [
     { icon: Phone, title: "Phone Support", detail: "+91 9996002136", desc: "Mon-Sat 9am to 6pm" },
-    { icon: Mail, title: "Email Support", detail: "rentzyproperty@gmail.com", desc: "Response within 24h" },
+    { icon: Mail, title: "Email Support", detail: "seenuc2221@gmail.com", desc: "Response within 24h" },
     { icon: MapPin, title: "Our Office", detail: "Hisar,Haryana", desc: "Haryana, India 125001" },
   ];
 
@@ -40,7 +55,7 @@ export default function ContactPage() {
               </span>
             </motion.div>
             <h1 className="section-title text-3xl md:text-5xl lg:text-6xl !leading-tight mb-4 mt-4">
-              Let's Start a <span className="text-indigo-600">Conversation</span>
+              Let&apos;s Start a <span className="text-indigo-600">Conversation</span>
             </h1>
             <p className="section-subtitle text-base md:text-lg">
               Have a question about properties or encounter an issue? Our team of experts is dedicated to assisting you every step of the way.
@@ -78,8 +93,13 @@ export default function ContactPage() {
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">Full Name</label>
+                    <label htmlFor="contact-name" className="text-xs font-semibold text-muted-foreground">Full Name</label>
                     <input
+                      id="contact-name"
+                      autoComplete="name"
+                      minLength={2}
+                      maxLength={100}
+                      disabled={isSubmitting}
                       required
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -89,8 +109,12 @@ export default function ContactPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">Email Address</label>
+                    <label htmlFor="contact-email" className="text-xs font-semibold text-muted-foreground">Email Address</label>
                     <input
+                      id="contact-email"
+                      autoComplete="email"
+                      maxLength={254}
+                      disabled={isSubmitting}
                       required
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -101,8 +125,11 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Subject</label>
+                  <label htmlFor="contact-subject" className="text-xs font-semibold text-muted-foreground">Subject</label>
                   <input
+                    id="contact-subject"
+                    maxLength={200}
+                    disabled={isSubmitting}
                     required
                     value={form.subject}
                     onChange={(e) => setForm({ ...form, subject: e.target.value })}
@@ -112,8 +139,11 @@ export default function ContactPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Message</label>
+                  <label htmlFor="contact-message" className="text-xs font-semibold text-muted-foreground">Message</label>
                   <textarea
+                    id="contact-message"
+                    maxLength={5000}
+                    disabled={isSubmitting}
                     required
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
@@ -123,6 +153,7 @@ export default function ContactPage() {
                   />
                 </div>
                 <button
+                  type="submit"
                   disabled={isSubmitting}
                   className="btn-primary w-full flex items-center justify-center gap-2"
                 >
@@ -139,7 +170,7 @@ export default function ContactPage() {
               <div>
                 <h3 className="section-title text-2xl mb-3">Support Excellence</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  At rentzypro, we don't just provide a platform; we provide a community. Our support team is trained to handle complex real estate inquiries and ensure your transitions are smooth.
+                  At rentzypro, we don&apos;t just provide a platform; we provide a community. Our support team is trained to handle complex real estate inquiries and ensure your transitions are smooth.
                 </p>
               </div>
 

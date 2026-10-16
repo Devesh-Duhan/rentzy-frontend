@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -71,16 +71,26 @@ const FILTER_LABELS = {
 
 export default function SearchClient() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const params = Object.fromEntries(
     FILTER_KEYS.map((k) => [k, searchParams.get(k) || ""])
   );
-  const sort = searchParams.get("sort") || "relevance";
+  const sortValue = searchParams.get("sort") || "relevance";
   const page = parseInt(searchParams.get("page") || "1");
 
-  const [sortValue, setSortValue] = useState(sort);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    if (!mobileFiltersOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event) => { if (event.key === "Escape") setMobileFiltersOpen(false); };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileFiltersOpen]);
 
   const queryString = new URLSearchParams(
     Object.entries({ ...params, sort: sortValue, page: String(page) }).filter(
@@ -90,11 +100,11 @@ export default function SearchClient() {
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["search", queryString],
-    queryFn: async () => {
-      const res = await axios.get(`/search?${queryString}`);
+    queryFn: async ({ signal }) => {
+      const res = await axios.get(`/search?${queryString}`, { signal });
       return res.data;
     },
-    keepPreviousData: true,
+    placeholderData: previous => previous,
   });
 
   const properties = data?.data || data?.properties || [];
@@ -109,34 +119,33 @@ export default function SearchClient() {
         else next.delete(k);
       });
       next.set("page", "1");
-      router.push(`/search?${next.toString()}`);
+      window.history.pushState(null, "", `/search?${next.toString()}`);
     },
-    [searchParams, router]
+    [searchParams]
   );
 
   const removeFilter = (key) => {
     const next = new URLSearchParams(searchParams.toString());
     next.delete(key);
     next.set("page", "1");
-    router.push(`/search?${next.toString()}`);
+    window.history.pushState(null, "", `/search?${next.toString()}`);
   };
 
   const clearAllFilters = () => {
-    router.push("/search");
+    window.history.pushState(null, "", "/search");
   };
 
   const handleSortChange = (e) => {
-    setSortValue(e.target.value);
     const next = new URLSearchParams(searchParams.toString());
     next.set("sort", e.target.value);
     next.set("page", "1");
-    router.push(`/search?${next.toString()}`);
+    window.history.pushState(null, "", `/search?${next.toString()}`);
   };
 
   const goToPage = (p) => {
     const next = new URLSearchParams(searchParams.toString());
     next.set("page", String(p));
-    router.push(`/search?${next.toString()}`);
+    window.history.pushState(null, "", `/search?${next.toString()}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -205,6 +214,7 @@ export default function SearchClient() {
             >
               <div className="app-card p-5 sticky top-28">
                 <FilterSection
+                  key={searchParams.toString()}
                   params={params}
                   updateParams={updateParams}
                   activeFilters={activeFilters}
@@ -220,7 +230,7 @@ export default function SearchClient() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 lg:hidden"
+                  className="fixed inset-0 z-[60] lg:hidden"
                 >
                   <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setMobileFiltersOpen(false)} />
                   <motion.div
@@ -228,23 +238,27 @@ export default function SearchClient() {
                     animate={{ y: 0 }}
                     exit={{ y: "100%" }}
                     transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                    className="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-white dark:bg-slate-950 rounded-t-[32px] shadow-2xl p-6 overflow-y-auto safe-bottom"
+                    role="dialog"
+                    aria-label="Property filters"
+                    className="absolute bottom-0 left-0 right-0 flex max-h-[85dvh] flex-col overflow-hidden bg-white dark:bg-slate-950 rounded-t-[32px] shadow-2xl"
                   >
-                    <div className="flex items-center justify-between mb-5">
+                    <div className="flex shrink-0 items-center justify-between px-5 py-4">
                       <div className="flex items-center gap-2">
                         <SlidersHorizontal size={18} className="text-indigo-600" />
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">Filters</h3>
                       </div>
-                      <button onClick={() => setMobileFiltersOpen(false)} className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-rose-500 bg-slate-100 dark:bg-white/5 rounded-xl transition-colors">
+                      <button type="button" aria-label="Close filters" onClick={() => setMobileFiltersOpen(false)} className="w-11 h-11 flex items-center justify-center text-slate-400 hover:text-rose-500 bg-slate-100 dark:bg-white/5 rounded-xl transition-colors">
                         <X size={18} />
                       </button>
                     </div>
                     <FilterSection
+                      key={searchParams.toString()}
                       params={params}
                       updateParams={updateParams}
                       activeFilters={activeFilters}
                       clearAllFilters={clearAllFilters}
                       mobile
+                      onApply={() => setMobileFiltersOpen(false)}
                     />
                   </motion.div>
                 </motion.div>
@@ -307,6 +321,8 @@ export default function SearchClient() {
                   {/* Mobile Filter Button */}
                   <button
                     onClick={() => setMobileFiltersOpen(true)}
+                    aria-label="Filter properties"
+                    aria-expanded={mobileFiltersOpen}
                     className="lg:hidden btn-secondary flex items-center gap-2 py-2.5 px-4 text-sm"
                   >
                     <Filter size={16} />
@@ -380,6 +396,7 @@ export default function SearchClient() {
                 ) : (
                   <motion.div
                     key="results"
+                    aria-busy={isFetching}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -458,46 +475,60 @@ export default function SearchClient() {
   );
 }
 
-function FilterSection({ params, updateParams, activeFilters, clearAllFilters, mobile }) {
+function FilterSection({ params, updateParams, activeFilters, clearAllFilters, mobile, onApply }) {
+  const [draft, setDraft] = useState(params);
+  const updateDraft = (updates) => setDraft(previous => ({ ...previous, ...updates }));
+  const fieldId = (name) => `${mobile ? "mobile" : "desktop"}-search-${name}`;
+  const submitFilters = (event) => {
+    event.preventDefault();
+    updateParams(Object.fromEntries(Object.entries(draft).map(([key, value]) => [key, value.trim()])));
+    onApply?.();
+  };
+  const resetFilters = () => {
+    setDraft(Object.fromEntries(FILTER_KEYS.map(key => [key, ""])));
+    clearAllFilters();
+  };
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5">
+    <form onSubmit={submitFilters} aria-label="Property search filters" className={mobile ? "flex min-h-0 flex-1 flex-col" : ""}>
+      {!mobile && <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <SlidersHorizontal size={16} className="text-indigo-600" />
           <span className="text-sm font-bold text-slate-900 dark:text-white">Filters</span>
         </div>
         {activeFilters.length > 0 && (
           <button
-            onClick={clearAllFilters}
+            type="button"
+            onClick={resetFilters}
             className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
           >
             Clear all
           </button>
         )}
-      </div>
+      </div>}
 
-      <div className="space-y-5">
+      <div className={mobile ? "min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-5 pb-5" : "space-y-5"}>
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Keyword</label>
+          <label htmlFor={fieldId("q")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Keyword</label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               type="text"
               placeholder="Search..."
-              defaultValue={params.q}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") updateParams({ q: e.target.value });
-              }}
-              className="input-field pl-10"
+              id={fieldId("q")}
+              value={draft.q}
+              onChange={(e) => updateDraft({ q: e.target.value })}
+              className="input-field !pl-10"
             />
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Type</label>
+          <label htmlFor={fieldId("type")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Type</label>
           <select
-            value={params.type}
-            onChange={(e) => updateParams({ type: e.target.value })}
+            id={fieldId("type")}
+            value={draft.type}
+            onChange={(e) => updateDraft({ type: e.target.value })}
             className="input-field appearance-none cursor-pointer"
           >
             <option value="">All Types</option>
@@ -514,10 +545,11 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Purpose</label>
+          <label htmlFor={fieldId("purpose")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Purpose</label>
           <select
-            value={params.purpose}
-            onChange={(e) => updateParams({ purpose: e.target.value })}
+            id={fieldId("purpose")}
+            value={draft.purpose}
+            onChange={(e) => updateDraft({ purpose: e.target.value })}
             className="input-field appearance-none cursor-pointer"
           >
             <option value="">All Purposes</option>
@@ -527,15 +559,14 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">City</label>
+          <label htmlFor={fieldId("city")} className="text-xs font-semibold text-slate-400 mb-1.5 block">City</label>
           <input
             type="text"
             placeholder="e.g. Hisar"
-            defaultValue={params.city}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") updateParams({ city: e.target.value });
-            }}
-            className="input-field"
+            id={fieldId("city")}
+            value={draft.city}
+            onChange={(e) => updateDraft({ city: e.target.value })}
+            className="input-field min-w-0"
           />
         </div>
 
@@ -545,31 +576,36 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
             <input
               type="number"
               placeholder="Min"
-              defaultValue={params.minPrice}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") updateParams({ minPrice: e.target.value });
-              }}
-              className="input-field"
+              id={fieldId("minPrice")}
+              aria-label="Minimum price"
+              step="any"
+              min="0"
+              value={draft.minPrice}
+              onChange={(e) => updateDraft({ minPrice: e.target.value })}
+              className="input-field min-w-0"
             />
             <span className="text-slate-400 font-bold text-xs">-</span>
             <input
               type="number"
               placeholder="Max"
-              defaultValue={params.maxPrice}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") updateParams({ maxPrice: e.target.value });
-              }}
-              className="input-field"
+              id={fieldId("maxPrice")}
+              aria-label="Maximum price"
+              step="any"
+              min="0"
+              value={draft.maxPrice}
+              onChange={(e) => updateDraft({ maxPrice: e.target.value })}
+              className="input-field min-w-0"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Bedrooms</label>
+            <label htmlFor={fieldId("bedrooms")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Bedrooms</label>
             <select
-              value={params.bedrooms}
-              onChange={(e) => updateParams({ bedrooms: e.target.value })}
+              id={fieldId("bedrooms")}
+              value={draft.bedrooms}
+              onChange={(e) => updateDraft({ bedrooms: e.target.value })}
               className="input-field appearance-none cursor-pointer"
             >
               <option value="">Any</option>
@@ -579,10 +615,11 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
             </select>
           </div>
           <div>
-            <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Bathrooms</label>
+            <label htmlFor={fieldId("bathrooms")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Bathrooms</label>
             <select
-              value={params.bathrooms}
-              onChange={(e) => updateParams({ bathrooms: e.target.value })}
+              id={fieldId("bathrooms")}
+              value={draft.bathrooms}
+              onChange={(e) => updateDraft({ bathrooms: e.target.value })}
               className="input-field appearance-none cursor-pointer"
             >
               <option value="">Any</option>
@@ -599,9 +636,10 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
             {['furnished', 'semi-furnished', 'unfurnished'].map((opt) => (
               <button
                 key={opt}
-                onClick={() => updateParams({ furnishing: params.furnishing === opt ? '' : opt })}
+                type="button"
+                onClick={() => updateDraft({ furnishing: draft.furnishing === opt ? '' : opt })}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                  params.furnishing === opt
+                  draft.furnishing === opt
                     ? 'btn-primary text-white border-transparent'
                     : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-300'
                 }`}
@@ -618,9 +656,10 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
             {['owner', 'broker', 'builder'].map((opt) => (
               <button
                 key={opt}
-                onClick={() => updateParams({ postedBy: params.postedBy === opt ? '' : opt })}
+                type="button"
+                onClick={() => updateDraft({ postedBy: draft.postedBy === opt ? '' : opt })}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                  params.postedBy === opt
+                  draft.postedBy === opt
                     ? 'btn-primary text-white border-transparent'
                     : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-300'
                 }`}
@@ -632,10 +671,11 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Facing</label>
+          <label htmlFor={fieldId("facing")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Facing</label>
           <select
-            value={params.facing}
-            onChange={(e) => updateParams({ facing: e.target.value })}
+            id={fieldId("facing")}
+            value={draft.facing}
+            onChange={(e) => updateDraft({ facing: e.target.value })}
             className="input-field appearance-none cursor-pointer"
           >
             <option value="">Any Facing</option>
@@ -646,10 +686,11 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Possession</label>
+          <label htmlFor={fieldId("possession")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Possession</label>
           <select
-            value={params.possession}
-            onChange={(e) => updateParams({ possession: e.target.value })}
+            id={fieldId("possession")}
+            value={draft.possession}
+            onChange={(e) => updateDraft({ possession: e.target.value })}
             className="input-field appearance-none cursor-pointer"
           >
             <option value="">Any Possession</option>
@@ -667,25 +708,33 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
             <input
               type="number"
               placeholder="Min"
-              defaultValue={params.minArea}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") updateParams({ minArea: e.target.value });
-              }}
-              className="input-field"
+              id={fieldId("minArea")}
+              aria-label="Minimum area"
+              step="any"
+              min="0"
+              value={draft.minArea}
+              onChange={(e) => updateDraft({ minArea: e.target.value })}
+              className="input-field min-w-0"
             />
             <span className="text-slate-400 font-bold text-xs">-</span>
             <input
               type="number"
               placeholder="Max"
-              defaultValue={params.maxArea}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") updateParams({ maxArea: e.target.value });
-              }}
-              className="input-field"
+              id={fieldId("maxArea")}
+              aria-label="Maximum area"
+              step="any"
+              min="0"
+              value={draft.maxArea}
+              onChange={(e) => updateDraft({ maxArea: e.target.value })}
+              className="input-field min-w-0"
             />
           </div>
         </div>
       </div>
-    </div>
+      <div className={`flex shrink-0 gap-3 ${mobile ? "border-t border-slate-200 bg-white px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-slate-800 dark:bg-slate-950" : "mt-5"}`}>
+        <button type="button" onClick={resetFilters} className="btn-secondary flex min-h-11 items-center justify-center gap-2 !px-3 text-sm"><RotateCcw size={16} aria-hidden="true" />Clear</button>
+        <button type="submit" className="btn-primary flex min-h-11 flex-1 items-center justify-center gap-2 !px-3 text-sm"><Filter size={16} aria-hidden="true" />Apply Filters</button>
+      </div>
+    </form>
   );
 }

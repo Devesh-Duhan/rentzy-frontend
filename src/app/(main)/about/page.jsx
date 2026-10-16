@@ -86,10 +86,12 @@ export default function AboutPage() {
                 For decades, the standard real estate market heavily favored the middlemen. We built rentzypro to democratize property leasing by empowering landlords and tenants to interact directly—yielding faster decisions, absolute transparency, and immense savings.
               </p>
               <div className="space-y-5">
+                 – 
                 {[
-                  { title: "Zero Brokerage", desc: "No more paying massive cuts. Complete transparency." },
+                  { title: "100% Transparency", desc: "Clear property details, pricing, and rental information." },
                   { title: "Verified Listings", desc: "Every property goes through a rigorous verification process." },
-                  { title: "Direct Contact", desc: "Talk directly to the owner via WhatsApp or Call." }
+                  { title: "Direct Contact", desc: "Talk directly to the owner via WhatsApp or Call." },
+                  { title: "Faster Decisions", desc: "Discover properties, connect, and finalize deals quickly." }
                 ].map((val, i) => (
                   <div key={i} className="flex items-start gap-4">
                     <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -111,7 +113,7 @@ export default function AboutPage() {
               className="relative"
             >
               <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-xl relative">
-                <Image src="https://images.unsplash.com/photo-1556911220-e15fc1967d0cf?auto=format&fit=crop&w=800&q=80" alt="Team meeting" width={800} height={1000} className="w-full h-full object-cover" />
+                <Image src="/images/owner-interior.jpg" alt="Modern living room with sofas and natural light" width={800} height={1000} sizes="(min-width: 1280px) 584px, (min-width: 768px) 50vw, 100vw" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="glass-effect p-5 rounded-xl text-white">

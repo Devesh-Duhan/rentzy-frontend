@@ -36,9 +36,9 @@ export default function HomeClient() {
           <PropertyCategoryRows />
         </div>
       </section>
-      <section className="app-container py-16 sm:py-24" aria-labelledby="how-title">
-        <div className="mx-auto mb-12 max-w-xl text-center"><p className="eyebrow">A little less complicated</p><h2 id="how-title" className="section-heading">From your first search<br className="hidden sm:block" /> to your first day home.</h2></div>
-        <div className="grid gap-8 sm:grid-cols-3 sm:gap-12">{STEPS.map(({ icon: Icon, title, text }, index) => <div key={title} className="relative"><div className="mb-5 flex items-center gap-4"><span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950"><Icon size={24} /></span><span className="text-xs font-semibold tracking-widest text-slate-400">0{index + 1}</span><span className="h-px flex-1 bg-slate-100 dark:bg-slate-800" /></div><h3 className="text-lg font-semibold tracking-tight">{title}</h3><p className="mt-3 max-w-sm text-sm leading-7 text-slate-500 dark:text-slate-400">{text}</p></div>)}</div>
+      <section className="app-container py-10 sm:py-24" aria-labelledby="how-title">
+        <div className="mx-auto mb-6 max-w-xl text-center sm:mb-12"><p className="eyebrow">A little less complicated</p><h2 id="how-title" className="section-heading text-xl sm:text-3xl">From your first search<br className="hidden sm:block" /> to your first day home.</h2></div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 sm:gap-12">{STEPS.map(({ icon: Icon, title, text }, index) => <div key={title} className="relative min-w-0"><div className="mb-3 flex items-center gap-2 sm:mb-5 sm:gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 sm:h-14 sm:w-14 sm:rounded-2xl dark:bg-indigo-950"><Icon size={24} className="h-5 w-5 sm:h-6 sm:w-6" /></span><span className="text-xs font-semibold tracking-widest text-slate-400">0{index + 1}</span><span className="h-px flex-1 bg-slate-100 dark:bg-slate-800" /></div><h3 className="text-sm font-semibold tracking-tight sm:text-lg">{title}</h3><p className="mt-2 max-w-sm text-xs leading-5 text-slate-500 sm:mt-3 sm:text-sm sm:leading-7 dark:text-slate-400">{text}</p></div>)}</div>
       </section>
       <section className="app-container pb-16 sm:pb-24">
         <div className="grid overflow-hidden rounded-3xl bg-[#171b35] md:grid-cols-[1.1fr_0.9fr]">
