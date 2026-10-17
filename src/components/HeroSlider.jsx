@@ -24,10 +24,10 @@ export default function HeroSlider() {
   return (
     <section className="relative overflow-hidden bg-[#f4f5fb] dark:bg-slate-950">
       <div className="app-container grid gap-10 pb-12 pt-12 sm:pb-16 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-14 lg:pb-24 lg:pt-20">
-        <div className="relative z-10 min-w-0">
-          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white px-3.5 py-2 text-xs font-semibold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-300"><span className="h-1.5 w-1.5 rounded-full bg-indigo-500" /> A better way to find your place</span>
-          <h1 className="max-w-xl text-[2.75rem] font-semibold leading-[1.08] tracking-[-0.05em] text-slate-950 sm:text-6xl xl:text-7xl dark:text-white">Find a place.<br /><span className="text-indigo-600 dark:text-indigo-400">Make it home.</span></h1>
-          <p className="mb-8 mt-6 max-w-md text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-400">Your next chapter starts with the right space. Explore homes, compare the details, and connect directly with owners.</p>
+        <div className="relative z-10 flex min-w-0 flex-col sm:block">
+          <span className="mb-6 inline-flex self-start items-center gap-2 rounded-full border border-indigo-100 bg-white px-3.5 py-2 text-xs font-semibold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-300"><span className="h-1.5 w-1.5 rounded-full bg-indigo-500" /> A better way to find your place</span>
+          <h1 className="order-1 mt-8 max-w-xl text-[2.75rem] font-semibold leading-[1.08] tracking-[-0.05em] text-slate-950 sm:order-none sm:mt-0 sm:text-6xl xl:text-7xl dark:text-white">Find a place.<br /><span className="text-indigo-600 dark:text-indigo-400">Make it home.</span></h1>
+          <p className="order-2 mb-0 mt-6 max-w-md text-base leading-7 text-slate-600 sm:order-none sm:mb-8 sm:text-lg dark:text-slate-400">Your next chapter starts with the right space. Explore homes, compare the details, and connect directly with owners.</p>
           <form onSubmit={search} className="relative rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_16px_50px_-20px_rgba(49,46,129,0.2)] sm:p-4 dark:border-slate-800 dark:bg-slate-900">
             <div className="mb-4 flex gap-1 border-b border-slate-100 pb-3 dark:border-slate-800" role="group" aria-label="Listing purpose">
               {[['rent', 'Rent a home'], ['sell', 'Buy a home']].map(([value, label]) => <button key={value} type="button" aria-pressed={purpose === value} onClick={() => setPurpose(value)} className={`min-h-10 rounded-lg px-4 text-sm font-semibold transition-colors ${purpose === value ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>{label}</button>)}

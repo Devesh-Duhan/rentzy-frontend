@@ -1,16 +1,18 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Users, Building2, TrendingUp, AlertCircle, LayoutDashboard, Database } from "lucide-react";
+import { Users, Building2, TrendingUp, AlertCircle, Database } from "lucide-react";
 import axios from "@/lib/axios";
 
 export default function AdminOverview() {
   const [stats, setStats] = useState([
     { label: "Total Users", value: "0", icon: Users, color: "indigo" },
-    { label: "Total Properties", value: "0", icon: Building2, color: "emerald" },
-    { label: "System Health", value: "Optimal", icon: Database, color: "amber" },
-    { label: "Active Nodes", value: "2", icon: LayoutDashboard, color: "rose" },
+    { label: "Total Listings", value: "0", icon: Building2, color: "emerald" },
+    { label: "Bookings", value: "0", icon: Database, color: "amber" },
+    { label: "Revenue", value: "0", icon: TrendingUp, color: "rose" },
   ]);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -54,7 +56,7 @@ export default function AdminOverview() {
             </div>
             <div>
               <p className="text-slate-500 text-xs font-black uppercase tracking-widest mb-1">{stat.label}</p>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</h3>
+              {isLoading ? <ContentSkeleton label={`Loading ${stat.label}`} count={1} itemClassName="h-8 w-24" /> : <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</h3>}
             </div>
           </motion.div>
         ))}

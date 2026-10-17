@@ -47,7 +47,7 @@ function PaginatedProperties() {
   });
 
   const [appliedFilters, setAppliedFilters] = useState(() => initialType ? { type: initialType } : {});
-  const gridClassName = `grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 ${filtersOpen ? 'xl:grid-cols-3' : 'lg:grid-cols-3 xl:grid-cols-4'}`;
+  const gridClassName = `grid grid-cols-2 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 ${filtersOpen ? 'xl:grid-cols-3' : 'lg:grid-cols-3 xl:grid-cols-4'}`;
 
   const buildQueryString = (f) => {
     const params = new URLSearchParams();
@@ -423,7 +423,7 @@ function PaginatedProperties() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: i * 0.05 }}
                     >
-                      <PropertyCard {...cardProperty(prop)} />
+                      <PropertyCard {...cardProperty(prop)} compact />
                     </motion.div>
                   ))}
                 </div>

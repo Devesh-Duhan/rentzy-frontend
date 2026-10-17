@@ -1,8 +1,10 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Star, Search, Loader2, Building2, MapPin } from "lucide-react";
+import { Star, Search, Building2, MapPin } from "lucide-react";
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
 
@@ -52,13 +54,6 @@ export default function FeaturedPage() {
   const featured = filtered.filter((p) => p.featured);
   const notFeatured = filtered.filter((p) => !p.featured);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="animate-spin text-indigo-500" size={32} />
-      </div>
-    );
-  }
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -80,6 +75,7 @@ export default function FeaturedPage() {
         </div>
       </div>
 
+      {loading ? <ContentSkeleton label="Loading featured properties" count={3} itemClassName="h-28" /> : <>
       {filtered.length === 0 && (
         <div className="text-center py-16 text-slate-400 dark:text-slate-500 font-bold">
           <Building2 size={48} className="mx-auto mb-4 opacity-50" />
@@ -108,6 +104,7 @@ export default function FeaturedPage() {
           ))}
         </div>
       </div>
+      </>}
     </motion.div>
   );
 }

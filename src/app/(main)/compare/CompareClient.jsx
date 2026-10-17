@@ -1,4 +1,6 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import Image from "next/image";
 import { useState, useEffect, useMemo } from "react";
@@ -71,14 +73,15 @@ export default function CompareClient() {
   }, [idsParam]);
 
   const { data: propertiesData, isLoading } = useQuery({
-    queryKey: ["properties"],
+    queryKey: ["compare-options"],
+    enabled: showAddDropdown,
     queryFn: async () => {
       const res = await axios.get("/properties");
       return res.data.properties || [];
     },
   });
 
-  const { data: comparedProperties, isLoading: isCompareLoading } = useQuery({
+  const { data: comparedProperties, isLoading: isCompareLoading, isError: compareError, refetch: retryComparison } = useQuery({
     queryKey: ["compare", ...propertyIds],
     queryFn: async () => {
       if (propertyIds.length === 0) return [];
@@ -325,28 +328,6 @@ export default function CompareClient() {
     return map;
   }, [compared]);
 
-  if (isLoading || isCompareLoading) {
-    return (
-      <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
-        <div className="app-container pt-28 md:pt-36 pb-20">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-xl w-64" />
-            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-96" />
-            <div className="grid grid-cols-3 gap-4 mt-10">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-4">
-                  <div className="h-32 bg-slate-200 dark:bg-slate-800 rounded-xl" />
-                  {[1, 2, 3, 4, 5].map((j) => (
-                    <div key={j} className="h-8 bg-slate-100 dark:bg-slate-800 rounded-xl" />
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -365,7 +346,7 @@ export default function CompareClient() {
           </p>
         </motion.div>
 
-        {compared.length === 0 ? (
+        {isCompareLoading ? (<ContentSkeleton label="Loading comparison" className="app-grid" itemClassName="h-64" />) : compareError ? <div role="alert">Could not load comparison. <button onClick={() => retryComparison()} className="btn-secondary">Try again</button><Link href="/properties" className="btn-primary ml-3">Browse Properties</Link></div> : compared.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -434,7 +415,7 @@ export default function CompareClient() {
                         </div>
                       </div>
                       <div className="max-h-60 overflow-y-auto p-2">
-                        {filteredOptions.length > 0 ? (
+                        {isLoading ? (<ContentSkeleton label="Loading comparison options" count={3} itemClassName="h-12" />) : filteredOptions.length > 0 ? (
                           filteredOptions.map((p) => (
                             <button
                               key={p._id}

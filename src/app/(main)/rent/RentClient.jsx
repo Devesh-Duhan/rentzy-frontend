@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building, MapPin, DollarSign, Home, BedDouble, Filter, ChevronDown } from "lucide-react";
 import axios from "@/lib/axios";
@@ -35,9 +35,9 @@ export default function RentClient() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isFetching, isPlaceholderData, isError, error, refetch } = useQuery({
     queryKey: ["properties-rent", page, filters, searchTerm],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const params = new URLSearchParams({ purpose: "rent", page: String(page), limit: "12" });
       if (filters.type !== "All") params.append("type", filters.type.toLowerCase());
       if (filters.city !== "All") params.append("city", filters.city);
@@ -51,10 +51,10 @@ export default function RentClient() {
       if (filters.bhk !== "Any") params.append("bhk", filters.bhk);
       if (filters.bedrooms !== "Any") params.append("bedrooms", filters.bedrooms);
       if (searchTerm.trim()) params.append("keyword", searchTerm.trim());
-      const response = await axios.get(`/properties?${params.toString()}`);
+      const response = await axios.get(`/properties?${params.toString()}`, { signal });
       return response.data;
     },
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 
   useEffect(() => {
@@ -296,14 +296,14 @@ export default function RentClient() {
               </div>
             </aside>
 
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0" aria-busy={isFetching}>
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="section-title !text-2xl md:!text-3xl">
                     Properties for Rent
                   </h2>
                   <p className="section-subtitle">
-                    {isLoading ? "Loading..." : `${properties.length} propert${properties.length !== 1 ? "ies" : "y"} found`}
+                    {isFetching ? (isLoading ? "Loading..." : "Updating properties...") : `${properties.length} propert${properties.length !== 1 ? "ies" : "y"} found`}
                   </p>
                 </div>
                 <button
@@ -325,14 +325,15 @@ export default function RentClient() {
                     {error?.message || "Failed to load properties. Please try again."}
                   </p>
                   <button
-                    onClick={() => window.location.reload()}
+                    onClick={() => refetch()}
+                    disabled={isFetching}
                     className="btn-primary mt-6"
                   >
                     Try Again
                   </button>
                 </div>
               ) : isLoading ? (
-                <div className="app-grid">
+                <div role="status" aria-label="Loading properties" className="app-grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {[...Array(6)].map((_, i) => (
                     <PropertySkeleton key={i} />
                   ))}
@@ -344,7 +345,7 @@ export default function RentClient() {
                   </div>
                   <h3 className="section-title !text-xl mb-2">No Properties Found</h3>
                   <p className="section-subtitle max-w-md mb-6">
-                    We couldn't find any properties matching your criteria. Try adjusting your filters.
+                    We couldn&apos;t find any properties matching your criteria. Try adjusting your filters.
                   </p>
                   {hasActiveFilters && (
                     <button
@@ -360,11 +361,12 @@ export default function RentClient() {
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
-                  className="app-grid"
+                  className="app-grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                 >
                   {properties.map((prop, i) => (
                     <motion.div key={prop._id || prop.id || i} variants={itemVariants} className="h-full flex">
                       <PropertyCard
+                        compact
                         {...prop}
                         id={prop._id || prop.id}
                         title={prop.title}
@@ -388,7 +390,7 @@ export default function RentClient() {
                 <div className="flex justify-center items-center gap-2 mt-12">
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
+                    disabled={page === 1 || isPlaceholderData}
                     className="btn-secondary !p-0 w-11 h-11 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Previous page"
                   >
@@ -402,6 +404,7 @@ export default function RentClient() {
                       <button
                         key={p}
                         onClick={() => setPage(p)}
+                        disabled={isPlaceholderData}
                         className={`w-11 h-11 rounded-xl flex items-center justify-center font-semibold transition-all ${
                           page === p
                             ? "btn-primary !p-0"
@@ -415,7 +418,7 @@ export default function RentClient() {
 
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages}
+                    disabled={page === totalPages || isPlaceholderData}
                     className="btn-secondary !p-0 w-11 h-11 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Next page"
                   >

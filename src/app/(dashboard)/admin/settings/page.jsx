@@ -1,6 +1,8 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
 
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback } from "react";
 import { Toast } from "../_components/AdminComponents";
 import { fetchSettings, saveSettings } from "./_data/settingsApi";
 
@@ -15,7 +17,11 @@ export default function SettingsPage() {
   const [toast, setToast] = useState({ show: false, message: "", type: "success" });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const [loadError, setLoadError] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const loadSettings = useCallback(() => {
+    setLoading(true);
+    setLoadError(false);
     fetchSettings()
       .then((data) => {
         setSiteSettings({
@@ -29,9 +35,10 @@ export default function SettingsPage() {
           },
         });
       })
-      .catch(() => setToast({ show: true, message: "Failed to load settings", type: "error" }))
+      .catch(() => { setLoadError(true); setToast({ show: true, message: "Failed to load settings", type: "error" }); })
       .finally(() => setLoading(false));
   }, []);
+  useEffect(() => { loadSettings(); }, [loadSettings]);
 
   const showNotification = (message, type = "success") => {
     setToast({ show: true, message, type });
@@ -49,25 +56,25 @@ export default function SettingsPage() {
   };
 
   const handleSave = async () => {
+    if (loading || loadError || saving) return;
+    setSaving(true);
     try {
       await saveSettings(siteSettings);
       showNotification("Settings saved!");
     } catch (err) {
       showNotification("Failed to save settings", "error");
-    }
+    } finally { setSaving(false); }
   };
 
   return (
-    loading ? (
-      <div className="p-8">Loading...</div>
-    ) : (
       <div className="space-y-8 animate-fade-in max-w-5xl bg-white dark:bg-slate-900 rounded-3xl p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">Platform Settings</h2>
-          <button onClick={handleSave} className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 transition-all">
+          <button disabled={loading || loadError || saving} onClick={handleSave} className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 transition-all">
             Save Changes
           </button>
         </div>
+        {loading ? <ContentSkeleton label="Loading platform settings" count={3} itemClassName="h-28" /> : loadError ? <div role="alert">Could not load settings. <button onClick={loadSettings} className="btn-secondary">Try again</button></div> : <>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="space-y-4">
             <h4 className="font-bold text-slate-800 dark:text-slate-100">Identity</h4>
@@ -110,8 +117,8 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        </>}
         <Toast toast={toast} />
       </div>
-    )
   );
 }

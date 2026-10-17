@@ -140,7 +140,9 @@ export default function SellerLayout({ children }) {
                 <Menu size={20} />
               </button>
               <h1 className="min-w-0 text-lg lg:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3 truncate">
-                <BrandLogo size={36} className="h-9 w-9 rounded-xl" />
+                <Link href="/" aria-label="RentzyPro home" className="shrink-0">
+                  <BrandLogo size={36} className="h-9 w-9 rounded-xl" />
+                </Link>
                 <span className="truncate">{SELLER_MENU.find(i => i.href === pathname)?.label || "Dashboard"}</span>
               </h1>
             </div>

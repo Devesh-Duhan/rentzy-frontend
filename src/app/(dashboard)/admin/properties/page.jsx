@@ -1,4 +1,6 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -14,6 +16,7 @@ export default function PropertiesSection() {
   const dispatch = useDispatch();
   const { properties: backendProperties, isLoading, isError, message } = useSelector(state => state.property);
   
+  const [hasRequested, setHasRequested] = useState(false);
   const [properties, setProperties] = useState([]);
   const [isListingModalOpen, setIsListingModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -25,6 +28,7 @@ export default function PropertiesSection() {
   const [deleteConfig, setDeleteConfig] = useState({ id: null, name: "", type: "Property" });
 
   useEffect(() => {
+    setHasRequested(true);
     dispatch(getAllPropertiesAdmin());
   }, [dispatch]);
 
@@ -101,7 +105,7 @@ export default function PropertiesSection() {
         </button>
       </div>
       <div className="grid grid-cols-1 gap-4 md:gap-6">
-        {backendProperties.map((property) => (
+        {!hasRequested || isLoading ? <ContentSkeleton label="Loading admin properties" itemClassName="h-36" /> : isError ? <div role="alert">{message || "Could not load properties"}<button onClick={() => dispatch(getAllPropertiesAdmin())} className="btn-secondary">Try again</button></div> : backendProperties.length === 0 ? <p>No properties found</p> : backendProperties.map((property) => (
           <div key={property._id} className="bg-white dark:bg-slate-800/40 p-4 md:p-6 rounded-[24px] md:rounded-[32px] border border-slate-100 dark:border-white/5 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center hover:shadow-lg transition-all group">
             <div className="w-20 h-20 md:w-28 md:h-28 rounded-xl md:rounded-3xl overflow-hidden shrink-0 border border-slate-100 dark:border-white/5 shadow-inner">
               {property.images?.[0] ? (
@@ -128,7 +132,7 @@ export default function PropertiesSection() {
               <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-[200px]">
                   <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-black shadow-lg">
-                    {property.sellerId?.profileImage ? <Image src={property.sellerId.profileImage} width={40} height={40} className="w-full h-full object-cover rounded-xl" unoptimized /> : property.sellerId?.name?.charAt(0) || 'A'}
+                    {property.sellerId?.profileImage ? <Image alt="Seller profile" src={property.sellerId.profileImage} width={40} height={40} className="w-full h-full object-cover rounded-xl" unoptimized /> : property.sellerId?.name?.charAt(0) || 'A'}
                   </div>
                   <div>
                     <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase truncate">{property.sellerId?.name || 'Admin Listing'}</p>

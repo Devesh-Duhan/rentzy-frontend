@@ -1,4 +1,5 @@
-import { cache } from 'react';
+import { cache, Suspense } from 'react';
+import PropertyLoading from './PropertyLoading';
 import { notFound } from 'next/navigation';
 import PropertyDetailClient from './PropertyDetailClient';
 
@@ -21,9 +22,14 @@ export async function generateMetadata({ params }) {
     openGraph: { images: property?.images?.[0] ? [{ url: property.images[0] }] : [] },
   };
 }
-export default async function PropertyDetailPage({ params }) {
-  const { id } = await params;
+async function PropertyContent({ id }) {
   const initialData = await getPropertyData(id);
   if (initialData === false) notFound();
   return <PropertyDetailClient id={id} initialData={initialData} />;
+}
+
+export default async function PropertyDetailPage({ params }) {
+  const { id } = await params;
+  if (!/^[a-f\d]{24}$/i.test(id)) notFound();
+  return <Suspense fallback={<PropertyLoading />}><PropertyContent id={id} /></Suspense>;
 }

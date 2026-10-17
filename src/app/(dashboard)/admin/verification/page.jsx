@@ -1,8 +1,10 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, X, Search, Loader2, Building2, MapPin, Calendar, FileText, CheckCircle2, AlertTriangle } from "lucide-react";
+import { ShieldCheck, X, Search, Building2, MapPin, Calendar, FileText, CheckCircle2, AlertTriangle } from "lucide-react";
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
 
@@ -81,13 +83,6 @@ export default function VerificationPage() {
       );
     });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="animate-spin text-indigo-500" size={32} />
-      </div>
-    );
-  }
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -109,6 +104,7 @@ export default function VerificationPage() {
         </div>
       </div>
 
+      {loading ? <ContentSkeleton label="Loading property verification" count={3} itemClassName="h-28" /> : <>
       {unverified.length > 0 && (
         <div>
           <h3 className="text-sm font-black uppercase tracking-widest text-rose-500 mb-3 flex items-center gap-2">
@@ -189,6 +185,7 @@ export default function VerificationPage() {
           </>
         )}
       </AnimatePresence>
+      </>}
     </motion.div>
   );
 }

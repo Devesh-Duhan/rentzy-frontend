@@ -154,11 +154,11 @@ function FAQItem({ question, answer, isOpen, onClick }) {
 }
 
 export default function SellClient() {
-  const { data: testimonialsData, isLoading: testimonialsLoading } = useQuery({
+  const { data: testimonialsData, isLoading: testimonialsLoading, isError: testimonialsError, refetch: refetchTestimonials } = useQuery({
     queryKey: ["testimonials"],
     queryFn: async () => {
       const response = await axios.get("/testimonials");
-      return response.data.testimonials || response.data || [];
+      return Array.isArray(response.data) ? response.data : response.data?.data || response.data?.testimonials || [];
     },
   });
 
@@ -168,7 +168,7 @@ export default function SellClient() {
   const testimonials = Array.isArray(testimonialsData) ? testimonialsData : [];
 
   return (
-    <main className="min-h-screen bg-[var(--background)]">
+    <main className="min-h-screen bg-[var(--background)] [&_.app-grid]:grid-cols-2 lg:[&_.app-grid]:grid-cols-3 xl:[&_.app-grid]:grid-cols-4">
       <section className="hero-section bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900">
         <div className="hero-overlay" />
         <div className="app-container relative z-20 w-full">
@@ -313,7 +313,7 @@ export default function SellClient() {
           </motion.div>
 
           {testimonialsLoading ? (
-            <div className="app-grid">
+            <div role="status" aria-label="Loading testimonials" className="app-grid">
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="app-card p-6 animate-pulse">
                   <div className="flex gap-1 mb-4">
@@ -335,6 +335,11 @@ export default function SellClient() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : testimonialsError ? (
+            <div role="alert" className="text-center py-12">
+              <p className="section-subtitle">Testimonials could not be loaded.</p>
+              <button type="button" onClick={() => refetchTestimonials()} className="btn-secondary mt-4">Try again</button>
             </div>
           ) : testimonials.length === 0 ? (
             <div className="text-center py-12">

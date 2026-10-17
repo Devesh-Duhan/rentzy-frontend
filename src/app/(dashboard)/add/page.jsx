@@ -1,4 +1,6 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -37,6 +39,7 @@ const AddPropertyPage = () => {
   const { user } = useSelector((state) => state.auth);
 
   const [step, setStep] = useState(1);
+  const [furthestStep, setFurthestStep] = useState(1);
   const [previews, setPreviews] = useState([]);
   const [privatePreviews, setPrivatePreviews] = useState([]);
   const [form, setForm] = useState({
@@ -61,6 +64,11 @@ const AddPropertyPage = () => {
   const [files, setFiles] = useState([]);
   const [privateFiles, setPrivateFiles] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [loadedEditId, setLoadedEditId] = useState(null);
+  const [editError, setEditError] = useState(false);
+  const [editAttempt, setEditAttempt] = useState(0);
+  const editLoading = !!editId && loadedEditId !== editId && !editError;
+  const editBlocked = !!editId && (loadedEditId !== editId || editError);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [isPaymentSelection, setIsPaymentSelection] = useState(false);
@@ -83,10 +91,13 @@ const AddPropertyPage = () => {
   }, []);
 
   useEffect(() => {
+    let active = true;
+    setEditError(false);
     if (editId) {
       const fetchProperty = async () => {
         try {
           const { data } = await axiosInstance.get(`/properties/my/${editId}`);
+          if (!active) return;
           setForm({
             title: data.title,
             type: Array.isArray(data.type) ? data.type.map(t => t.charAt(0).toUpperCase() + t.slice(1)) : [data.type.charAt(0).toUpperCase() + data.type.slice(1)],
@@ -107,14 +118,18 @@ const AddPropertyPage = () => {
           });
           setPreviews(data.images || []);
           setCreatedPropertyId(data._id);
+          setLoadedEditId(editId);
         } catch (e) {
+          if (!active) return;
+          setEditError(true);
           console.error(e);
           toast.error("Failed to fetch property details");
         }
       };
       fetchProperty();
     }
-  }, [editId]);
+    return () => { active = false; };
+  }, [editId, editAttempt]);
 
   const totalSteps = 4;
   const dispatch = useDispatch();
@@ -191,6 +206,9 @@ const AddPropertyPage = () => {
     setPrivateFiles(privateFiles.filter((_, i) => i !== index));
   };
 
+  // Listing checkout is temporarily disabled by the backend's free-listing mode.
+  // New/updated listings return isPaid=true and skip the checkout below.
+  // Retain both gateways; LISTING_PAYMENT_REQUIRED=true restores this flow later.
   const loadRazorpayScript = () => new Promise((resolve) => {
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -266,10 +284,12 @@ const AddPropertyPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!form.title || !form.district || !form.rent) {
-      toast.error("Please fill in basic property details (Title, District, Rent)");
-      setStep(1);
-      return;
+    if (isSubmitting || editBlocked) return;
+    for (let currentStep = 1; currentStep < totalSteps; currentStep++) {
+      if (!validateStep(currentStep)) {
+        setStep(currentStep);
+        return;
+      }
     }
     setIsSubmitting(true);
     try {
@@ -334,6 +354,11 @@ const AddPropertyPage = () => {
       if (!form.district.trim()) newErrors.district = "District is required";
       if (!form.description.trim() || form.description.length < 20) newErrors.description = "Detailed description (min 20 chars) is required";
       if (!form.contactNumber.trim()) newErrors.contactNumber = "Contact number is required";
+      for (const field of ['bedrooms', 'bathrooms']) {
+        if (form[field] !== '' && form[field] !== 'N/A' && (!Number.isSafeInteger(Number(form[field])) || Number(form[field]) < 0)) {
+          newErrors[field] = `Enter a whole number of ${field} (0 or more).`;
+        }
+      }
       if (form.type.some(t => t.toLowerCase().includes('pg'))) {
         if (!form.totalRooms) newErrors.totalRooms = "Total rooms is required for PG/Hostels";
         if (!form.availableRooms) newErrors.availableRooms = "Available rooms is required for PG/Hostels";
@@ -351,7 +376,25 @@ const AddPropertyPage = () => {
     return true;
   };
 
-  const nextStep = () => { if (validateStep(step)) setStep(s => Math.min(s + 1, totalSteps)); };
+  const nextStep = () => {
+    if (isSubmitting || editBlocked || !validateStep(step)) return;
+    const next = Math.min(step + 1, totalSteps);
+    setFurthestStep(previous => Math.max(previous, next));
+    setStep(next);
+  };
+  const goToStep = (target) => {
+    if (isSubmitting || editBlocked || target > furthestStep || target === step) return;
+    if (target > step) {
+      for (let currentStep = 1; currentStep < target; currentStep++) {
+        if (!validateStep(currentStep)) {
+          setStep(currentStep);
+          return;
+        }
+      }
+    }
+    setErrors({});
+    setStep(target);
+  };
   const prevStep = () => { setErrors({}); setStep(s => Math.max(s - 1, 1)); };
 
   useEffect(() => {
@@ -422,17 +465,19 @@ const AddPropertyPage = () => {
                 {errors.contactNumber && <p className="text-xs font-medium text-rose-500">{errors.contactNumber}</p>}
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-indigo-600">Bedrooms</label>
+                <label htmlFor="property-bedrooms" className="text-xs font-bold uppercase tracking-wider text-indigo-600">Bedrooms</label>
                 <div className="flex gap-1.5">
-                  {["N/A", "1", "2", "3", "4", "5+"].map((num) => (
+                  {["N/A", "1", "2", "3", "4", "5"].map((num) => (
                     <button key={num} type="button" onClick={() => setForm(f => ({ ...f, bedrooms: num }))}
                       className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${form.bedrooms === num ? "bg-indigo-600 text-white shadow-lg" : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400"}`}
-                    >{num}</button>
+                    >{num === '5' ? '5+' : num}</button>
                   ))}
                 </div>
+                <input id="property-bedrooms" name="bedrooms" type="number" min="0" step="1" inputMode="numeric" value={form.bedrooms === 'N/A' ? '' : form.bedrooms} onChange={handleInputChange} placeholder="Enter bedrooms" aria-invalid={Boolean(errors.bedrooms)} aria-describedby={errors.bedrooms ? 'bedrooms-error' : undefined} className={`input-field ${errors.bedrooms ? 'border-rose-500 ring-4 ring-rose-500/10' : ''}`} />
+                {errors.bedrooms && <p id="bedrooms-error" className="text-xs font-medium text-rose-500">{errors.bedrooms}</p>}
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-indigo-600">Bathrooms</label>
+                <label htmlFor="property-bathrooms" className="text-xs font-bold uppercase tracking-wider text-indigo-600">Bathrooms</label>
                 <div className="flex gap-1.5">
                   {["N/A", "1", "2", "3", "4"].map((num) => (
                     <button key={num} type="button" onClick={() => setForm(f => ({ ...f, bathrooms: num }))}
@@ -440,6 +485,8 @@ const AddPropertyPage = () => {
                     >{num}</button>
                   ))}
                 </div>
+                <input id="property-bathrooms" name="bathrooms" type="number" min="0" step="1" inputMode="numeric" value={form.bathrooms === 'N/A' ? '' : form.bathrooms} onChange={handleInputChange} placeholder="Enter bathrooms" aria-invalid={Boolean(errors.bathrooms)} aria-describedby={errors.bathrooms ? 'bathrooms-error' : undefined} className={`input-field ${errors.bathrooms ? 'border-rose-500 ring-4 ring-rose-500/10' : ''}`} />
+                {errors.bathrooms && <p id="bathrooms-error" className="text-xs font-medium text-rose-500">{errors.bathrooms}</p>}
               </div>
               <AnimatePresence>
                 {form.type.some(t => t.toLowerCase().includes('pg')) && (
@@ -522,8 +569,8 @@ const AddPropertyPage = () => {
                 <div><p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider mb-0.5">Title</p><p className="font-semibold text-slate-900 dark:text-white">{form.title}</p></div>
                 <div><p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider mb-0.5">Type</p><p className="font-semibold text-slate-900 dark:text-white">{form.type.join(', ')}</p></div>
                 <div><p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider mb-0.5">City</p><p className="font-semibold text-slate-900 dark:text-white">{form.district}</p></div>
-                <div><p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider mb-0.5">Bedrooms</p><p className="font-semibold text-slate-900 dark:text-white">{form.bedrooms}</p></div>
-                <div><p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider mb-0.5">Bathrooms</p><p className="font-semibold text-slate-900 dark:text-white">{form.bathrooms}</p></div>
+                <div><p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider mb-0.5">Bedrooms</p><p className="font-semibold text-slate-900 dark:text-white">{form.bedrooms || 'N/A'}</p></div>
+                <div><p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider mb-0.5">Bathrooms</p><p className="font-semibold text-slate-900 dark:text-white">{form.bathrooms || 'N/A'}</p></div>
                 <div><p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider mb-0.5">Purpose</p><p className="font-semibold text-slate-900 dark:text-white uppercase">{form.purpose.join(' & ')}</p></div>
               </div>
               <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50"><p className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider mb-0.5">Description</p><p className="text-slate-600 dark:text-slate-400 text-sm font-medium leading-relaxed line-clamp-3">{form.description}</p></div>
@@ -599,23 +646,23 @@ const AddPropertyPage = () => {
               <div className="flex items-center justify-between mb-8 px-2">
                 {STEPS.map((s) => (
                   <div key={s.id} className="relative z-10 flex flex-col items-center gap-2">
-                    <button onClick={() => s.id < step && setStep(s.id)}
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${step >= s.id ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 scale-110" : "bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border border-slate-100 dark:border-slate-700"}`}
+                    <button type="button" onClick={() => goToStep(s.id)} disabled={editBlocked || isSubmitting || s.id > furthestStep} aria-label={`Step ${s.id}: ${s.label}`} aria-current={step === s.id ? 'step' : undefined}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all disabled:cursor-not-allowed ${furthestStep >= s.id ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 scale-110" : "bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border border-slate-100 dark:border-slate-700"}`}
                     ><s.icon size={18} /></button>
                   </div>
                 ))}
               </div>
 
               <div className="glass-effect p-6 sm:p-8 md:p-10 rounded-3xl shadow-lg">
-                <AnimatePresence mode="wait">{renderStepContent()}</AnimatePresence>
+                {editLoading ? <ContentSkeleton label="Loading property for editing" count={3} itemClassName="h-20" /> : editError ? <div role="alert">Could not load this property. <button type="button" onClick={() => setEditAttempt(value => value + 1)} className="btn-secondary">Try again</button></div> : <AnimatePresence mode="wait">{renderStepContent()}</AnimatePresence>}
                 <div className="flex items-center gap-4 mt-8 pt-6 border-t border-slate-100 dark:border-slate-700/50">
-                  <button onClick={prevStep} disabled={step === 1 || isSubmitting}
+                  <button onClick={prevStep} disabled={editBlocked || step === 1 || isSubmitting}
                     className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm ${step === 1 ? "hidden" : "btn-secondary"}`}
                   ><ChevronLeft size={16} /> Previous</button>
                   {step < totalSteps ? (
-                    <button onClick={nextStep} className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm py-3.5 shadow-lg">Next Step <ChevronRight size={16} /></button>
+                    <button onClick={nextStep} disabled={editBlocked || isSubmitting} className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm py-3.5 shadow-lg">Next Step <ChevronRight size={16} /></button>
                   ) : (
-                    <button onClick={handleSubmit} disabled={isSubmitting} className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm py-3.5 shadow-lg">
+                    <button onClick={handleSubmit} disabled={editBlocked || isSubmitting} className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm py-3.5 shadow-lg">
                       {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
                       {isSubmitting ? "Publishing..." : "Confirm & Publish"}
                     </button>

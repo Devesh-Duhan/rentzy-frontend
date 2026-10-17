@@ -1,6 +1,8 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
 
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Globe, Image, Code, Eye, Save, Loader2 } from "lucide-react";
 import axios from "@/lib/axios";
@@ -21,7 +23,10 @@ export default function SEOPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  const [loadError, setLoadError] = useState(false);
+  const loadSettings = useCallback(() => {
+    setLoading(true);
+    setLoadError(false);
     axios.get("/settings/admin")
       .then((res) => {
         const d = res.data;
@@ -37,9 +42,10 @@ export default function SEOPage() {
           footerScripts: d.footerScripts || "",
         });
       })
-      .catch(() => toast.error("Failed to load SEO settings"))
+      .catch(() => { setLoadError(true); toast.error("Failed to load SEO settings"); })
       .finally(() => setLoading(false));
   }, []);
+  useEffect(() => { loadSettings(); }, [loadSettings]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,6 +53,7 @@ export default function SEOPage() {
   };
 
   const handleSave = async () => {
+    if (loading || loadError || saving) return;
     setSaving(true);
     try {
       await axios.put("/settings", form);
@@ -58,13 +65,6 @@ export default function SEOPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="animate-spin text-indigo-500" size={32} />
-      </div>
-    );
-  }
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 max-w-4xl">
@@ -75,7 +75,7 @@ export default function SEOPage() {
         </div>
         <button
           onClick={handleSave}
-          disabled={saving}
+          disabled={loading || loadError || saving}
           className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 transition-all flex items-center gap-2 disabled:opacity-50"
         >
           {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
@@ -83,6 +83,7 @@ export default function SEOPage() {
         </button>
       </div>
 
+      {loading ? <ContentSkeleton label="Loading SEO settings" count={3} itemClassName="h-28" /> : loadError ? <div role="alert">Could not load settings. <button onClick={loadSettings} className="btn-secondary">Try again</button></div> : <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 mt-1">
@@ -174,6 +175,7 @@ export default function SEOPage() {
           </div>
         </div>
       </div>
+      </>}
     </motion.div>
   );
 }

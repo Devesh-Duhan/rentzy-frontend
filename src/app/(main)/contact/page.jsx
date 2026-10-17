@@ -35,9 +35,18 @@ export default function ContactPage() {
     }
   };
 
+  const copyEmail = async (email) => {
+    try {
+      await navigator.clipboard.writeText(email);
+      toast.success("Email address copied!");
+    } catch {
+      toast.error("Unable to copy. Please copy " + email + " manually.");
+    }
+  };
+
   const contactInfo = [
-    { icon: Phone, title: "Phone Support", detail: "+91 9996002136", desc: "Mon-Sat 9am to 6pm" },
-    { icon: Mail, title: "Email Support", detail: "seenuc2221@gmail.com", desc: "Response within 24h" },
+    { icon: Phone, title: "Phone Support", detail: "+91 9996002136", href: "tel:+919996002136", desc: "Mon-Sat 9am to 6pm" },
+    { icon: Mail, title: "Email Support", detail: "seenuc2221@gmail.com", copy: true, desc: "Response within 24h" },
     { icon: MapPin, title: "Our Office", detail: "Hisar,Haryana", desc: "Haryana, India 125001" },
   ];
 
@@ -63,24 +72,34 @@ export default function ContactPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12">
-            {contactInfo.map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="app-card p-6 hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-600 mb-4">
-                  <item.icon size={22} />
-                </div>
-                <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-                <p className="text-indigo-600 font-medium text-sm mb-2">{item.detail}</p>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Clock size={12} /> {item.desc}
-                </div>
-              </motion.div>
-            ))}
+            {contactInfo.map((item, i) => {
+              const Action = item.href ? "a" : item.copy ? "button" : "span";
+              const actionProps = item.href
+                ? { href: item.href, "aria-label": "Call " + item.detail }
+                : item.copy
+                  ? { type: "button", onClick: () => copyEmail(item.detail), "aria-label": "Copy " + item.detail }
+                  : {};
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="app-card p-6 hover:-translate-y-1 transition-all duration-300"
+                >
+                  <Action {...actionProps} className="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-600 mb-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600">
+                    <item.icon size={22} aria-hidden="true" />
+                  </Action>
+                  <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                  <p className="text-indigo-600 font-medium text-sm mb-2">
+                    <Action {...actionProps} className="rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600">{item.detail}</Action>
+                  </p>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock size={12} /> {item.desc}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -193,9 +212,9 @@ export default function ContactPage() {
               <div className="glass-effect bg-indigo-600/10 dark:bg-indigo-600/20 border-indigo-200 dark:border-indigo-800/50 rounded-2xl p-6">
                 <h4 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 mb-1">Emergency Help?</h4>
                 <p className="text-sm text-muted-foreground mb-4">Call our priority hotline for immediate safety assistance.</p>
-                <button className="btn-primary text-sm">
+                <a href="tel:+919996002136" className="btn-primary text-sm">
                   Call 9996002136
-                </button>
+                </a>
               </div>
             </motion.div>
           </div>

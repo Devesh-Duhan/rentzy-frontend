@@ -1,4 +1,6 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import { useState, useEffect } from "react";
 import { Star, CheckCircle2, Trash2, Building2 } from "lucide-react";
@@ -6,18 +8,20 @@ import axios from "@/lib/axios";
 import { Toast, DeleteConfirmationModal } from "../_components/AdminComponents";
 
 export default function ReviewsSection() {
+  const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [toast, setToast] = useState({ show: false, message: "", type: "success" });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteConfig, setDeleteConfig] = useState({ id: null, name: "", type: "Review" });
 
   const fetchReviews = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get('/reviews');
       setReviews(data);
     } catch (error) {
       showNotification("Failed to fetch reviews", "error");
-    }
+    } finally { setLoading(false); }
   };
 
   useEffect(() => {
@@ -56,7 +60,7 @@ export default function ReviewsSection() {
         <span className="text-xs font-bold text-slate-400">Total: {reviews.length}</span>
       </div>
       <div className="grid gap-4">
-        {reviews.map((review) => (
+        {loading ? <ContentSkeleton label="Loading admin reviews" itemClassName="h-28" /> : reviews.length === 0 ? <p>No reviews found</p> : reviews.map((review) => (
           <div key={review._id} className="bg-white dark:bg-slate-800/40 p-6 rounded-[32px] border border-slate-100 dark:border-white/5 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center hover:shadow-xl transition-all group">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
@@ -68,7 +72,7 @@ export default function ReviewsSection() {
                 </div>
               </div>
               <h4 className="font-bold text-slate-900 dark:text-white mb-1">{review.userId?.name}</h4>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium italic">"{review.comment}"</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium italic">&ldquo;{review.comment}&rdquo;</p>
             </div>
             <div className="flex flex-wrap gap-2 shrink-0">
                <button onClick={() => handleReviewDelete(review._id)} className="p-4 bg-rose-50 text-rose-600 rounded-2xl hover:bg-rose-600 hover:text-white transition-all shadow-sm">

@@ -1,4 +1,5 @@
 "use client";
+import PropertyLoading from "./PropertyLoading";
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -77,7 +78,7 @@ export default function PropertyDetailClient({ id, initialData }) {
     catch (failure) { toast.error(failure.response?.data?.message || 'Could not submit your review'); }
     finally { setSubmitting(false); }
   }
-  if (isPending) return <main className="app-container space-y-6 pb-20 pt-28" aria-busy="true"><div className="h-10 w-2/3 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" /><div className="h-[45vh] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" /><p className="text-sm text-slate-500">Loading property details…</p></main>;
+  if (isPending) return <PropertyLoading />;
   if (isError || !property) return <main className="app-container flex min-h-[70vh] flex-col items-center justify-center gap-4 pt-20 text-center"><Info size={40} className="text-indigo-500" /><h1 className="text-2xl font-semibold">{error?.response?.status === 404 ? 'This property is no longer available.' : 'We couldn’t load this property.'}</h1><p className="text-sm text-slate-500">Explore other properties or try again.</p><div className="flex gap-3"><button onClick={() => refetch()} className="btn-secondary">Try again</button><Link href="/properties" className="btn-primary">Browse properties</Link></div></main>;
   const sale = isSale(property.purpose);
   const phone = contactPhone('9996002136');

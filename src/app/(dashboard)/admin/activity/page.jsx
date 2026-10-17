@@ -1,10 +1,10 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock, Search, Filter, Loader2, User, Activity, Target, Calendar } from "lucide-react";
 import axios from "@/lib/axios";
-import toast from "react-hot-toast";
 
 const ACTION_TYPES = [
   { value: "all", label: "All Actions" },
@@ -15,48 +15,28 @@ const ACTION_TYPES = [
 ];
 
 export default function ActivityPage() {
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   useEffect(() => {
-    fetchLogs();
-  }, []);
-
-  const fetchLogs = async () => {
-    setLoading(true);
-    try {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+  const { data: logs = [], isLoading: loading, isError, refetch } = useQuery({
+    queryKey: ["admin-activity", debouncedSearch, actionFilter, startDate, endDate],
+    queryFn: async () => {
       const params = new URLSearchParams();
       if (actionFilter !== "all") params.set("action", actionFilter);
-      if (search) params.set("search", search);
+      if (debouncedSearch) params.set("search", debouncedSearch);
       if (startDate) params.set("startDate", startDate);
       if (endDate) params.set("endDate", endDate);
-      const res = await axios.get(`/admin/activity?${params.toString()}`);
-      setLogs(res.data);
-    } catch {
-      toast.error("Failed to load activity log");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const t = setTimeout(() => fetchLogs(), 300);
-    return () => clearTimeout(t);
-  }, [actionFilter, startDate, endDate]);
-
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
-  };
-
-  useEffect(() => {
-    if (!search && search !== "") return;
-    const t = setTimeout(() => fetchLogs(), 300);
-    return () => clearTimeout(t);
-  }, [search]);
+      return (await axios.get(`/admin/activity?${params}`)).data;
+    },
+  });
+  const handleSearch = (event) => setSearch(event.target.value);
 
   const getActionBadge = (action) => {
     switch (action) {
@@ -114,7 +94,7 @@ export default function ActivityPage() {
         />
       </div>
 
-      {loading ? (
+      {isError ? (<div role="alert">Could not load activity. <button onClick={() => refetch()} className="btn-secondary">Try again</button></div>) : loading ? (
         <div className="flex items-center justify-center h-64">
           <Loader2 className="animate-spin text-indigo-500" size={32} />
         </div>

@@ -1,4 +1,6 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import React, { useState, useEffect, useRef } from "react";
 import Footer from "@/components/Footer";
@@ -19,6 +21,8 @@ export default function ChatPage() {
   const [newMessage, setNewMessage] = useState("");
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
+  const [chatsLoading, setChatsLoading] = useState(true);
+  const [chatsError, setChatsError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const messagesEndRef = useRef(null);
@@ -59,18 +63,24 @@ export default function ChatPage() {
   }, [user, router, selectedChat]);
 
   useEffect(() => {
+    let active = true;
     const fetchChats = async () => {
+      setChatsLoading(true);
+      setChatsError(false);
       try {
         const { data } = await axiosInstance.get('/chats');
+        if (!active) return;
         const list = Array.isArray(data) ? data : [];
         setChats(list);
         const requestedChat = new URLSearchParams(window.location.search).get('chat');
         if (requestedChat) setSelectedChat(list.find(chat => chat._id === requestedChat) || null);
       } catch (error) {
+        if (active) setChatsError(true);
         console.error("Error fetching chats:", error);
-      }
+      } finally { if (active) setChatsLoading(false); }
     };
     if (user) fetchChats();
+    return () => { active = false; };
   }, [user]);
 
   useEffect(() => {
@@ -134,7 +144,7 @@ export default function ChatPage() {
               <h2 className="section-title text-xl md:text-xl">Your Messages</h2>
             </div>
             <div className="flex-1 overflow-y-auto">
-              {chats.length === 0 ? (
+              {chatsLoading ? <ContentSkeleton label="Loading conversations" className="space-y-3 p-4" itemClassName="h-16" /> : chatsError ? <p role="alert" className="p-6 text-sm text-slate-500">Could not load conversations. Please try opening Messages again.</p> : chats.length === 0 ? (
                 <div className="p-6 text-center text-slate-500 font-medium">No chats yet.</div>
               ) : (
                 chats.map((chat) => {
@@ -182,7 +192,7 @@ export default function ChatPage() {
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-4">
                   {loading ? (
-                    <div className="text-center font-medium text-slate-400 mt-10">Loading messages...</div>
+                    <ContentSkeleton label="Loading messages" count={4} itemClassName="h-12 max-w-sm" />
                   ) : (
                     messages.map((m, i) => {
                       const senderId = (m.sender?._id || m.sender)?.toString();

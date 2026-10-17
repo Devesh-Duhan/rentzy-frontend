@@ -9,16 +9,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSellerProperties } from "@/store/slices/propertySlice";
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
+import ContentSkeleton from "@/components/ContentSkeleton";
 
 export default function SellerProperties() {
   const dispatch = useDispatch();
-  const { sellerProperties, isLoading } = useSelector((state) => state.property);
+  const { sellerProperties, isLoading, isError } = useSelector((state) => state.property);
   const [searchTerm, setSearchTerm] = useState("");
+  const [hasRequested, setHasRequested] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deletingProperty, setDeletingProperty] = useState(null);
 
   useEffect(() => {
+    setHasRequested(true);
     dispatch(getSellerProperties());
   }, [dispatch]);
 
@@ -50,14 +53,6 @@ export default function SellerProperties() {
     p.location.city.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
-  if (isLoading && sellerProperties.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="animate-spin text-indigo-600" size={32} />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 animate-fade-in relative pb-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -79,7 +74,13 @@ export default function SellerProperties() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {(!hasRequested || isLoading) && sellerProperties.length === 0 ? (
+        <ContentSkeleton label="Loading your properties" count={6} className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3" itemClassName="h-80" />
+      ) : isError && sellerProperties.length === 0 ? (
+        <div role="alert" className="app-card p-6 text-sm text-red-600">
+          Properties could not be loaded. <button type="button" onClick={() => dispatch(getSellerProperties())} className="ml-2 underline">Try again</button>
+        </div>
+      ) : <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <AnimatePresence mode="popLayout">
           {filteredProperties.map((prop) => (
             <motion.div
@@ -152,7 +153,7 @@ export default function SellerProperties() {
             )}
           </div>
         )}
-      </div>
+      </div>}
 
       <AnimatePresence>
         {deleteId && (

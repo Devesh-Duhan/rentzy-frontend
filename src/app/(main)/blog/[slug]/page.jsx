@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import ContentSkeleton from "@/components/ContentSkeleton";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -26,37 +28,21 @@ export default function SingleBlogPage() {
   const router = useRouter();
   const slug = params?.slug;
 
-  const [blog, setBlog] = useState(null);
-  const [relatedBlogs, setRelatedBlogs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
-
-  useEffect(() => {
-    const fetchSingleBlog = async () => {
-      if (!slug) return;
-      try {
-        setIsLoading(true);
-        const { data } = await axiosInstance.get(`/blogs/${slug}`);
-        if (data?.data) {
-          setBlog(data.data);
-
-          // Fetch related articles
-          try {
-            const res = await axiosInstance.get("/blogs?limit=3");
-            const list = Array.isArray(res.data) ? res.data : res.data.data || [];
-            setRelatedBlogs(list.filter((b) => b._id !== data.data._id).slice(0, 3));
-          } catch (e) {
-            // ignore
-          }
-        }
-      } catch (err) {
-        console.error("Failed to load single blog:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchSingleBlog();
-  }, [slug]);
+  const { data: blog, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["publicBlog", slug],
+    queryFn: async () => (await axiosInstance.get(`/blogs/${slug}`)).data?.data || null,
+    enabled: !!slug,
+  });
+  const { data: relatedData, isLoading: relatedLoading } = useQuery({
+    queryKey: ["publicBlogs-related"],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get("/blogs?limit=3");
+      return Array.isArray(data) ? data : data?.data || [];
+    },
+    enabled: !!blog,
+  });
+  const relatedBlogs = (relatedData || []).filter((item) => item._id !== blog?._id).slice(0, 3);
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined") {
@@ -66,13 +52,13 @@ export default function SingleBlogPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div className="w-12 h-12 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin mb-4" />
-        <p className="text-sm font-bold text-slate-400">Loading Article...</p>
+  if (isLoading || (isError && error?.response?.status !== 404 && !blog)) {
+    return <main className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-28 md:pt-36 pb-20">
+      <div className="app-container max-w-4xl">
+        <Link href="/blog" className="inline-flex items-center gap-2 mb-8 text-sm font-bold text-indigo-600"><ArrowLeft size={16} /> Back to All Articles</Link>
+        {isError ? <div role="alert"><h1 className="text-2xl font-bold mb-4">Could not load this article</h1><button onClick={() => refetch()} className="btn-secondary">Try again</button></div> : <ContentSkeleton label="Loading article" count={3} itemClassName="h-40" />}
       </div>
-    );
+    </main>;
   }
 
   if (!blog) {
@@ -242,6 +228,7 @@ export default function SingleBlogPage() {
           )}
 
           {/* Related Articles Section */}
+          {relatedLoading && <ContentSkeleton label="Loading related articles" className="app-grid mt-12" itemClassName="h-48" />}
           {relatedBlogs.length > 0 && (
             <div className="mt-16 pt-12 border-t border-slate-200 dark:border-white/10">
               <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-6">

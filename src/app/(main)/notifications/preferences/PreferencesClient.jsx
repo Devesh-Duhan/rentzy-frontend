@@ -1,4 +1,6 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -43,16 +45,19 @@ export default function PreferencesClient() {
     }
   }, [user, router]);
 
-  const { isLoading } = useQuery({
-    queryKey: ["notificationPreferences"],
+  const { data: loadedPreferences, isLoading, isError, refetch } = useQuery({
+    queryKey: ["notificationPreferences", user?._id],
     queryFn: async () => {
       const res = await axios.get("/notification-preferences");
       const data = res.data?.preferences || res.data || {};
-      setPreferences(data);
       return data;
     },
     enabled: !!user,
   });
+
+  useEffect(() => {
+    if (loadedPreferences) setPreferences(loadedPreferences);
+  }, [loadedPreferences]);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
@@ -82,6 +87,7 @@ export default function PreferencesClient() {
   };
 
   const handleSave = () => {
+    if (isLoading || isError || !loadedPreferences || saveMutation.isPending) return;
     saveMutation.mutate(preferences);
   };
 
@@ -117,10 +123,8 @@ export default function PreferencesClient() {
             className="app-card p-8 md:p-10"
           >
             {isLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 size={32} className="animate-spin text-indigo-600" />
-              </div>
-            ) : (
+              <ContentSkeleton label="Loading notification preferences" count={4} itemClassName="h-20" />
+            ) : isError ? <div role="alert">Could not load preferences. <button onClick={() => refetch()} className="btn-secondary">Try again</button></div> : (
               <div className="space-y-2">
                 {PREFERENCES.map((pref) => {
                   const prefState = preferences[pref.key] || {};
@@ -179,7 +183,7 @@ export default function PreferencesClient() {
             <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700/50 flex justify-end">
               <button
                 onClick={handleSave}
-                disabled={saveMutation.isPending}
+                disabled={isLoading || isError || !loadedPreferences || saveMutation.isPending}
                 className="btn-primary inline-flex items-center gap-2 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40"
               >
                 {saveMutation.isPending ? (

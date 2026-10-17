@@ -79,13 +79,6 @@ export default function SellerProfile() {
     <div className="space-y-6 animate-fade-in max-w-4xl pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="section-title">Business Profile</h2>
-        <button
-          onClick={handleSave}
-          disabled={isLoading}
-          className="btn-primary flex items-center justify-center gap-2 text-sm py-3.5 shadow-lg"
-        >
-          {isLoading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} Save Changes
-        </button>
       </div>
 
       <div className="app-card p-8 relative overflow-hidden">
@@ -170,6 +163,16 @@ export default function SellerProfile() {
               <input type="text" value={profile.address} onChange={(e) => setProfile({ ...profile, address: e.target.value })} className="input-field !pl-10" />
             </div>
           </div>
+        </div>
+        <div className="mt-8 flex justify-end border-t border-slate-100 pt-6 dark:border-slate-700/50">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isLoading}
+            className="btn-primary flex w-full items-center justify-center gap-2 text-sm py-3.5 shadow-lg sm:w-auto"
+          >
+            {isLoading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} Save Changes
+          </button>
         </div>
       </div>
     </div>

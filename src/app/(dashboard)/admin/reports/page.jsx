@@ -1,4 +1,6 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import { motion } from "framer-motion";
 import { BarChart3, TrendingUp, CreditCard } from "lucide-react";
@@ -97,6 +99,7 @@ export default function ReportsSection() {
                 </tr>
              </thead>
              <tbody className="divide-y divide-slate-50 dark:divide-white/5">
+                {isLoading && <tr><td colSpan={5} className="p-6"><ContentSkeleton label="Loading transactions" itemClassName="h-12" /></td></tr>}
                 {payments.map((p) => (
                    <tr key={p._id} className="hover:bg-slate-50/80 dark:hover:bg-white/5 transition-all">
                       <td className="px-8 py-5 font-bold text-slate-900 dark:text-white">{p.userId?.name}</td>

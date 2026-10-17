@@ -6,17 +6,21 @@ import { Star, Building2, User, Calendar, MessageSquare, Reply, X, Send, ArrowUp
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
+import ContentSkeleton from "@/components/ContentSkeleton";
 
 export default function SellerReviews() {
   const queryClient = useQueryClient();
+  const { user } = useSelector(state => state.auth);
   const [propertyFilter, setPropertyFilter] = useState("all");
   const [sortBy, setSortBy] = useState("date");
   const [replyModal, setReplyModal] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['seller-reviews'],
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['seller-reviews', user?._id],
+    enabled: !!user?._id,
     queryFn: async () => {
       const response = await axios.get('/reviews/seller');
       return response.data;
@@ -24,19 +28,7 @@ export default function SellerReviews() {
     staleTime: 2 * 60 * 1000,
   });
 
-  const { data: propertiesData } = useQuery({
-    queryKey: ['seller-properties-list'],
-    queryFn: async () => {
-      const response = await axios.get('/properties/my');
-      return response.data;
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-
   const reviews = Array.isArray(data?.reviews) ? data.reviews : Array.isArray(data) ? data : [];
-  const properties = Array.isArray(propertiesData?.properties) ? propertiesData.properties :
-    Array.isArray(propertiesData) ? propertiesData : [];
-
   const uniqueProperties = [...new Map((reviews.map(r => r.property).filter(Boolean)).map(p => [p._id, p])).values()];
 
   const filteredReviews = reviews.filter(r => propertyFilter === "all" || r.property?._id === propertyFilter);
@@ -68,14 +60,6 @@ export default function SellerReviews() {
       setSubmitting(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="animate-spin text-indigo-600" size={32} />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
@@ -110,7 +94,11 @@ export default function SellerReviews() {
       </div>
 
       <div className="space-y-4">
-        {sortedReviews.length === 0 ? (
+        {isLoading ? <ContentSkeleton label="Loading reviews" count={3} itemClassName="h-40" /> : isError ? (
+          <div role="alert" className="app-card p-6 text-sm text-red-600">
+            Reviews could not be loaded. <button type="button" onClick={() => refetch()} className="ml-2 underline">Try again</button>
+          </div>
+        ) : sortedReviews.length === 0 ? (
           <div className="text-center py-16 app-card">
             <MessageSquare className="w-12 h-12 mx-auto text-slate-300 mb-4" />
             <h3 className="text-lg font-bold text-slate-700 dark:text-white">No reviews yet</h3>

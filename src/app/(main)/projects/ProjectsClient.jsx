@@ -1,15 +1,17 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import { motion } from "framer-motion";
-import { Building2, Home, MapPin, Phone, Mail, Loader2 } from "lucide-react";
+import { Building2, Home, MapPin, Mail } from "lucide-react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 
 export default function ProjectsClient() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["projects-builders"],
     queryFn: async () => {
       const res = await axios.get("/properties", { params: { limit: 500 } });
@@ -42,17 +44,6 @@ export default function ProjectsClient() {
     return Array.from(map.values()).sort((a, b) => b.propertyCount - a.propertyCount);
   }, [allProperties]);
 
-  if (isLoading) {
-    return (
-      <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
-        <div className="app-container pt-28 pb-20">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <Loader2 className="animate-spin w-8 h-8 text-indigo-600" />
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -66,7 +57,7 @@ export default function ProjectsClient() {
           <p className="section-subtitle">Connect with trusted property owners and developers</p>
         </motion.div>
 
-        {builders.length === 0 ? (
+        {isLoading ? (<ContentSkeleton label="Loading developers" className="app-grid" itemClassName="h-64" />) : isError ? <div role="alert">Could not load developers. <button onClick={() => refetch()} className="btn-secondary">Try again</button></div> : builders.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

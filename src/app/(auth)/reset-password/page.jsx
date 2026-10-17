@@ -100,7 +100,7 @@ function ResetPasswordContent() {
                                 value={form.password}
                                 onChange={handleChange}
                                 placeholder="Min. 6 characters"
-                                className="input-field pl-10 pr-10"
+                                className="input-field !pl-11 !pr-11"
                                 required
                                 minLength={6}
                             />
@@ -124,7 +124,7 @@ function ResetPasswordContent() {
                                 value={form.confirm}
                                 onChange={handleChange}
                                 placeholder="Re-enter password"
-                                className="input-field pl-10 pr-10"
+                                className="input-field !pl-11 !pr-11"
                                 required
                                 minLength={6}
                             />

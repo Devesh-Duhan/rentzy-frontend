@@ -70,8 +70,27 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    const body = document.body;
+    const root = document.documentElement;
+    const { scrollX, scrollY } = window;
+    const bodyStyles = Object.fromEntries(
+      ["position", "top", "left", "width", "overflowX", "overflowY"].map(key => [key, body.style[key]])
+    );
+    const rootStyles = { overflowX: root.style.overflowX, overflowY: root.style.overflowY };
+    // Fix the page in place so mobile touch scrolling stays inside the sidebar.
+    Object.assign(body.style, {
+      position: "fixed", top: -scrollY + "px", left: -scrollX + "px", width: "100%", overflow: "hidden",
+    });
+    root.style.overflow = "hidden";
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = event => { if (event.matches) setMobileMenuOpen(false); };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => {
+      desktop.removeEventListener("change", closeOnDesktop);
+      Object.assign(body.style, bodyStyles);
+      Object.assign(root.style, rootStyles);
+      window.scrollTo({ left: scrollX, top: scrollY, behavior: "instant" });
+    };
   }, [mobileMenuOpen]);
 
   useEffect(() => {
@@ -86,6 +105,7 @@ export default function Navbar() {
   if (isDashboard || isAuthPage) return null;
 
   const handleLogout = async () => {
+    setMobileMenuOpen(false);
     await dispatch(logout());
     router.push("/");
   };
@@ -165,8 +185,8 @@ export default function Navbar() {
             )}
 
             {/* Notifications */}
-            <div className="relative" ref={notifRef}>
-              <button onClick={() => setShowNotifPanel(!showNotifPanel)} className="btn-ghost p-2.5 relative" aria-label="Notifications">
+            <div className="static sm:relative" ref={notifRef}>
+              <button onClick={() => setShowNotifPanel(!showNotifPanel)} className="btn-ghost p-2.5 relative" aria-label="Notifications" aria-expanded={showNotifPanel} aria-controls="navbar-notifications">
                 <Bell size={18} />
                 {notifications.length > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
@@ -177,18 +197,19 @@ export default function Navbar() {
               <AnimatePresence>
                 {showNotifPanel && (
                   <motion.div
+                    id="navbar-notifications"
                     initial={{ opacity: 0, y: -8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                    className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50"
+                    className="absolute inset-x-4 top-full mt-2 flex max-h-[calc(100dvh-var(--header-height)-var(--bottom-nav-height)-1rem)] flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 sm:inset-x-auto sm:right-0 sm:w-80 md:max-h-[calc(100dvh-var(--header-height)-1rem)]"
                   >
-                    <div className="p-4 border-b border-slate-100 dark:border-slate-700">
+                    <div className="shrink-0 p-4 border-b border-slate-100 dark:border-slate-700">
                       <h4 className="font-semibold text-sm text-slate-900 dark:text-white">Notifications</h4>
                     </div>
                     {notifications.length === 0 ? (
-                      <div className="p-8 text-center text-sm text-slate-400">No new notifications</div>
+                      <div className="min-h-0 overflow-y-auto p-8 text-center text-sm text-slate-400">No new notifications</div>
                     ) : (
-                      <div className="max-h-64 overflow-y-auto">
+                      <div className="min-h-0 max-h-64 overflow-y-auto overscroll-contain break-words">
                         {notifications.slice(0, 5).map((n, i) => (
                           <div key={i} className="p-4 border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 cursor-pointer">
                             <p className="text-sm font-medium text-slate-900 dark:text-white">{n.title}</p>
@@ -197,7 +218,7 @@ export default function Navbar() {
                         ))}
                       </div>
                     )}
-                    <Link href="/notifications/preferences" className="block p-3 text-center text-xs font-semibold text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10">
+                    <Link href="/notifications/preferences" className="block shrink-0 p-3 text-center text-xs font-semibold text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10">
                       Notification Settings
                     </Link>
                   </motion.div>
@@ -264,7 +285,7 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu Toggle */}
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden btn-ghost p-2.5" aria-label="Menu">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden btn-ghost p-2.5" aria-label="Menu" aria-expanded={mobileMenuOpen} aria-controls="mobile-navigation">
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
@@ -279,7 +300,7 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 lg:hidden"
+            className="fixed inset-0 z-[60] h-dvh overflow-hidden lg:hidden"
           >
             {/* Backdrop */}
             <div
@@ -289,12 +310,13 @@ export default function Navbar() {
 
             {/* Sidebar */}
             <motion.div
+              id="mobile-navigation"
               ref={sidebarRef}
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="absolute right-0 top-0 bottom-0 w-[300px] max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 overflow-y-auto"
+              className="absolute right-0 top-0 bottom-0 w-[300px] max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]"
             >
               {/* Sidebar Header */}
               <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-5 py-4 flex items-center justify-between">

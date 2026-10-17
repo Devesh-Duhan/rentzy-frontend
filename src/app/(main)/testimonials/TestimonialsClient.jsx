@@ -1,36 +1,29 @@
 "use client";
+import ContentSkeleton from "@/components/ContentSkeleton";
+
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import { motion } from "framer-motion";
-import { Star, Quote, Loader2 } from "lucide-react";
+import { Star, Quote } from "lucide-react";
 import Footer from "@/components/Footer";
 
 export default function TestimonialsClient() {
   const [ratingFilter, setRatingFilter] = useState(0);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["testimonials"],
     queryFn: async () => {
       const res = await axios.get("/testimonials");
-      return res.data;
+      return Array.isArray(res.data) ? res.data : res.data?.data || res.data?.testimonials || [];
     },
   });
 
-  const testimonials = (data?.data || []).filter((t) =>
+  const testimonials = (Array.isArray(data) ? data : data?.data || data?.testimonials || []).filter((t) =>
     ratingFilter === 0 ? true : t.rating === ratingFilter
   );
 
-  if (isLoading) {
-    return (
-      <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
-        <div className="app-container pt-28 pb-20 flex items-center justify-center min-h-[400px]">
-          <Loader2 className="animate-spin w-8 h-8 text-indigo-600" />
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -70,7 +63,7 @@ export default function TestimonialsClient() {
           ))}
         </div>
 
-        {testimonials.length === 0 ? (
+        {isLoading ? (<ContentSkeleton label="Loading testimonials" className="app-grid" itemClassName="h-64" />) : isError ? <div role="alert">Could not load testimonials. <button onClick={() => refetch()} className="btn-secondary">Try again</button></div> : testimonials.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -106,7 +99,7 @@ export default function TestimonialsClient() {
                     <Star key={s} size={14} fill={s <= t.rating ? "#f59e0b" : "none"} className={s <= t.rating ? "text-amber-500" : "text-slate-200 dark:text-slate-700"} />
                   ))}
                 </div>
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed italic">&ldquo;{t.content}&rdquo;</p>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed italic">&ldquo;{t.content || t.text || t.comment}&rdquo;</p>
               </motion.div>
             ))}
           </div>
