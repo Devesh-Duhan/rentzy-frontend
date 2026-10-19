@@ -23,7 +23,7 @@ export default function HomeClient() {
   return (
     <div className="bg-white pt-[var(--header-height)] text-slate-900 dark:bg-slate-950 dark:text-white">
       <HeroSlider />
-      <div className="border-y border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-900/50">
+      <div className="hidden sm:block border-y border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-900/50">
         <div className="app-container grid grid-cols-1 gap-4 py-5 sm:grid-cols-3 sm:gap-8 sm:py-6">{[[MessageCircle, 'Connect directly with owners'], [SlidersHorizontal, 'Search around your lifestyle'], [ShieldCheck, 'Clear details, informed choices']].map(([Icon, text]) => <div key={text} className="flex items-center justify-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-300"><Icon size={19} className="shrink-0 text-indigo-500" />{text}</div>)}</div>
       </div>
       <section className="app-container py-14 sm:py-20" aria-labelledby="explore-title">
