@@ -62,7 +62,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="auth-market min-h-screen flex">
       {/* Left Brand Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 items-center justify-center p-12 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
@@ -71,9 +71,9 @@ const LoginPage = () => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/10 rounded-full" />
         </div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative z-50 text-center pointer-events-auto">
-          <a href="/" className="inline-flex items-center justify-center w-20 h-20 bg-white/15 backdrop-blur rounded-3xl mb-8 border border-white/20 hover:bg-white/25 transition-all cursor-pointer shadow-xl relative z-50">
+          <Link href="/" className="inline-flex items-center justify-center w-20 h-20 bg-white/15 backdrop-blur rounded-3xl mb-8 border border-white/20 hover:bg-white/25 transition-all cursor-pointer shadow-xl relative z-50">
             <BrandLogo size={80} className="h-full w-full rounded-3xl" />
-          </a>
+          </Link>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">rentzypro</h1>
           <p className="text-lg text-indigo-200 max-w-sm mx-auto leading-relaxed">
             India&apos;s trusted platform for finding rental properties directly from owners.

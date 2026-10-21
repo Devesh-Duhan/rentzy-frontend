@@ -87,7 +87,7 @@ export default function PropertyDetailClient({ id, initialData }) {
   const average = reviews.length ? (reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length).toFixed(1) : null;
   const facts = [[BedDouble, property.bedrooms ? `${property.bedrooms} bedrooms` : 'Bedroom details pending'], [Bath, property.bathrooms ? `${property.bathrooms} bathrooms` : 'Bathroom details pending'], [Maximize, property.areaSqFt ? `${Number(property.areaSqFt).toLocaleString('en-IN')} sq ft` : 'Area on request'], [Sofa, property.furnishing?.replace(/-/g, ' ') || 'Furnishing on request']];
   return (
-    <div className="bg-white text-slate-900 dark:bg-slate-950 dark:text-white">
+    <div className="market-detail bg-white text-slate-900 dark:bg-slate-950 dark:text-white">
       <PropertySchema property={property} />
       <main className="app-container pb-40 pt-24 sm:pt-28 md:pb-20">
         <nav aria-label="Breadcrumb" className="mb-7 flex flex-wrap items-center gap-2 text-xs text-slate-500"><Link href="/" className="hover:text-indigo-600">Home</Link><ChevronRight size={12} /><Link href="/properties" className="hover:text-indigo-600">Properties</Link><ChevronRight size={12} /><span className="max-w-[220px] truncate text-slate-800 dark:text-slate-300">{property.title}</span></nav>

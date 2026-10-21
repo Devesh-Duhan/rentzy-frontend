@@ -115,19 +115,20 @@ export default function Navbar() {
   return (
     <>
       {/* Desktop Header */}
-      <header className={`header-nav transition-all duration-300 ${scrolled ? "shadow-sm" : ""}`}>
-        <div className="app-container h-full flex items-center justify-between gap-2">
+      <header className={`header-nav market-header transition-all duration-300 ${scrolled ? "shadow-sm" : ""}`}>
+        <div className="market-header-inner h-full flex items-center justify-between gap-2">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <BrandLogo size={36} priority className="h-9 w-9 rounded-xl shadow-lg" />
-            <span className="text-sm sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap">
+            <span className="market-brand text-sm sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap">
               Rentzy<span className="text-indigo-600">Pro</span>
             </span>
           </Link>
 
           {/* Center Nav Links */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="market-tabs hidden lg:flex items-center gap-1">
             {[
+              { label: "Homes", href: "/properties" },
               { label: "Buy", href: "/buy" },
               { label: "Rent", href: "/rent" },
               { label: "Sell", href: "/sell" },
@@ -148,8 +149,9 @@ export default function Navbar() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-1">
-            {/* Desktop Quick Nav Icons (moved from bottom nav) */}
-            <div className="hidden md:flex items-center gap-0.5 mr-1 min-w-[120px] justify-end">
+            <Link href={user && ["seller", "admin"].includes(user.role) ? "/add" : "/become-seller"} className="market-host-link">Become a host</Link>
+            {/* Existing quick actions remain available in account/mobile menus. */}
+            <div className="hidden">
               {BOTTOM_NAV_ITEMS.map((item) => {
                 if (item.auth && (!mounted || !user)) return null;
                 const active = isActive(item.href);
@@ -179,7 +181,7 @@ export default function Navbar() {
 
             {/* Theme Toggle */}
             {mounted && (
-              <button onClick={toggleTheme} className="btn-ghost p-2.5" aria-label="Toggle theme">
+              <button onClick={toggleTheme} className="theme-toggle btn-ghost p-2.5" aria-label="Toggle theme">
                 {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
               </button>
             )}
@@ -228,12 +230,13 @@ export default function Navbar() {
 
             {/* User Menu */}
             <div className="relative" ref={userMenuRef}>
-              <button onClick={() => setShowUserMenu(!showUserMenu)} className="btn-ghost p-1" aria-label="User menu">
+              <button onClick={() => setShowUserMenu(!showUserMenu)} className="market-account-button" aria-label="User menu" aria-expanded={showUserMenu}>
+                <Menu size={18} />
                 {user?.profileImage && user.profileImage !== "default-profile.png" ? (
                   <Image src={user.profileImage} alt="" width={32} height={32} className="rounded-lg object-cover w-8 h-8" unoptimized />
                 ) : (
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
-                    {user?.name?.charAt(0) || "?"}
+                    {user?.name?.charAt(0) || <UserCircle size={22} />}
                   </div>
                 )}
               </button>
@@ -436,6 +439,7 @@ export default function Navbar() {
                 </div>
               </div>
 
+              {mounted && <button type="button" onClick={toggleTheme} className="mx-5 mb-3 inline-flex min-h-11 items-center gap-3 text-sm md:hidden">{theme === "dark" ? <Sun size={17} /> : <Moon size={17} />} Switch to {theme === "dark" ? "light" : "dark"} theme</button>}
               {/* Auth Actions */}
               <div className="px-5 py-5 mt-2 border-t border-slate-100 dark:border-slate-800">
                 {user ? (

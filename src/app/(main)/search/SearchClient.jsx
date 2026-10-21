@@ -185,7 +185,7 @@ export default function SearchClient() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
-      <main className="pt-28 md:pt-36 pb-28 md:pb-24">
+      <main className="market-browse pt-28 md:pt-36 pb-28 md:pb-24">
         <section className="app-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

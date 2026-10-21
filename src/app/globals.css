@@ -8,8 +8,8 @@
     --foreground: #0f172a;
     --card: #ffffff;
     --card-foreground: #0f172a;
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
+    --primary: #ff385c;
+    --primary-dark: #e31c5f;
     --secondary: #a855f7;
     --accent: #f59e0b;
     --muted: #f1f5f9;
@@ -17,7 +17,7 @@
     --border: #e2e8f0;
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
-    --ring: #6366f1;
+    --ring: #ff385c;
     --radius: 12px;
     --header-height: 64px;
     --bottom-nav-height: 64px;
@@ -33,7 +33,7 @@
     --border: #1e293b;
     --destructive: #7f1d1d;
     --destructive-foreground: #f1f5f9;
-    --ring: #6366f1;
+    --ring: #ff385c;
   }
 
   * {

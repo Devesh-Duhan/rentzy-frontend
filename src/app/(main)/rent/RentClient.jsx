@@ -239,7 +239,7 @@ export default function RentClient() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--background)]">
+    <main className="market-browse min-h-screen bg-[var(--background)]">
       <section className="hero-section bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 dark:from-slate-900 dark:via-emerald-950 dark:to-slate-900">
         <div className="hero-overlay" />
         <div className="app-container relative z-20 w-full">
@@ -333,7 +333,7 @@ export default function RentClient() {
                   </button>
                 </div>
               ) : isLoading ? (
-                <div role="status" aria-label="Loading properties" className="app-grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div role="status" aria-label="Loading properties" className="app-grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                   {[...Array(6)].map((_, i) => (
                     <PropertySkeleton key={i} />
                   ))}
@@ -361,7 +361,7 @@ export default function RentClient() {
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
-                  className="app-grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  className="app-grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                 >
                   {properties.map((prop, i) => (
                     <motion.div key={prop._id || prop.id || i} variants={itemVariants} className="h-full flex">

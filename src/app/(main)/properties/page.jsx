@@ -47,7 +47,7 @@ function PaginatedProperties() {
   });
 
   const [appliedFilters, setAppliedFilters] = useState(() => initialType ? { type: initialType } : {});
-  const gridClassName = `grid grid-cols-2 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 ${filtersOpen ? 'xl:grid-cols-3' : 'lg:grid-cols-3 xl:grid-cols-4'}`;
+  const gridClassName = `grid grid-cols-2 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 ${filtersOpen ? 'xl:grid-cols-3' : 'lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'}`;
 
   const buildQueryString = (f) => {
     const params = new URLSearchParams();
@@ -263,7 +263,7 @@ function PaginatedProperties() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950">
+    <main className="market-browse min-h-screen bg-white dark:bg-slate-950">
       <div className="app-container pt-28 md:pt-36 pb-28 md:pb-20">
         <div className="mb-8 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">

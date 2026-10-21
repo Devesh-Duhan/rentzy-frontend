@@ -212,7 +212,7 @@ export default function BuyClient() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--background)]">
+    <main className="market-browse min-h-screen bg-[var(--background)]">
       <section className="hero-section bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900">
         <div className="hero-overlay" />
         <div className="app-container relative z-20 w-full">
@@ -306,7 +306,7 @@ export default function BuyClient() {
                   </button>
                 </div>
               ) : isLoading ? (
-                <div role="status" aria-label="Loading properties" className="app-grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div role="status" aria-label="Loading properties" className="app-grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                   {[...Array(6)].map((_, i) => (
                     <PropertySkeleton key={i} />
                   ))}
@@ -334,7 +334,7 @@ export default function BuyClient() {
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
-                  className="app-grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  className="app-grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                 >
                   {properties.map((prop, i) => (
                     <motion.div key={prop._id || prop.id || i} variants={itemVariants} className="h-full flex">
