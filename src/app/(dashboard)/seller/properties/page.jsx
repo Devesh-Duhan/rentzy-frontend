@@ -97,7 +97,7 @@ export default function SellerProperties() {
                   <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm ${
                     prop.status === "available" ? "bg-emerald-100 text-emerald-700" : prop.status === "rented" ? "bg-amber-100 text-amber-700" : "bg-white text-slate-700"
                   }`}>
-                    {prop.status}
+                    {prop.isVerified ? prop.status : prop.rejectionReason ? "Rejected" : "Pending verification"}
                   </span>
                   <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-600 text-white shadow-sm w-fit">
                     {Array.isArray(prop.purpose) ? prop.purpose.join(' & ') : (prop.purpose || 'rent')}
@@ -109,6 +109,7 @@ export default function SellerProperties() {
                   <MapPin size={12} /> {prop.location.city}, {prop.location.state}
                 </div>
                 <h3 className="font-bold text-slate-900 dark:text-white mb-3 line-clamp-1">{prop.title}</h3>
+                {prop.rejectionReason && !prop.isVerified && <p className="mb-3 text-xs text-rose-600">{prop.rejectionReason}</p>}
                 <div className="flex items-center justify-between py-3 border-y border-slate-100 dark:border-slate-700/50 mb-4">
                   <div>
                     <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Monthly Rent</p>

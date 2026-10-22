@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { motion } from "framer-motion";
 import { Flag, X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "@/lib/axios";
@@ -10,12 +11,32 @@ const reasons = ["Wrong Info", "Spam", "Duplicate", "Fraud", "Other"];
 
 const ReportProperty = ({ propertyId }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const dialogRef = useRef(null);
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || !dialogRef.current) return;
+    const dialog = dialogRef.current, body = document.body, root = document.documentElement;
+    const previousFocus = document.activeElement;
+    const { scrollX, scrollY } = window;
+    const bodyStyles = Object.fromEntries(['position', 'top', 'left', 'width', 'overflowX', 'overflowY'].map(key => [key, body.style[key]]));
+    const rootStyles = { overflowX: root.style.overflowX, overflowY: root.style.overflowY };
+    dialog.showModal();
+    Object.assign(body.style, { position: 'fixed', top: -scrollY + 'px', left: -scrollX + 'px', width: '100%', overflow: 'hidden' });
+    root.style.overflow = 'hidden';
+    return () => {
+      if (dialog.open) dialog.close();
+      Object.assign(body.style, bodyStyles);
+      Object.assign(root.style, rootStyles);
+      previousFocus?.focus({ preventScroll: true });
+      window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });
+    };
+  }, [isOpen]);
 
   const openModal = () => {
     const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
@@ -85,43 +106,40 @@ const ReportProperty = ({ propertyId }) => {
         <Flag className="w-4 h-4" /> Report
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+      {isOpen && createPortal(
+          <dialog ref={dialogRef} aria-labelledby="report-property-title"
+            onCancel={event => { event.preventDefault(); setIsOpen(false); }}
+            onClick={event => { if (event.target === event.currentTarget) setIsOpen(false); }}
+            className="fixed inset-0 m-auto w-[calc(100%_-_2rem)] max-w-md max-h-[calc(100dvh_-_2rem)] overflow-visible border-0 bg-transparent p-0 text-inherit backdrop:bg-black/50 backdrop:backdrop-blur-sm">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-slate-700 p-6"
+              className="flex max-h-[calc(100dvh_-_2rem)] min-h-0 flex-col overflow-hidden bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-slate-700"
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="shrink-0 flex items-center justify-between gap-3 border-b border-gray-100 dark:border-slate-700 p-5 sm:p-6">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
                     <Flag className="w-5 h-5 text-rose-600 dark:text-rose-400" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Report Property</h3>
+                  <h3 id="report-property-title" className="text-lg font-bold text-gray-900 dark:text-white">Report Property</h3>
                 </div>
                 <button
+                  type="button"
+                  aria-label="Close report form"
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-400 hover:text-rose-500 transition-colors"
+                  className="shrink-0 w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-400 hover:text-rose-500 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+                <div data-report-dialog-body className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
+                  <label htmlFor="report-reason" className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
                     Reason <span className="text-rose-500">*</span>
                   </label>
-                  <select
+                  <select id="report-reason"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
@@ -134,8 +152,8 @@ const ReportProperty = ({ propertyId }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">Description</label>
-                  <textarea
+                  <label htmlFor="report-description" className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">Description</label>
+                  <textarea id="report-description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
@@ -146,10 +164,10 @@ const ReportProperty = ({ propertyId }) => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
+                    <label htmlFor="report-name" className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
                       Name <span className="text-rose-500">*</span>
                     </label>
-                    <input
+                    <input id="report-name"
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
@@ -159,10 +177,10 @@ const ReportProperty = ({ propertyId }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
+                    <label htmlFor="report-phone" className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
                       Phone <span className="text-rose-500">*</span>
                     </label>
-                    <input
+                    <input id="report-phone"
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
@@ -173,10 +191,10 @@ const ReportProperty = ({ propertyId }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
+                  <label htmlFor="report-email" className="block text-sm font-semibold text-gray-600 dark:text-slate-300 mb-1.5">
                     Email <span className="text-rose-500">*</span>
                   </label>
-                  <input
+                  <input id="report-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -185,6 +203,8 @@ const ReportProperty = ({ propertyId }) => {
                   />
                 </div>
 
+                </div>
+                <div className="shrink-0 border-t border-gray-100 dark:border-slate-700 p-5 sm:p-6">
                 <button
                   type="submit"
                   disabled={submitting}
@@ -200,11 +220,11 @@ const ReportProperty = ({ propertyId }) => {
                     </>
                   )}
                 </button>
+                </div>
               </form>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+          </dialog>, document.body
+      )}
     </>
   );
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,13 +25,25 @@ export default function BlogPage() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const { data: blogs = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ['public-blogs'],
-    queryFn: async () => {
-      const { data } = await axiosInstance.get('/blogs');
-      return Array.isArray(data) ? data : data.data || data.blogs || [];
+  const {
+    data: blogPages, isLoading, isError, refetch,
+    fetchNextPage, hasNextPage, isFetchingNextPage, isFetchNextPageError,
+  } = useInfiniteQuery({
+    queryKey: ['public-blogs', 'list'],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam, signal }) => {
+      const { data } = await axiosInstance.get('/blogs', { params: { page: pageParam, limit: 20 }, signal });
+      const items = Array.isArray(data) ? data : data.data || data.blogs || [];
+      const page = Number(data.page) || pageParam;
+      return {
+        items: Array.isArray(items) ? items : [],
+        nextPage: page < (Number(data.pages) || 1) ? page + 1 : undefined,
+      };
     },
+    getNextPageParam: lastPage => lastPage.nextPage,
+    refetchOnMount: 'always',
   });
+  const blogs = useMemo(() => blogPages?.pages.flatMap(page => page.items) || [], [blogPages]);
 
   // Extract unique categories across blogs
   const categories = useMemo(() => {
@@ -154,7 +166,7 @@ export default function BlogPage() {
                 Loading Latest Insights...
               </p>
             </div>
-          ) : isError ? (
+          ) : isError && blogs.length === 0 ? (
             <div role="alert" className="py-24 text-center">
               <p className="text-sm text-slate-500">Articles could not be loaded.</p>
               <button type="button" onClick={() => refetch()} className="btn-primary mt-4">Try again</button>
@@ -337,6 +349,14 @@ export default function BlogPage() {
                   )
                 )}
               </motion.div>
+              {hasNextPage && (
+                <div className="mt-8 text-center">
+                  {isFetchNextPageError && <p role="alert" className="mb-3 text-sm text-rose-600">More articles could not be loaded. Please try again.</p>}
+                  <button type="button" onClick={() => fetchNextPage()} disabled={isFetchingNextPage} aria-busy={isFetchingNextPage} className="btn-secondary text-sm">
+                    {isFetchingNextPage ? 'Loading articles...' : 'Load more articles'}
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

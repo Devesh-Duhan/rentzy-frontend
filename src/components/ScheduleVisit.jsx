@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -9,6 +10,7 @@ import axios from "@/lib/axios";
 const timeSlots = ["Morning (9 AM - 12 PM)", "Afternoon (12 PM - 4 PM)", "Evening (4 PM - 7 PM)"];
 
 const ScheduleVisit = ({ propertyId }) => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -24,7 +26,7 @@ const ScheduleVisit = ({ propertyId }) => {
     const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
 
     if (!storedUser) {
-      window.location.href = "/login";
+      router.push("/login");
       return;
     }
 

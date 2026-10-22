@@ -247,7 +247,7 @@ const AddPropertyPage = () => {
               propertyId: createdPropertyId,
               amount: order.amount / 100
             });
-            toast.success("Payment Received! Property is now live.");
+            toast.success("Payment Received! Property is awaiting admin verification.");
             router.push(isAdminFlow ? "/admin/properties" : "/seller/properties");
           } catch (error) { toast.error("Payment verification failed!"); }
         },
@@ -274,7 +274,7 @@ const AddPropertyPage = () => {
         if (result.paymentDetails) {
           try {
             await axiosInstance.post('/properties/verify-cashfree-listing-payment', { order_id, propertyId: createdPropertyId });
-            toast.success("Payment Received! Property is now live.");
+            toast.success("Payment Received! Property is awaiting admin verification.");
             router.push(isAdminFlow ? "/admin/properties" : "/seller/properties");
           } catch (error) { toast.error("Payment verification failed!"); }
         }
@@ -320,20 +320,20 @@ const AddPropertyPage = () => {
           if (!data.isPaid) {
             setCreatedPropertyId(data._id);
             setIsPaymentSelection(true);
-            toast.success('Property saved. Complete the listing payment to publish.');
+            toast.success('Property saved. Complete payment, then await admin verification.');
             return;
           }
-          toast.success("Property updated successfully!");
+          toast.success("Property updated. Admin verification is required before it appears publicly.");
           router.push(isAdminFlow ? "/admin/properties" : "/seller/properties");
         } else {
           const response = await axiosInstance.post('/properties', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
           if (!response.data.property.isPaid) {
             setCreatedPropertyId(response.data.property._id);
             setIsPaymentSelection(true);
-            toast.success('Property saved. Complete the listing payment to publish.');
+            toast.success('Property saved. Complete payment, then await admin verification.');
             return;
           }
-          toast.success("Property published successfully!");
+          toast.success("Property submitted for admin verification!");
           router.push(isAdminFlow ? "/admin/properties" : "/seller/properties");
         }
       } else {
@@ -624,7 +624,7 @@ const AddPropertyPage = () => {
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="glass-effect p-8 md:p-12 rounded-3xl text-center">
               <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6"><IndianRupee size={32} /></div>
               <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">Choose Payment Method</h1>
-              <p className="section-subtitle mb-8 max-w-md mx-auto">Complete your listing fee to make your property live on RentzyPro.</p>
+              <p className="section-subtitle mb-8 max-w-md mx-auto">Complete your listing fee to submit your property for admin verification.</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button onClick={handleRazorpayPayment} disabled={isPaying} className="group relative overflow-hidden bg-indigo-600 p-6 rounded-2xl text-white transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50">
                   <div className="relative z-10 flex flex-col items-center gap-3"><div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center"><CheckCircle2 size={22} /></div><span className="font-bold uppercase tracking-wider text-xs">Pay with Razorpay</span></div>

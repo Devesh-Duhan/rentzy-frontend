@@ -16,10 +16,12 @@ function SessionReady({ children }) {
 }
 export default function StoreProvider({ children }) {
   const [store] = useState(makeStore);
+  // Streamed boundaries must hydrate against the same anonymous state as the server.
+  const [serverState] = useState(() => store.getState());
   useEffect(() => {
     let user = null;
     try { if (localStorage.getItem('token')) user = getUserFromStorage(); } catch {}
     store.dispatch(hydrateSession(user));
   }, [store]);
-  return <Provider store={store}><SessionReady>{children}</SessionReady></Provider>;
+  return <Provider store={store} serverState={serverState}><SessionReady>{children}</SessionReady></Provider>;
 }

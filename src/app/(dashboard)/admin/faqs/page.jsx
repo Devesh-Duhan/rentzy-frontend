@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
-  Plus, Trash2, Edit2, Search, RefreshCcw, HelpCircle, Eye, EyeOff
+  Plus, Trash2, Edit2, Search, RefreshCcw, HelpCircle, Eye, EyeOff, X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "@/lib/axios";
@@ -278,47 +279,33 @@ export default function FaqsPage() {
       </div>
 
       {/* Add/Edit Modal */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsModalOpen(false)}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100]"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed inset-x-4 bottom-8 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 w-[calc(100%-32px)] md:max-w-xl bg-white dark:bg-slate-900 z-[110] rounded-[40px] shadow-2xl overflow-hidden flex flex-col border border-slate-100 dark:border-white/10 max-h-[90vh]"
-            >
-              <div className="p-8 border-b border-slate-50 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-white/5">
+      <FaqDialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+              <div className="shrink-0 p-5 sm:p-6 border-b border-slate-50 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-white/5">
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white">{isEditMode ? "Edit FAQ" : "New FAQ"}</h3>
-                  <p className="text-sm text-slate-500 font-medium">Add a frequently asked question.</p>
+                  <h3 id="faq-dialog-title" className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">{isEditMode ? "Edit FAQ" : "New FAQ"}</h3>
+                  <p className="text-xs sm:text-sm text-slate-500 font-medium">Add a frequently asked question.</p>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="p-3 bg-white dark:bg-slate-800 text-slate-400 rounded-2xl hover:text-rose-500 transition-colors shadow-sm">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                <button type="button" aria-label="Close FAQ form" onClick={() => setIsModalOpen(false)} className="shrink-0 p-2.5 bg-white dark:bg-slate-800 text-slate-400 rounded-2xl hover:text-rose-500 transition-colors shadow-sm">
+                  <X size={20} />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
+              <div data-faq-dialog-body className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6 space-y-5 custom-scrollbar">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Question</label>
-                  <input name="question" value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} placeholder="How do I book a property?" className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
+                  <label htmlFor="faq-question" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Question</label>
+                  <input id="faq-question" name="question" value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} placeholder="How do I book a property?" className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Answer</label>
-                  <textarea name="answer" value={form.answer} onChange={(e) => setForm({ ...form, answer: e.target.value })} rows={5} placeholder="Write the answer..." className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all resize-none" />
+                  <label htmlFor="faq-answer" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Answer</label>
+                  <textarea id="faq-answer" name="answer" value={form.answer} onChange={(e) => setForm({ ...form, answer: e.target.value })} rows={5} placeholder="Write the answer..." className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all resize-none" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Category</label>
+                    <label htmlFor="faq-category" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Category</label>
                     <select
+                      id="faq-category"
                       value={form.category}
                       onChange={(e) => setForm({ ...form, category: e.target.value })}
                       className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all appearance-none cursor-pointer"
@@ -329,8 +316,8 @@ export default function FaqsPage() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Display Order</label>
-                    <input type="number" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: parseInt(e.target.value) || 0 })} className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
+                    <label htmlFor="faq-order" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Display Order</label>
+                    <input id="faq-order" type="number" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: parseInt(e.target.value) || 0 })} className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
                   </div>
                 </div>
 
@@ -338,6 +325,9 @@ export default function FaqsPage() {
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Status</span>
                   <button
                     type="button"
+                    role="switch"
+                    aria-label="Active status"
+                    aria-checked={form.isActive}
                     onClick={() => setForm({ ...form, isActive: !form.isActive })}
                     className={`relative w-14 h-7 rounded-full transition-all ${form.isActive ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"}`}
                   >
@@ -346,16 +336,13 @@ export default function FaqsPage() {
                 </div>
               </div>
 
-              <div className="p-8 border-t border-slate-50 dark:border-white/5 flex gap-4">
-                <button onClick={() => setIsModalOpen(false)} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-[20px] font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Cancel</button>
-                <button onClick={handleSubmit} className="flex-1 py-4 bg-indigo-600 text-white rounded-[20px] font-black text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">
+              <div className="shrink-0 p-5 sm:p-6 border-t border-slate-50 dark:border-white/5 flex gap-3 sm:gap-4">
+                <button onClick={() => setIsModalOpen(false)} className="flex-1 py-3.5 sm:py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-[20px] font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Cancel</button>
+                <button onClick={handleSubmit} className="flex-1 py-3.5 sm:py-4 bg-indigo-600 text-white rounded-[20px] font-black text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">
                   {isEditMode ? "Save Changes" : "Create FAQ"}
                 </button>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      </FaqDialog>
 
       {/* Delete Modal */}
       <AnimatePresence>
@@ -379,7 +366,7 @@ export default function FaqsPage() {
               </div>
               <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Delete FAQ?</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-8">
-                Delete FAQ <span className="text-slate-900 dark:text-white font-bold">"{deleteConfig.question}"</span>? This cannot be undone.
+                Delete FAQ <span className="text-slate-900 dark:text-white font-bold">&quot;{deleteConfig.question}&quot;</span>? This cannot be undone.
               </p>
               <div className="flex gap-4">
                 <button onClick={() => setIsDeleteModalOpen(false)} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Cancel</button>
@@ -390,5 +377,40 @@ export default function FaqsPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function FaqDialog({ open, onClose, children }) {
+  const dialogRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    if (!mounted || !open || !dialogRef.current) return;
+    const dialog = dialogRef.current, body = document.body, root = document.documentElement;
+    const previousFocus = document.activeElement;
+    const { scrollX, scrollY } = window;
+    const bodyStyles = Object.fromEntries(['position', 'top', 'left', 'width', 'overflowX', 'overflowY'].map(key => [key, body.style[key]]));
+    const rootStyles = { overflowX: root.style.overflowX, overflowY: root.style.overflowY };
+    dialog.showModal();
+    Object.assign(body.style, { position: 'fixed', top: -scrollY + 'px', left: -scrollX + 'px', width: '100%', overflow: 'hidden' });
+    root.style.overflow = 'hidden';
+    return () => {
+      if (dialog.open) dialog.close();
+      Object.assign(body.style, bodyStyles);
+      Object.assign(root.style, rootStyles);
+      previousFocus?.focus({ preventScroll: true });
+      window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });
+    };
+  }, [open, mounted]);
+  if (!mounted) return null;
+  return createPortal(
+    <dialog ref={dialogRef} aria-labelledby="faq-dialog-title"
+      onCancel={event => { event.preventDefault(); onClose(); }}
+      onClick={event => { if (event.target === event.currentTarget) onClose(); }}
+      className="fixed inset-0 m-auto w-[calc(100%_-_2rem)] max-w-xl max-h-[calc(100dvh_-_2rem)] overflow-visible border-0 bg-transparent p-0 text-inherit backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm">
+      {open && <div className="flex max-h-[calc(100dvh_-_2rem)] min-h-0 flex-col overflow-hidden rounded-3xl sm:rounded-[32px] border border-slate-100 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
+        {children}
+      </div>}
+    </dialog>, document.body
   );
 }

@@ -4,7 +4,7 @@ import ContentSkeleton from "@/components/ContentSkeleton";
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Plus, MapPin, Building2, Edit2, Trash2 } from "lucide-react";
+import { Plus, MapPin, Building2, Edit2, Trash2, ImageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllPropertiesAdmin, reset } from "@/store/slices/propertySlice";
@@ -112,7 +112,7 @@ export default function PropertiesSection() {
                 <Image src={property.images[0]} width={112} height={112} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="" unoptimized />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800">
-                  <i className="fas fa-image text-slate-300 dark:text-slate-600"></i>
+                  <ImageIcon size={16} className="text-slate-300 dark:text-slate-600" />
                 </div>
               )}
             </div>

@@ -17,6 +17,7 @@ export default function PropertyCard({id,_id,title,location,price,images,image,t
  const {user}=useSelector(state=>state.auth);
  const [saved,setSaved]=useState(isSaved),[saving,setSaving]=useState(false),[index,setIndex]=useState(0),[brokenImage,setBrokenImage]=useState(false);
  const photos=[...new Set([...(Array.isArray(images)?images:[]),image].filter(Boolean))],src=photos[index]||photos[0];
+ const optimizableImage=typeof src==='string'&&((src.startsWith('/')&&!src.startsWith('//'))||/^https:\/\/(res\.cloudinary\.com|images\.unsplash\.com|plus\.unsplash\.com)\//.test(src));
  const numericPrice=typeof price==='number'?price:Number(String(price||'').replace(/[^\d.]/g,'')),sale=isSale(purpose);
  useEffect(()=>{setSaved(isSaved);},[isSaved,propertyId]);
  useEffect(()=>{setIndex(0);setBrokenImage(false);},[propertyId]);
@@ -31,17 +32,17 @@ export default function PropertyCard({id,_id,title,location,price,images,image,t
  function slide(direction){setIndex(value=>(value+direction+photos.length)%photos.length);setBrokenImage(false);}
  return <article className={`${styles.card} ${compact?styles.compact:''} ${layout==='list'?styles.list:''}`}>
    <div className={styles.image}>
-     <Link href={`/properties/${propertyId}`} aria-label={`View ${title||'property'}`} className={styles.photoLink}>{src&&!brokenImage?<Image src={src} alt={title||'Property photo'} fill sizes="(min-width: 1600px) 280px, (min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw" className="object-cover" unoptimized={!/^https:\/\/(res\.cloudinary\.com|images\.unsplash\.com|plus\.unsplash\.com)\//.test(src)} onError={()=>setBrokenImage(true)}/>:<div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400"><ImageIcon size={30}/><span className="text-xs">Photos coming soon</span></div>}</Link>
+     <Link prefetch={false} href={`/properties/${propertyId}`} aria-label={`View ${title||'property'}`} className={styles.photoLink}>{src&&!brokenImage?<Image src={src} alt={title||'Property photo'} fill sizes="(min-width: 1600px) 280px, (min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw" className="object-cover" unoptimized={!optimizableImage} onError={()=>setBrokenImage(true)}/>:<div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400"><ImageIcon size={30}/><span className="text-xs">Photos coming soon</span></div>}</Link>
      <div className={styles.badges}>{isVerified?<span><BadgeCheck size={13}/> Verified</span>:<span>{sale?'For sale':'For rent'}</span>}{isNew&&<span>New</span>}</div>
      <button type="button" onClick={toggleSave} disabled={saving} aria-label={saved?'Remove from saved properties':'Save property'} aria-pressed={saved} className={styles.save}><Heart size={24} className={saved?'fill-rose-500 text-rose-500':''}/></button>
      {photos.length>1&&<><button type="button" onClick={()=>slide(-1)} aria-label="Previous property photo" className={`${styles.photoArrow} ${styles.previous}`}><ChevronLeft size={17}/></button><button type="button" onClick={()=>slide(1)} aria-label="Next property photo" className={`${styles.photoArrow} ${styles.next}`}><ChevronRight size={17}/></button><span className={styles.photoCount}>{index+1} / {photos.length}</span></>}
    </div>
    <div className={styles.body}>
      <p className={styles.category}>{propertyType(type).replace(/[_-]/g,' ')} · {sale?'For sale':'For rent'}</p>
-     <h3><Link href={`/properties/${propertyId}`} className={styles.titleLink}>{title||'Untitled property'}</Link></h3>
+     <h3><Link prefetch={false} href={`/properties/${propertyId}`} className={styles.titleLink}>{title||'Untitled property'}</Link></h3>
      <p className={styles.location}><MapPin size={12}/><span>{locationLabel(location)||'Location not specified'}</span></p>
      <div className={styles.facts}>{(bedrooms??bhk)>0&&<span><BedDouble size={14}/>{bedrooms??bhk} beds</span>}{bathrooms>0&&<span><Bath size={13}/>{bathrooms} baths</span>}{(areaSqFt||area)>0&&<span><Maximize size={12}/>{areaSqFt||area} sq ft</span>}{!bedrooms&&!bhk&&!areaSqFt&&!area&&furnishing&&<span className="capitalize">{furnishing.replace(/-/g,' ')}</span>}</div>
-     <div className={styles.price}><p><strong>{formatMoney(numericPrice)}</strong>{!sale&&<span> / month</span>}</p><Link href={`/properties/${propertyId}`} aria-label={`View details of ${title||'property'}`}><ArrowUpRight size={17}/></Link></div>
+     <div className={styles.price}><p><strong>{formatMoney(numericPrice)}</strong>{!sale&&<span> / month</span>}</p><Link prefetch={false} href={`/properties/${propertyId}`} aria-label={`View details of ${title||'property'}`}><ArrowUpRight size={17}/></Link></div>
    </div>
  </article>;
 }

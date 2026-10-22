@@ -196,7 +196,7 @@ for (const [path, endpoint, data] of [
     const api = await hold(page, endpoint, data);
     try {
       await page.goto(path);
-      if (path === '/') await page.getByRole('heading', { name: 'Fresh places. New possibilities.', exact: true }).scrollIntoViewIfNeeded();
+      if (path === '/') await page.getByRole('heading', { name: 'Featured properties', exact: true }).scrollIntoViewIfNeeded();
       await expect.poll(api.calls).toBeGreaterThan(0);
       await expect(page.getByRole('heading').first()).toBeVisible();
       expect(await page.locator('.animate-pulse, .animate-spin').count()).toBeGreaterThan(0);

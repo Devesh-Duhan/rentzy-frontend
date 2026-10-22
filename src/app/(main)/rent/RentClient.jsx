@@ -244,7 +244,7 @@ export default function RentClient() {
         <div className="hero-overlay" />
         <div className="app-container relative z-20 w-full">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
@@ -258,7 +258,7 @@ export default function RentClient() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-8 max-w-2xl mx-auto"

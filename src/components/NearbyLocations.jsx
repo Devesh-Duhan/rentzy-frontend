@@ -1,4 +1,5 @@
 "use client";
+import { MapPinned, List } from "lucide-react";
 
 const NearbyLocations = ({ onAreaClick, activeArea, districtName, dynamicCities }) => {
   // Use dynamicCities passed from HomeClient, or fallback if necessary (shouldn't be)
@@ -36,7 +37,7 @@ const NearbyLocations = ({ onAreaClick, activeArea, districtName, dynamicCities 
             {/* Map Legend/Overlay */}
             <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md dark:bg-slate-900/90 px-5 py-4 rounded-2xl shadow-2xl border border-white/50 dark:border-slate-800/50 text-xs hidden sm:block">
               <div className="flex items-center gap-3 mb-2 font-bold text-slate-900 dark:text-slate-100">
-                <i className="fas fa-map-marked-alt text-indigo-600 dark:text-indigo-300"></i> Region: {activeArea || "All Districts"}
+                <MapPinned size={16} className="text-indigo-600 dark:text-indigo-300" /> Region: {activeArea || "All Districts"}
               </div>
               <div className="flex items-center gap-3">
                 <span className="w-3 h-3 rounded-full bg-green-500 shadow-sm animate-pulse"></span>
@@ -49,7 +50,7 @@ const NearbyLocations = ({ onAreaClick, activeArea, districtName, dynamicCities 
           <div className="flex-1 w-full space-y-4 relative z-20">
             <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-8 flex items-center gap-3">
               <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-300">
-                <i className="fas fa-list-ul text-sm"></i>
+                <List size={16} />
               </div>
               Local Areas in {districtName?.split(',')[0]}
             </h3>
@@ -73,7 +74,7 @@ const NearbyLocations = ({ onAreaClick, activeArea, districtName, dynamicCities 
 
             <div className="bg-indigo-50 dark:bg-indigo-900/30 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-700/30 mt-10">
               <p className="text-sm text-indigo-800 dark:text-indigo-200 font-bold italic leading-relaxed">
-                "Direct from owner properties verified by our local experts in every sector of {districtName?.split(',')[0]}."
+                &quot;Direct from owner properties verified by our local experts in every sector of {districtName?.split(',')[0]}.&quot;
               </p>
             </div>
           </div>

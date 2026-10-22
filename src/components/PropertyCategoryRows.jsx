@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, BedDouble, Building2, ChevronLeft, ChevronRight, Home, LandPlot, Store, Warehouse } from 'lucide-react';
+import { ArrowRight, BedDouble, Building2, ChevronLeft, ChevronRight, Home, LandPlot, Star, Store, Warehouse } from 'lucide-react';
 import axios from '@/lib/axios';
 import { cardProperty } from '@/lib/property';
 import useNearViewport from '@/lib/useNearViewport';
@@ -12,6 +12,7 @@ import PropertySkeleton from './PropertySkeleton';
 import styles from './PropertyCategoryRows.module.css';
 
 const CATEGORIES = [
+  { value: 'featured', title: 'Featured properties', icon: Star, featured: true },
   { value: 'commercial', title: 'Commercial properties', icon: Store },
   { value: 'residential', title: 'Residential properties', icon: Building2 },
   { value: 'pg_hostel', title: 'PGs & hostels', icon: BedDouble },
@@ -21,21 +22,28 @@ const CATEGORIES = [
 ];
 const PREVIEW_LIMIT = 10;
 
-function CategoryRow({ category: { value, title, icon: Icon } }) {
+function CategoryRow({ category: { value, title, icon: Icon, featured = false } }) {
   const [sectionRef, visible] = useNearViewport();
+  const [purpose, setPurpose] = useState('sell');
   const rail = useRef(null);
   const [edges, setEdges] = useState({ start: true, end: true });
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ['home', 'category', value, PREVIEW_LIMIT],
-    queryFn: async ({ signal }) => (await axios.get('/properties', { params: { type: value, page: 1, limit: PREVIEW_LIMIT }, signal })).data,
+    queryKey: ['home', 'category', value, PREVIEW_LIMIT, ...(featured ? [purpose] : [])],
+    queryFn: async ({ signal }) => (await axios.get('/properties', { params: { ...(featured ? { featured: true, purpose } : { type: value }), page: 1, limit: PREVIEW_LIMIT }, signal })).data,
     enabled: visible,
     staleTime: 60000,
   });
-  const properties = (data?.properties || []).slice(0, PREVIEW_LIMIT);
+  const properties = (data?.properties || [])
+    .filter(property => !featured || (Array.isArray(property.purpose) ? property.purpose : [property.purpose]).includes(purpose))
+    .slice(0, PREVIEW_LIMIT);
   const hasMore = (data?.count || 0) > properties.length;
   const headingId = `category-${value}`;
   const railId = `${headingId}-properties`;
-  const categoryHref = `/properties?type=${value}`;
+  const categoryHref = featured ? `/properties?featured=true&purpose=${purpose}` : `/properties?type=${value}`;
+
+  useEffect(() => {
+    if (featured && rail.current) rail.current.scrollLeft = 0;
+  }, [featured, purpose]);
 
   useEffect(() => {
     const element = rail.current;
@@ -58,7 +66,7 @@ function CategoryRow({ category: { value, title, icon: Icon } }) {
     element.scrollBy({ left: direction * element.clientWidth, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   }
 
-  if (visible && !isPending && !isError && !properties.length) return null;
+  if (!featured && visible && !isPending && !isError && !properties.length) return null;
 
   return (
     <section ref={sectionRef} aria-labelledby={headingId} className="min-w-0">
@@ -69,9 +77,12 @@ function CategoryRow({ category: { value, title, icon: Icon } }) {
           <button type="button" onClick={() => scroll(1)} disabled={edges.end || isPending} aria-label={`Next ${title.toLowerCase()}`} aria-controls={railId} className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-35 dark:bg-slate-800 dark:text-slate-200"><ChevronRight size={18} /></button>
         </div>
       </div>
-      {isError ? <div role="alert" className="rounded-2xl border border-slate-200 p-6 dark:border-slate-800"><p className="text-sm text-slate-500">We couldn&apos;t load {title.toLowerCase()}.</p><button type="button" onClick={() => refetch()} className="mt-3 text-sm font-semibold text-indigo-600">Try again</button></div> : (
+      {featured && <div role="group" aria-label="Featured property purpose" className="mb-4 inline-flex gap-1 rounded-full border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-900">
+        {[['sell', 'Sell'], ['rent', 'Rent']].map(([value, label]) => <button key={value} type="button" aria-pressed={purpose === value} aria-controls={railId} onClick={() => setPurpose(value)} className={`min-h-11 rounded-full px-5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${purpose === value ? 'bg-rose-600 text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`}>{label}</button>)}
+      </div>}
+      {isError ? <div role="alert" className="rounded-2xl border border-slate-200 p-6 dark:border-slate-800"><p className="text-sm text-slate-500">We couldn&apos;t load {title.toLowerCase()}.</p><button type="button" onClick={() => refetch()} className="mt-3 text-sm font-semibold text-indigo-600">Try again</button></div> : featured && !isPending && !properties.length ? <div id={railId} role="status" className="rounded-2xl border border-slate-200 p-6 text-sm text-slate-500 dark:border-slate-800">No featured properties for {purpose === 'sell' ? 'sale' : 'rent'} yet.</div> : (
         <ul ref={rail} id={railId} aria-labelledby={headingId} aria-busy={isPending} tabIndex={0} className={styles.rail}>
-          {isPending ? Array.from({ length: 6 }, (_, index) => <li key={index} className={styles.item}><PropertySkeleton /></li>) : properties.map(property => <li key={property._id} className={styles.item}><PropertyCard {...cardProperty(property)} compact /></li>)}
+          {isPending ? Array.from({ length: 6 }, (_, index) => <li key={index} className={styles.item}><PropertySkeleton /></li>) : properties.map(property => <li key={property._id} className={styles.item}><PropertyCard {...cardProperty(featured ? { ...property, purpose: [purpose] } : property)} compact /></li>)}
           {!isPending && hasMore && <li className={styles.item}><Link href={categoryHref} aria-label={`See more ${title.toLowerCase()}`} className={styles.moreLink}><span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950"><Icon size={30} /></span><span className="inline-flex items-center gap-2 text-sm font-semibold sm:text-base">See more <ArrowRight size={18} /></span></Link></li>}
         </ul>
       )}

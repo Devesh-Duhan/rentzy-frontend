@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
@@ -9,6 +9,7 @@ import { logout, reset } from "@/store/slices/authSlice";
 import {
   LayoutDashboard,
   Users,
+  UserCircle,
   Building2,
   Bell,
   BarChart3,
@@ -38,6 +39,7 @@ import { useTheme } from "@/components/ThemeProvider";
 
 const MENU_ITEMS = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
+  { id: "profile", label: "My Profile", icon: UserCircle, href: "/profile" },
   { id: "analytics", label: "Analytics", icon: BarChart3, href: "/admin/analytics" },
   { id: "users", label: "Users", icon: Users, href: "/admin/users" },
   { id: "properties", label: "Properties", icon: Building2, href: "/admin/properties" },
@@ -67,18 +69,21 @@ export default function AdminLayout({ children }) {
   const { user, isLoading } = useSelector((state) => state.auth);
   const { theme, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const signingOut = useRef(false);
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== 'admin')) {
+    if (!signingOut.current && !isLoading && (!user || user.role !== 'admin')) {
       router.push("/login");
     }
   }, [user, isLoading, router]);
 
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    if (signingOut.current) return;
+    signingOut.current = true;
+    await dispatch(logout());
     dispatch(reset());
-    router.push("/");
+    router.replace("/");
   };
 
   // Improved activeLabel logic to handle sub-paths
@@ -257,7 +262,7 @@ export default function AdminLayout({ children }) {
             <button className="w-12 h-12 rounded-2xl bg-white dark:bg-white/5 flex items-center justify-center text-slate-400 border border-slate-100 dark:border-white/10 hover:text-indigo-600 transition-colors">
               <Bell size={20} />
             </button>
-            <div className="flex items-center gap-3 pl-2 pr-5 py-2 bg-white dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10 group cursor-pointer hover:border-indigo-100 transition-all">
+            <Link href="/profile" aria-label="My profile" className="flex items-center gap-3 pl-2 pr-5 py-2 bg-white dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10 group cursor-pointer hover:border-indigo-100 transition-all">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold group-hover:scale-110 transition-transform">
                 {user?.name?.charAt(0) || "A"}
               </div>
@@ -265,7 +270,7 @@ export default function AdminLayout({ children }) {
                 <p className="text-xs font-black dark:text-white leading-none mb-1">{user?.name || "Admin User"}</p>
                 <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">{user?.role === 'admin' ? "Level 4 Access" : "Admin"}</p>
               </div>
-            </div>
+            </Link>
           </div>
         </header>
 

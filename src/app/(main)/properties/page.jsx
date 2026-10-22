@@ -30,13 +30,15 @@ const PROPERTY_TYPES = [
 
 function PaginatedProperties() {
   const searchParams = useSearchParams();
+  const featuredOnly = searchParams.get('featured') === 'true';
+  const initialPurpose = ['sell', 'rent'].includes(searchParams.get('purpose')) ? searchParams.get('purpose') : '';
   const initialType = PROPERTY_TYPES.some(type => type.value === searchParams.get('type')) ? searchParams.get('type') : '';
   const [pageParam, setPageParam] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [filters, setFilters] = useState({
     type: initialType,
-    purpose: "",
+    purpose: initialPurpose,
     minPrice: "",
     maxPrice: "",
     bedrooms: "",
@@ -46,12 +48,13 @@ function PaginatedProperties() {
     sort: "-createdAt",
   });
 
-  const [appliedFilters, setAppliedFilters] = useState(() => initialType ? { type: initialType } : {});
+  const [appliedFilters, setAppliedFilters] = useState(() => ({ ...(initialType ? { type: initialType } : {}), ...(initialPurpose ? { purpose: initialPurpose } : {}) }));
   const gridClassName = `grid grid-cols-2 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 ${filtersOpen ? 'xl:grid-cols-3' : 'lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'}`;
 
   const buildQueryString = (f) => {
     const params = new URLSearchParams();
     params.set("page", pageParam);
+    if (featuredOnly) params.set("featured", "true");
     if (f.keyword) params.set("keyword", f.keyword);
     if (f.type) params.set("type", f.type);
     if (f.purpose) params.set("purpose", f.purpose);
@@ -265,13 +268,14 @@ function PaginatedProperties() {
   return (
     <main className="market-browse min-h-screen bg-white dark:bg-slate-950">
       <div className="app-container pt-28 md:pt-36 pb-28 md:pb-20">
-        <div className="mb-8 animate-fade-in">
+        <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-semibold uppercase tracking-widest mb-3 border border-indigo-100 dark:border-indigo-800/50">
                 <Sparkles size={12} /> Discover
               </div>
               <h1 className="section-title">
+                {featuredOnly ? "Featured " : ""}
                 {appliedFilters.type ? `${PROPERTY_TYPES.find(t => t.value === appliedFilters.type)?.label || appliedFilters.type} ` : ""}
                 Properties
               </h1>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -128,9 +129,9 @@ const NotificationsPage = () => {
             >
               {markAllMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} Mark all read
             </button>
-            <a href="/notifications/preferences" className="p-2.5 btn-secondary inline-flex" title="Notification preferences">
+            <Link href="/notifications/preferences" className="p-2.5 btn-secondary inline-flex" title="Notification preferences">
               <Settings size={18} />
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -172,7 +173,7 @@ const NotificationsPage = () => {
                 <div className="w-16 h-16 bg-slate-50 dark:bg-white/5 rounded-full flex items-center justify-center text-slate-300 mb-4">
                   <Bell size={32} />
                 </div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">You're all caught up!</h3>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">You&apos;re all caught up!</h3>
                 <p className="section-subtitle text-sm max-w-sm">There are no new notifications to show in this specific category right now.</p>
               </motion.div>
             ) : (

@@ -2,48 +2,42 @@
 import ContentSkeleton from "@/components/ContentSkeleton";
 
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, X, Search, Building2, MapPin, Calendar, FileText, CheckCircle2, AlertTriangle } from "lucide-react";
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
 
 export default function VerificationPage() {
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const [processingId, setProcessingId] = useState(null);
+  const { data: properties = [], isPending: loading, isError, refetch } = useQuery({
+    queryKey: ["admin", "verification"],
+    queryFn: async ({ signal }) => (await axios.get("/admin/properties", { signal })).data,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+  });
+  const updateProperty = (updated) => {
+    queryClient.setQueryData(["admin", "verification"], (previous = []) => previous.map(property => property._id === updated._id ? updated : property));
+    queryClient.invalidateQueries({ predicate: query => ["home", "properties", "properties-buy", "properties-rent", "property-detail", "related-properties", "category-properties", "gallery-properties", "rera-properties", "compare", "compare-options", "savedProperties", "public-videos", "public-documents"].includes(query.queryKey[0]) });
+  };
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState(null);
   const [rejectModal, setRejectModal] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
 
-  useEffect(() => {
-    fetchProperties();
-  }, []);
-
-  const fetchProperties = async () => {
-    try {
-      const res = await axios.get("/admin/properties");
-      setProperties(res.data);
-    } catch {
-      toast.error("Failed to load properties");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleVerify = async (property) => {
+    if (processingId) return;
+    setProcessingId(property._id);
     try {
-      await axios.put(`/admin/properties/${property._id}/verify`);
-      setProperties((prev) =>
-        prev.map((p) =>
-          p._id === property._id
-            ? { ...p, isVerified: true, verifiedAt: new Date().toISOString() }
-            : p
-        )
-      );
+      const { data } = await axios.put(`/admin/properties/${property._id}/verify`);
+      updateProperty(data);
       toast.success(`"${property.title}" verified`);
     } catch {
       toast.error("Verification failed");
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -52,24 +46,23 @@ export default function VerificationPage() {
       toast.error("Please provide a reason");
       return;
     }
+    if (processingId) return;
+    setProcessingId(rejectModal._id);
     try {
-      await axios.put(`/admin/properties/${rejectModal._id}/reject`, { reason: rejectReason });
-      setProperties((prev) =>
-        prev.map((p) =>
-          p._id === rejectModal._id
-            ? { ...p, isVerified: false, verifiedAt: null, rejectionReason: rejectReason }
-            : p
-        )
-      );
+      const { data } = await axios.put(`/admin/properties/${rejectModal._id}/reject`, { reason: rejectReason.trim() });
+      updateProperty(data);
       toast.success(`"${rejectModal.title}" rejected`);
       setRejectModal(null);
       setRejectReason("");
     } catch {
       toast.error("Failed to reject");
+    } finally {
+      setProcessingId(null);
     }
   };
 
-  const unverified = properties.filter((p) => !p.isVerified);
+  const unverified = properties.filter((p) => !p.isVerified && !p.rejectionReason);
+  const rejected = properties.filter((p) => !p.isVerified && p.rejectionReason);
   const verified = properties.filter((p) => p.isVerified);
 
   const filtered = (list) =>
@@ -90,7 +83,7 @@ export default function VerificationPage() {
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Property Verification</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-            {unverified.length} pending · {verified.length} verified
+            {unverified.length} pending · {verified.length} verified · {rejected.length} rejected
           </p>
         </div>
         <div className="relative w-full max-w-xs">
@@ -104,6 +97,7 @@ export default function VerificationPage() {
         </div>
       </div>
 
+      {isError && <div role="alert" className="app-card p-6 text-sm">Verification requests could not be loaded. <button type="button" onClick={() => refetch()} className="ml-2 underline">Try again</button></div>}
       {loading ? <ContentSkeleton label="Loading property verification" count={3} itemClassName="h-28" /> : <>
       {unverified.length > 0 && (
         <div>
@@ -117,6 +111,7 @@ export default function VerificationPage() {
                 property={p}
                 expanded={expanded === p._id}
                 onToggle={() => setExpanded(expanded === p._id ? null : p._id)}
+                busy={Boolean(processingId)}
                 onVerify={handleVerify}
                 onReject={(prop) => {
                   setRejectModal(prop);
@@ -127,6 +122,16 @@ export default function VerificationPage() {
           </div>
         </div>
       )}
+
+      {rejected.length > 0 && (
+        <div>
+          <h3 className="text-sm font-black uppercase tracking-widest text-rose-500 mb-3">Rejected ({rejected.length})</h3>
+          <div className="space-y-3">
+            {filtered(rejected).map(property => <PropertyCard key={property._id} property={property} expanded={expanded === property._id} onToggle={() => setExpanded(expanded === property._id ? null : property._id)} busy={Boolean(processingId)} onVerify={handleVerify} onReject={prop => { setRejectModal(prop); setRejectReason(prop.rejectionReason || ""); }} />)}
+          </div>
+        </div>
+      )}
+      {!loading && !isError && properties.length === 0 && <p className="app-card p-6 text-sm text-slate-500">No verification requests yet.</p>}
 
       {verified.length > 0 && (
         <div>
@@ -177,7 +182,7 @@ export default function VerificationPage() {
                 <button onClick={() => setRejectModal(null)} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
                   Cancel
                 </button>
-                <button onClick={handleReject} className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-rose-700 transition-all">
+                <button onClick={handleReject} disabled={Boolean(processingId)} className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-rose-700 transition-all">
                   Reject
                 </button>
               </div>
@@ -190,7 +195,7 @@ export default function VerificationPage() {
   );
 }
 
-function PropertyCard({ property, expanded, onToggle, onVerify, onReject }) {
+function PropertyCard({ property, expanded, onToggle, onVerify, onReject, busy }) {
   const seller = property.sellerId || {};
   const locationStr = property.location
     ? [property.location.city, property.location.state].filter(Boolean).join(", ")
@@ -217,7 +222,7 @@ function PropertyCard({ property, expanded, onToggle, onVerify, onReject }) {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span className="px-3 py-1.5 bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl text-[10px] font-black uppercase tracking-wider">
-            Pending
+            {property.rejectionReason ? "Rejected" : "Pending"}
           </span>
         </div>
       </div>
@@ -257,14 +262,17 @@ function PropertyCard({ property, expanded, onToggle, onVerify, onReject }) {
                   <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-3">{property.description}</p>
                 </div>
               )}
+              {property.rejectionReason && <p className="text-sm text-rose-600">{property.rejectionReason}</p>}
               <div className="flex gap-3 pt-2">
                 <button
+                  disabled={busy}
                   onClick={() => onVerify(property)}
                   className="flex-1 py-3 bg-emerald-600 text-white rounded-2xl font-black text-sm hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
                 >
                   <ShieldCheck size={16} /> Verify
                 </button>
                 <button
+                  disabled={busy}
                   onClick={() => onReject(property)}
                   className="flex-1 py-3 bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-2xl font-black text-sm hover:bg-rose-200 dark:hover:bg-rose-500/20 transition-all flex items-center justify-center gap-2"
                 >

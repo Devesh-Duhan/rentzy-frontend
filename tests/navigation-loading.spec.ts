@@ -26,7 +26,13 @@ for (const [path, heading] of [['/buy', 'Properties for Sale'], ['/rent', 'Prope
       await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
       await expect(page.getByRole('status', { name: 'Loading properties', exact: true })).toBeVisible();
       await expect(page.getByPlaceholder('Search by location, property name...')).toBeEditable();
-      await page.getByRole('button', { name: 'Toggle theme', exact: true }).click();
+      const wasDark = await page.locator('html').evaluate(element => element.classList.contains('dark'));
+      if (page.viewportSize()!.width < 768) {
+        await page.getByRole('button', { name: 'Menu', exact: true }).click();
+        await page.getByRole('button', { name: /Switch to (light|dark) theme/ }).click();
+        await page.getByRole('button', { name: 'Close menu', exact: true }).click();
+      } else await page.getByRole('button', { name: 'Toggle theme', exact: true }).click();
+      await expect.poll(() => page.locator('html').evaluate(element => element.classList.contains('dark'))).toBe(!wasDark);
       expect(await page.locator('article').count()).toBe(0);
       api.release();
       await expect(page.locator('article')).toHaveCount(12);

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Grid, List, Sparkles, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Grid, List, Sparkles, MapPin, ChevronDown, SlidersHorizontal } from "lucide-react";
 
 import axiosInstance from "@/lib/axios";
 
@@ -237,7 +237,7 @@ export default function FeaturedProperties() {
                   <option value="above50k">Above ₹50,000</option>
                 </select>
                 <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                  <i className="fas fa-chevron-down text-[10px]"></i>
+                  <ChevronDown size={12} />
                 </div>
               </div>
 
@@ -253,12 +253,12 @@ export default function FeaturedProperties() {
                   <option value="trending">Trending</option>
                 </select>
                 <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                  <i className="fas fa-chevron-down text-[10px]"></i>
+                  <ChevronDown size={12} />
                 </div>
               </div>
 
               <button className="flex-shrink-0 px-5 md:px-6 py-2.5 md:py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs md:text-sm font-black uppercase tracking-widest hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-xl active:scale-95 flex items-center gap-2">
-                <i className="fas fa-filter text-[10px]"></i> Filters
+                <SlidersHorizontal size={12} /> Filters
               </button>
             </div>
           </div>

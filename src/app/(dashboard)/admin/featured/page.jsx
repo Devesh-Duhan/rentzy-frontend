@@ -3,12 +3,14 @@ import ContentSkeleton from "@/components/ContentSkeleton";
 
 
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Star, Search, Building2, MapPin } from "lucide-react";
 import axios from "@/lib/axios";
 import toast from "react-hot-toast";
 
 export default function FeaturedPage() {
+  const queryClient = useQueryClient();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -34,6 +36,8 @@ export default function FeaturedPage() {
       setProperties((prev) =>
         prev.map((p) => (p._id === property._id ? { ...p, featured: !currentFeatured } : p))
       );
+      queryClient.invalidateQueries({ queryKey: ['home', 'category', 'featured'] });
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
       toast.success(`"${property.title}" ${!currentFeatured ? "featured" : "unfeatured"}`);
     } catch {
       toast.error("Failed to update");
@@ -140,6 +144,8 @@ function PropertyRow({ property, onToggle }) {
       </div>
       <button
         onClick={() => onToggle(property, property.featured)}
+        aria-label={`${property.featured ? "Unfeature" : "Feature"} ${property.title}`}
+        aria-pressed={Boolean(property.featured)}
         className={`p-3 rounded-xl transition-all ${
           property.featured
             ? "bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400"

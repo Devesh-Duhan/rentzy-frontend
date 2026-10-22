@@ -8,14 +8,15 @@ import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import {
   UserCircle, Calendar, Settings, Home, LogOut, ArrowRight, ShieldCheck, Store, MapPin, ChevronRight,
-  Heart, Eye, Star, Bell, Clock, MessageSquare, ThumbsUp, Bookmark,
+  Heart, Eye, Star, Bell, Clock, MessageSquare, ThumbsUp, Bookmark, Pencil, Save, Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch } from "react-redux";
-import { logout, reset } from "@/store/slices/authSlice";
-import { useQuery } from "@tanstack/react-query";
+import { logout, reset, updateProfile } from "@/store/slices/authSlice";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "@/lib/axios";
+import toast from "react-hot-toast";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 
@@ -30,6 +31,7 @@ export default function ProfilePage() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState("overview");
+  const [editingProfile, setEditingProfile] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -156,15 +158,19 @@ export default function ProfilePage() {
               <AnimatePresence mode="wait">
                 {activeTab === "overview" && (
                   <motion.div key="overview" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-                    <div>
-                      <h2 className="section-title">Identity Detail</h2>
-                      <p className="section-subtitle">Manage your core profile and preferences</p>
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div>
+                        <h2 className="section-title">Identity Detail</h2>
+                        <p className="section-subtitle">Manage your core profile and preferences</p>
+                      </div>
+                      {user.role === 'admin' && !editingProfile && <button type="button" onClick={() => setEditingProfile(true)} className="btn-secondary inline-flex items-center gap-2 text-sm"><Pencil size={16} /> Edit Profile</button>}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {user.role === 'admin' && editingProfile ? <AdminProfileEditor user={user} onClose={() => setEditingProfile(false)} /> : <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
                         { label: "Legal Name", value: user.name },
                         { label: "Email Route", value: user.email },
+                        ...(user.role === "admin" ? [{ label: "Phone", value: user.phone || "Not Provided" }] : []),
                         { label: "Membership", value: user.role.toUpperCase() },
                         { label: "Location Status", value: user.address || "Not Provided" }
                       ].map((item, i) => (
@@ -173,7 +179,7 @@ export default function ProfilePage() {
                           <p className="[overflow-wrap:anywhere] text-base font-semibold text-slate-900 dark:text-white">{item.value}</p>
                         </div>
                       ))}
-                    </div>
+                    </div>}
 
                     <div className="space-y-5 pt-8 border-t border-slate-100 dark:border-slate-700/50">
                       {user.role === 'buyer' ? (
@@ -420,4 +426,71 @@ export default function ProfilePage() {
       <Footer />
     </div>
   );
+}
+
+function AdminProfileEditor({ user, onClose }) {
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+  const [form, setForm] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey: ['account-profile', user._id],
+    queryFn: async ({ signal }) => (await axios.get('/users/profile', { signal })).data,
+    staleTime: 0,
+  });
+  useEffect(() => {
+    if (data) setForm({ name: data.name || '', email: data.email || '', phone: data.phone || '', address: data.address || '' });
+  }, [data]);
+
+  async function save(event) {
+    event.preventDefault();
+    if (saving || !form) return;
+    const payload = Object.fromEntries(Object.entries(form).map(([key, value]) => [key, value.trim()]));
+    if (!payload.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
+      setSaveError('Enter your name and a valid email address.');
+      return;
+    }
+    payload.email = payload.email.toLowerCase();
+    setSaving(true);
+    setSaveError('');
+    try {
+      const updated = await dispatch(updateProfile(payload)).unwrap();
+      queryClient.setQueryData(['account-profile', user._id], updated);
+      toast.success('Profile updated successfully');
+      onClose();
+    } catch (error) {
+      setSaveError(typeof error === 'string' ? error : 'Profile could not be saved. Please try again.');
+    } finally {
+      setSaving(false);
+      dispatch(reset());
+    }
+  }
+
+  return <div className="app-card p-4 sm:p-6">
+    {isError ? <div role="alert" className="text-sm">Your profile could not be loaded. <button type="button" onClick={() => refetch()} className="ml-2 underline">Try again</button></div> : isPending || !form ? <ContentSkeleton label="Loading your profile" count={2} itemClassName="h-20" /> : (
+      <form onSubmit={save} aria-label="Edit admin profile" className="space-y-5">
+        <fieldset disabled={saving} className="grid min-w-0 grid-cols-1 gap-5 sm:grid-cols-2">
+          {[
+            { name: 'name', label: 'Full name', type: 'text', autoComplete: 'name', required: true },
+            { name: 'email', label: 'Email', type: 'email', autoComplete: 'email', required: true },
+            { name: 'phone', label: 'Phone', type: 'tel', autoComplete: 'tel' },
+          ].map(field => <div key={field.name} className="min-w-0 space-y-2">
+            <label htmlFor={`admin-profile-${field.name}`} className="block text-sm font-semibold">{field.label}</label>
+            <input id={`admin-profile-${field.name}`} name={field.name} type={field.type} autoComplete={field.autoComplete} required={field.required} value={form[field.name]} onChange={event => setForm(previous => ({ ...previous, [field.name]: event.target.value }))} className="input-field w-full min-w-0" />
+          </div>)}
+          <div className="min-w-0 space-y-2 sm:col-span-2">
+            <label htmlFor="admin-profile-address" className="block text-sm font-semibold">Address</label>
+            <textarea id="admin-profile-address" name="address" autoComplete="street-address" rows={3} value={form.address} onChange={event => setForm(previous => ({ ...previous, address: event.target.value }))} className="input-field w-full min-w-0 resize-y" />
+          </div>
+        </fieldset>
+        {saveError && <p role="alert" className="text-sm text-rose-600">{saveError}</p>}
+        <div className="flex flex-wrap gap-3 border-t border-slate-100 pt-5 dark:border-slate-700">
+          <button type="button" onClick={onClose} disabled={saving} className="btn-secondary">Cancel</button>
+          <button type="submit" disabled={saving} className="btn-primary inline-flex items-center justify-center gap-2">{saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}{saving ? 'Saving...' : 'Save Changes'}</button>
+        </div>
+      </form>
+    )}
+    {(isError || isPending || !form) && <button type="button" onClick={onClose} className="btn-secondary mt-5">Cancel</button>}
+  </div>;
 }

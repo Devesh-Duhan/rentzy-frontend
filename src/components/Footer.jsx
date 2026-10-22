@@ -9,7 +9,7 @@ import useNearViewport from '@/lib/useNearViewport';
 const groups=[
  ['Support',[['Help centre','/help'],['Get help with a safety issue','/safety'],['Contact us','/contact'],['Refund policy','/refund-policy'],['Terms of service','/terms']]],
  ['Hosting',[['List your property','/become-seller'],['Seller dashboard','/seller'],['Hosting guidance','/help'],['Refer a friend','/refer'],['Responsible renting','/safety']]],
- ['RentzyPro',[['About us','/about'],['Property insights','/blog'],['Find a rental','/rent'],['Buy a home','/buy'],['Privacy policy','/privacy']]],
+ ['RentzyPro',[['About us','/about'],['Blog','/blog'],['Find a rental','/rent'],['Buy a home','/buy'],['Privacy policy','/privacy']]],
 ];
 export default function Footer(){
  const [footerRef,visible]=useNearViewport();
