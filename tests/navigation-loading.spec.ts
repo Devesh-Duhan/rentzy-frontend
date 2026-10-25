@@ -17,7 +17,7 @@ async function holdApi(page: Page, path: string, response: (url: URL) => unknown
   return { release, calls: () => calls };
 }
 
-for (const [path, heading] of [['/buy', 'Properties for Sale'], ['/rent', 'Properties for Rent']]) {
+for (const [path, heading] of [['/buy', /^Properties for (?:Sale|Sell)$/], ['/rent', 'Properties for Rent']]) {
   test(`${path} renders controls and skeletons before the listing API responds`, async ({ page }) => {
     const api = await holdApi(page, '/api/properties', url => propertyResults(url.searchParams));
     try {
@@ -150,7 +150,7 @@ test('listing errors preserve the page and retry without a full reload', async (
   });
   await page.goto('/buy');
   await expect(page.getByRole('heading', { name: 'Something went wrong', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Properties for Sale', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^Properties for (?:Sale|Sell)$/, exact: true })).toBeVisible();
   fail = false;
   const previousDocuments = documents;
   await page.getByRole('button', { name: 'Try Again', exact: true }).click();

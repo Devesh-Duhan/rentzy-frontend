@@ -203,7 +203,7 @@ export default function Navbar() {
                     initial={{ opacity: 0, y: -8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                    className="absolute inset-x-4 top-full mt-2 flex max-h-[calc(100dvh-var(--header-height)-var(--bottom-nav-height)-1rem)] flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 sm:inset-x-auto sm:right-0 sm:w-80 md:max-h-[calc(100dvh-var(--header-height)-1rem)]"
+                    className="app-dropdown-panel absolute inset-x-4 top-full mt-2 flex max-h-[calc(100dvh-var(--header-height)-var(--bottom-nav-height)-1rem)] flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 sm:inset-x-auto sm:right-0 sm:w-80 md:max-h-[calc(100dvh-var(--header-height)-1rem)]"
                   >
                     <div className="shrink-0 p-4 border-b border-slate-100 dark:border-slate-700">
                       <h4 className="font-semibold text-sm text-slate-900 dark:text-white">Notifications</h4>
@@ -246,7 +246,7 @@ export default function Navbar() {
                     initial={{ opacity: 0, y: -8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                    className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50"
+                    className="app-dropdown-panel absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50"
                   >
                     {user ? (
                       <>

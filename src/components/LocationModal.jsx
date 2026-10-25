@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Search, Navigation, X, Building2, Map, CheckCircle2, ChevronRight } from "lucide-react";
@@ -120,7 +121,7 @@ const LocationModal = ({ isOpen, onClose, onSelect }) => {
                 placeholder="Where do you want to live?"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-16 pr-32 py-6 bg-slate-50 dark:bg-white/5 border-2 border-transparent focus:border-indigo-600 dark:focus:border-indigo-500 rounded-3xl outline-none text-lg font-black text-slate-900 dark:text-white placeholder:text-slate-400 transition-all shadow-inner"
+                className={"w-full pl-16 pr-32 py-6 bg-slate-50 dark:bg-white/5 border-2 border-transparent focus:border-indigo-600 dark:focus:border-indigo-500 rounded-3xl outline-none text-lg font-black text-slate-900 dark:text-white placeholder:text-slate-400 transition-all shadow-inner" + " " + filterUiStyles.filterControl}
               />
               <button 
                 onClick={handleGetCurrentLocation}
@@ -163,7 +164,7 @@ const LocationModal = ({ isOpen, onClose, onSelect }) => {
                     <div className="w-16 h-16 bg-slate-50 dark:bg-white/5 rounded-full flex items-center justify-center text-slate-300 mx-auto mb-4">
                       <Search size={32} />
                     </div>
-                    <p className="text-slate-500 font-bold">No locations matching "{searchTerm}"</p>
+                    <p className="text-slate-500 font-bold">No locations matching &quot;{searchTerm}&quot;</p>
                   </div>
                 )}
               </div>

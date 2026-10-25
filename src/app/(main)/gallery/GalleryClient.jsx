@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
@@ -118,7 +119,7 @@ export default function GalleryClient() {
           <p className="section-subtitle">Browse through our collection of property images</p>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row gap-3 mb-8">
+        <div className={"flex flex-col md:flex-row gap-3 mb-8" + " " + filterUiStyles.toolbar}>
           <div className="relative flex-1">
             <Search
               size={18}
@@ -129,7 +130,7 @@ export default function GalleryClient() {
               placeholder="Search by property title..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="input-field pl-12"
+              className={"input-field pl-12" + " " + filterUiStyles.filterControl}
             />
             {search && (
               <button
@@ -143,7 +144,7 @@ export default function GalleryClient() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="input-field min-w-[140px]"
+            className={"input-field min-w-[140px]" + " " + filterUiStyles.filterControl}
           >
             <option value="">All Types</option>
             {types.map((t) => (
@@ -155,7 +156,7 @@ export default function GalleryClient() {
           <select
             value={cityFilter}
             onChange={(e) => setCityFilter(e.target.value)}
-            className="input-field min-w-[140px]"
+            className={"input-field min-w-[140px]" + " " + filterUiStyles.filterControl}
           >
             <option value="">All Cities</option>
             {cities.map((c) => (

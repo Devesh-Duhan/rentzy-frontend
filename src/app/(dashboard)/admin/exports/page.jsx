@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState, useEffect } from "react";
 import {
   Download,
@@ -150,7 +151,7 @@ export default function ExportsCenter() {
 
                 <div className="space-y-4 mb-6">
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Date Range (Optional)</p>
-                  <div className="flex items-center gap-3">
+                  <div className={"flex items-center gap-3" + " " + filterUiStyles.toolbar}>
                     <div className="flex-1">
                       <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">From</label>
                       <input
@@ -162,7 +163,7 @@ export default function ExportsCenter() {
                             [type.key]: { ...prev[type.key], from: e.target.value },
                           }))
                         }
-                        className="w-full px-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl text-xs font-bold text-slate-700 dark:text-white outline-none focus:border-indigo-500 transition-all"
+                        className={"w-full px-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl text-xs font-bold text-slate-700 dark:text-white outline-none focus:border-indigo-500 transition-all" + " " + filterUiStyles.filterControl}
                       />
                     </div>
                     <div className="flex-1">
@@ -176,7 +177,7 @@ export default function ExportsCenter() {
                             [type.key]: { ...prev[type.key], to: e.target.value },
                           }))
                         }
-                        className="w-full px-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl text-xs font-bold text-slate-700 dark:text-white outline-none focus:border-indigo-500 transition-all"
+                        className={"w-full px-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl text-xs font-bold text-slate-700 dark:text-white outline-none focus:border-indigo-500 transition-all" + " " + filterUiStyles.filterControl}
                       />
                     </div>
                   </div>

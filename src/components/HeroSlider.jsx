@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -30,7 +31,7 @@ export default function HeroSlider() {
           <p className="hidden sm:block order-2 mb-0 mt-6 max-w-md text-base leading-7 text-slate-600 sm:order-none sm:mb-8 sm:text-lg dark:text-slate-400">Your next chapter starts with the right space. Explore homes, compare the details, and connect directly with owners.</p>
           <form onSubmit={search} className="relative rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_16px_50px_-20px_rgba(49,46,129,0.2)] sm:p-4 dark:border-slate-800 dark:bg-slate-900">
             <div className="mb-4 flex gap-1 border-b border-slate-100 pb-3 dark:border-slate-800" role="group" aria-label="Listing purpose">
-              {[['rent', 'Rent a home'], ['sell', 'Buy a home']].map(([value, label]) => <button key={value} type="button" aria-pressed={purpose === value} onClick={() => setPurpose(value)} className={`min-h-10 rounded-lg px-4 text-sm font-semibold transition-colors ${purpose === value ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>{label}</button>)}
+              {[['rent', 'Rent a home'], ['sell', 'Buy a home']].map(([value, label]) => <button key={value} type="button" aria-pressed={purpose === value} onClick={() => setPurpose(value)} className={(`min-h-10 rounded-lg px-4 text-sm font-semibold transition-colors ${purpose === value ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`) + " " + filterUiStyles.filterChoice}>{label}</button>)}
             </div>
             <label className="mb-3 flex items-center gap-3 rounded-xl bg-slate-50 px-3 dark:bg-slate-800"><MapPin size={19} className="shrink-0 text-indigo-500" /><span className="sr-only">City or neighbourhood</span><input value={city} onChange={event => setCity(event.target.value)} placeholder="Enter a city or neighbourhood" className="min-h-12 w-full min-w-0 bg-transparent text-sm outline-none dark:text-white" maxLength={100} /></label>
             <div className="grid grid-cols-2 gap-3">

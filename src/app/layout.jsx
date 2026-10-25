@@ -1,5 +1,6 @@
 import "./globals.css";
 import "./market.css";
+import "./dropdowns.css";
 import { siteMetadata } from "@/lib/siteMetadata";
 import StoreProvider from "@/store/StoreProvider";
 import { Toaster } from "react-hot-toast";

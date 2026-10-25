@@ -3,8 +3,12 @@
 import { useState, useEffect } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building, MapPin, DollarSign, Home, BedDouble, Filter } from "lucide-react";
-import Link from "next/link";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import BuyFilters from "@/components/filters/PropertyQuickFilters";
+import { FilterDialog } from "@/components/filters/FilterUI";
+import layoutStyles from "./BuyFilters.module.css";
+import filterStyles from "@/components/filters/Filters.module.css";
+const styles = { ...filterStyles, ...layoutStyles };
 import axios from "@/lib/axios";
 import PropertyCard from "@/components/PropertyCard";
 import PropertySkeleton from "@/components/PropertySkeleton";
@@ -78,112 +82,6 @@ export default function BuyClient() {
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== "All" && v !== "Any") || searchTerm.trim();
 
-  const FilterContent = ({ mobile = false }) => (
-    <div className={mobile ? "space-y-5" : "space-y-6"}>
-      <div>
-        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">
-          <Building size={14} /> Property Type
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {PROPERTY_TYPES.map((t) => (
-            <button
-              key={t}
-              onClick={() => handleFilterChange("type", t)}
-              className={`pill text-xs ${
-                filters.type === t
-                  ? "active"
-                  : ""
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">
-          <MapPin size={14} /> City
-        </label>
-        <select
-          value={filters.city}
-          onChange={(e) => handleFilterChange("city", e.target.value)}
-          className="input-field"
-        >
-          {CITIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">
-          <DollarSign size={14} /> Price Range
-        </label>
-        <select
-          value={filters.priceRange}
-          onChange={(e) => handleFilterChange("priceRange", e.target.value)}
-          className="input-field"
-        >
-          {PRICE_RANGES.map((r) => (
-            <option key={r.label} value={r.label}>{r.label}</option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">
-          <BedDouble size={14} /> BHK
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {BHK_OPTIONS.map((b) => (
-            <button
-              key={b}
-              onClick={() => handleFilterChange("bhk", b)}
-              className={`pill text-xs ${
-                filters.bhk === b
-                  ? "active"
-                  : ""
-              }`}
-            >
-              {b}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">
-          <Home size={14} /> Bedrooms
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {BEDROOM_OPTIONS.map((b) => (
-            <button
-              key={b}
-              onClick={() => handleFilterChange("bedrooms", b)}
-              className={`pill text-xs ${
-                filters.bedrooms === b
-                  ? "active"
-                  : ""
-              }`}
-            >
-              {b}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {hasActiveFilters && (
-        <button
-          onClick={clearFilters}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-semibold hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
-        >
-          <X size={14} /> Clear All Filters
-        </button>
-      )}
-    </div>
-  );
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -251,21 +149,18 @@ export default function BuyClient() {
       </section>
 
       <section className="py-8 md:py-12">
-        <div className="app-container">
-          <div className="flex gap-8">
-            <aside className="hidden lg:block w-72 shrink-0">
-              <div className="sticky top-28 app-card p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-900 dark:text-white flex items-center gap-2">
-                    <Filter size={14} /> Filters
-                  </h3>
-                  {hasActiveFilters && (
-                    <button onClick={clearFilters} className="text-xs font-medium text-red-500 hover:text-red-600 transition-colors">
-                      Clear
-                    </button>
-                  )}
+        <div className={styles.resultsContainer}>
+          <div className={styles.layout}>
+            <aside className={styles.sidebar} aria-label="Property filters">
+              <div className={styles.filterPanel}>
+                <div className={styles.panelHeader}>
+                  <div className={styles.panelHeading}>
+                    <span className={styles.panelIcon}><Filter size={17} /></span>
+                    <div><h3>Filters</h3><p>Fine-tune your search</p></div>
+                  </div>
+                  {hasActiveFilters && <button type="button" onClick={clearFilters} className={styles.resetButton} aria-label="Reset filters">Reset</button>}
                 </div>
-                <FilterContent />
+                <div className={styles.filterBody}><BuyFilters filters={filters} onChange={handleFilterChange} onClear={clearFilters} hasActiveFilters={hasActiveFilters} idPrefix="buy-desktop" types={PROPERTY_TYPES} cities={CITIES} priceRanges={PRICE_RANGES} bhkOptions={BHK_OPTIONS} bedroomOptions={BEDROOM_OPTIONS} /></div>
               </div>
             </aside>
 
@@ -273,15 +168,15 @@ export default function BuyClient() {
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="section-title !text-2xl md:!text-3xl">
-                    Properties for Sale
+                    Properties for Sell
                   </h2>
                   <p className="section-subtitle">
-                    {isFetching ? (isLoading ? "Loading..." : "Updating properties...") : `${properties.length} property${properties.length !== 1 ? "ies" : "y"} found`}
+                    {isFetching ? (isLoading ? "Loading..." : "Updating properties...") : `${properties.length} ${properties.length === 1 ? "property" : "properties"} found`}
                   </p>
                 </div>
                 <button
                   onClick={() => setShowMobileFilters(true)}
-                  className="lg:hidden btn-secondary flex items-center gap-2 !px-4 !py-2.5 text-sm"
+                  className="xl:hidden btn-secondary flex items-center gap-2 !px-4 !py-2.5 text-sm"
                 >
                   <SlidersHorizontal size={16} />
                   Filters
@@ -306,8 +201,8 @@ export default function BuyClient() {
                   </button>
                 </div>
               ) : isLoading ? (
-                <div role="status" aria-label="Loading properties" className="app-grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-                  {[...Array(6)].map((_, i) => (
+                <div role="status" aria-label="Loading properties" className={styles.propertyGrid}>
+                  {[...Array(10)].map((_, i) => (
                     <PropertySkeleton key={i} />
                   ))}
                 </div>
@@ -334,7 +229,7 @@ export default function BuyClient() {
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
-                  className="app-grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                  className={styles.propertyGrid}
                 >
                   {properties.map((prop, i) => (
                     <motion.div key={prop._id || prop.id || i} variants={itemVariants} className="h-full flex">
@@ -404,27 +299,9 @@ export default function BuyClient() {
         </div>
       </section>
 
-      {showMobileFilters && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowMobileFilters(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm app-card rounded-none shadow-2xl overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-              <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-900 dark:text-white flex items-center gap-2">
-                <Filter size={14} /> Filters
-              </h3>
-              <button
-                onClick={() => setShowMobileFilters(false)}
-                className="btn-ghost !p-2"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-6">
-              <FilterContent mobile />
-            </div>
-          </div>
-        </div>
-      )}
+      <FilterDialog open={showMobileFilters} onClose={() => setShowMobileFilters(false)} label="Filters" desktopQuery="(min-width: 1280px)" footer={<button type="button" onClick={() => setShowMobileFilters(false)} className={styles.applyButton}><Search size={17} />View properties</button>}>
+        <BuyFilters filters={filters} onChange={handleFilterChange} onClear={clearFilters} hasActiveFilters={hasActiveFilters} idPrefix="buy-mobile" types={PROPERTY_TYPES} cities={CITIES} priceRanges={PRICE_RANGES} bhkOptions={BHK_OPTIONS} bedroomOptions={BEDROOM_OPTIONS} />
+      </FilterDialog>
 
       <Footer />
     </main>

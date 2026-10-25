@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState, useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -245,11 +246,11 @@ export default function BlogsPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 ${
+              className={(`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 ${
                 activeTab === tab
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none"
                   : "bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"
-              }`}
+              }`) + " " + filterUiStyles.filterChoice} aria-pressed={activeTab === tab}
             >
               {tab === "featured" && <Star size={13} className="fill-current" />}
               <span>{tab === "All" ? "All Articles" : tab}</span>
@@ -258,13 +259,13 @@ export default function BlogsPage() {
         </div>
 
         {/* Category & Search inputs */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto flex-1 lg:max-w-xl justify-end">
+        <div className={"flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto flex-1 lg:max-w-xl justify-end" + " " + filterUiStyles.toolbar}>
           {/* Category Dropdown */}
           <div className="relative w-full sm:w-48 shrink-0">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full pl-3.5 pr-8 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-xl text-xs font-bold text-slate-700 dark:text-white outline-none cursor-pointer appearance-none"
+              className={"w-full pl-3.5 pr-8 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-xl text-xs font-bold text-slate-700 dark:text-white outline-none cursor-pointer appearance-none" + " " + filterUiStyles.filterControl}
             >
               {allCategories.map((c) => (
                 <option key={c} value={c}>
@@ -282,7 +283,7 @@ export default function BlogsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search title, tags, or author..."
-              className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-xl text-xs font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all"
+              className={"w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-xl text-xs font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all" + " " + filterUiStyles.filterControl}
             />
           </div>
         </div>

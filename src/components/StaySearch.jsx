@@ -1,5 +1,6 @@
 "use client";
 
+import filterStyles from '@/components/filters/Filters.module.css';
 import {useEffect,useRef,useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {MapPin,Search,SlidersHorizontal,X} from 'lucide-react';
@@ -39,9 +40,9 @@ export default function StaySearch(){
    <label><span>Budget</span><select aria-label="Maximum budget" value={budget} onChange={event=>setBudget(event.target.value)}><option value="">Any budget</option>{(purpose==='rent'?[10000,20000,35000,50000,100000]:[2500000,5000000,10000000,20000000]).map(amount=><option key={amount} value={amount}>Up to ₹{amount.toLocaleString('en-IN')}</option>)}</select></label>
    <button type="submit" className="stay-search-submit" aria-label="Search properties"><Search size={22}/><span>Search</span></button>
  </>;}
- return <div className="mx-auto max-w-[940px] px-4 sm:px-6">
+ return <div className={`${filterStyles.homeSearch} mx-auto max-w-[940px] px-4 sm:px-6`}>
    <form onSubmit={search} className="stay-search-bar hidden md:flex" aria-label="Search homes">{fields()}</form>
    <button type="button" onClick={()=>setOpen(true)} className="stay-mobile-search md:hidden"><Search size={21}/><span><strong>Start your search</strong><small>Anywhere · Any property · Any budget</small></span><SlidersHorizontal size={18}/></button>
-   {open&&<dialog ref={dialog} aria-label="Search homes" onCancel={()=>setOpen(false)} onClick={event=>{if(event.target===event.currentTarget)setOpen(false);}} className="stay-search-dialog overscroll-contain overflow-y-auto"><div className="mb-7 flex items-center gap-4"><button type="button" onClick={()=>setOpen(false)} aria-label="Close search" className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700"><X size={19}/></button><h2 className="text-xl font-semibold">Where would you like to live?</h2></div><div className="mb-5 flex items-center gap-2 text-sm text-slate-500"><MapPin size={17}/> Find a place that suits you</div><form onSubmit={search} className="stay-search-form">{fields()}</form></dialog>}
+   {open&&<dialog ref={dialog} aria-label="Search homes" onCancel={()=>setOpen(false)} onClick={event=>{if(event.target===event.currentTarget)setOpen(false);}} className={`${filterStyles.homeDialog} stay-search-dialog overscroll-contain overflow-y-auto`}><div className="mb-7 flex items-center gap-4"><button type="button" onClick={()=>setOpen(false)} aria-label="Close search" className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700"><X size={19}/></button><h2 className="text-xl font-semibold">Where would you like to live?</h2></div><div className="mb-5 flex items-center gap-2 text-sm text-slate-500"><MapPin size={17}/> Find a place that suits you</div><form onSubmit={search} className="stay-search-form">{fields()}</form></dialog>}
  </div>;
 }

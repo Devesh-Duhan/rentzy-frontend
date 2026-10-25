@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -94,7 +95,7 @@ export default function ReraClient() {
                 placeholder="Search by RERA number or project name..."
                 value={searchRera}
                 onChange={(e) => setSearchRera(e.target.value)}
-                className="w-full pl-12 pr-10 py-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-emerald-300 outline-none focus:ring-2 focus:ring-emerald-400/50 text-sm font-bold"
+                className={"w-full pl-12 pr-10 py-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-emerald-300 outline-none focus:ring-2 focus:ring-emerald-400/50 text-sm font-bold" + " " + filterUiStyles.filterControl}
               />
               {searchRera && (
                 <button onClick={() => setSearchRera("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white">

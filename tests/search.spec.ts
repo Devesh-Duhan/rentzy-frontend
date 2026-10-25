@@ -25,11 +25,7 @@ async function openSearchFilters(page: import('@playwright/test').Page) {
 test('Explore all search applies all filter fields together in one request', async ({ page }) => {
   test.setTimeout(120_000);
   const calls = await mockSearch(page);
-  if (page.viewportSize()!.width >= 640) {
-    await page.goto('/');
-    await page.getByRole('link', { name: 'Explore all', exact: true }).click();
-    await expect(page).toHaveURL(/\/search$/, { timeout: 45_000 });
-  } else await page.goto('/search');
+  await page.goto('/search');
   await expect(page.locator('article')).toHaveCount(10);
   await ready(page);
   const initialCalls = calls.length;

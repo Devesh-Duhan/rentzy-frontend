@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState, useMemo } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Image from "next/image";
@@ -134,7 +135,7 @@ export default function BlogPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search articles, topics..."
-                className="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all"
+                className={"w-full pl-11 pr-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all" + " " + filterUiStyles.filterControl}
               />
             </motion.div>
           </div>
@@ -146,11 +147,11 @@ export default function BlogPage() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  className={(`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                     selectedCategory === cat
                       ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none"
                       : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-white/10 hover:border-indigo-400"
-                  }`}
+                  }`) + " " + filterUiStyles.filterChoice} aria-pressed={selectedCategory === cat}
                 >
                   {cat}
                 </button>

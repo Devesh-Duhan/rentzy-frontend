@@ -1,4 +1,5 @@
 "use client";
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import ContentSkeleton from "@/components/ContentSkeleton";
 
 
@@ -40,11 +41,11 @@ export default function TestimonialsClient() {
         <div className="flex justify-center gap-2 mb-10">
           <button
             onClick={() => setRatingFilter(0)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={(`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               ratingFilter === 0
                 ? "btn-primary"
                 : "btn-secondary"
-            }`}
+            }`) + " " + filterUiStyles.filterChoice} aria-pressed={ratingFilter === 0}
           >
             All
           </button>
@@ -52,11 +53,11 @@ export default function TestimonialsClient() {
             <button
               key={r}
               onClick={() => setRatingFilter(r)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+              className={(`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
                 ratingFilter === r
                   ? "bg-amber-500 text-white"
                   : "btn-secondary"
-              }`}
+              }`) + " " + filterUiStyles.filterChoice} aria-pressed={ratingFilter === r}
             >
               <Star size={12} fill={ratingFilter === r ? "white" : "none"} /> {r}
             </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState, useEffect } from "react";
 import {
   Calendar,
@@ -145,7 +146,7 @@ export default function VisitManagement() {
         ))}
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-white dark:bg-slate-900/50 rounded-[32px] border border-slate-100 dark:border-white/10 shadow-sm">
+      <div className={"flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-white dark:bg-slate-900/50 rounded-[32px] border border-slate-100 dark:border-white/10 shadow-sm" + " " + filterUiStyles.toolbar}>
         <div className="relative flex-1 w-full">
           <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -153,7 +154,7 @@ export default function VisitManagement() {
             placeholder="Search by name, phone, or property..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-14 pr-6 py-3.5 bg-slate-50 dark:bg-white/5 border-none rounded-xl text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all"
+            className={"w-full pl-14 pr-6 py-3.5 bg-slate-50 dark:bg-white/5 border-none rounded-xl text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all" + " " + filterUiStyles.filterControl}
           />
         </div>
         <div className="flex items-center gap-4 w-full md:w-auto">
@@ -162,7 +163,7 @@ export default function VisitManagement() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none pl-12 pr-10 py-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-white/5 rounded-2xl text-sm font-black text-slate-600 dark:text-slate-300 outline-none focus:border-indigo-500 transition-all cursor-pointer w-full"
+              className={"appearance-none pl-12 pr-10 py-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-white/5 rounded-2xl text-sm font-black text-slate-600 dark:text-slate-300 outline-none focus:border-indigo-500 transition-all cursor-pointer w-full" + " " + filterUiStyles.filterControl}
             >
               <option>All</option>
               <option>pending</option>

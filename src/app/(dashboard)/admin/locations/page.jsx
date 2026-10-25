@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -123,11 +124,11 @@ export default function LocationsPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all ${
+              className={(`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all ${
                 activeTab === tab
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none"
                   : "bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"
-              }`}
+              }`) + " " + filterUiStyles.filterChoice} aria-pressed={activeTab === tab}
             >
               {tab === "All" ? "All Territories" : tab}
             </button>
@@ -142,7 +143,7 @@ export default function LocationsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by city, area, state, or pincode..."
-            className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-xl md:rounded-2xl text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all"
+            className={"w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-xl md:rounded-2xl text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all" + " " + filterUiStyles.filterControl}
           />
         </div>
       </div>

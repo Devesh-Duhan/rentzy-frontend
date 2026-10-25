@@ -1,5 +1,7 @@
 "use client";
 
+import filterStyles from "@/components/filters/Filters.module.css";
+import { FilterDialog, FilterPanel, FilterLabel } from "@/components/filters/FilterUI";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { Suspense, useState, useEffect } from "react";
@@ -9,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import PropertySkeleton from "@/components/PropertySkeleton";
 import { cardProperty } from "@/lib/property";
-import { Search, SlidersHorizontal, X, ChevronDown, Filter, RotateCcw, Sparkles } from "lucide-react";
+import { Search, X, ChevronDown, Filter, RotateCcw, Sparkles } from "lucide-react";
 
 const PROPERTY_TYPES = [
   { value: "commercial", label: "Commercial" },
@@ -113,7 +115,7 @@ function PaginatedProperties() {
   const activeFilterCount = Object.keys(appliedFilters).length;
 
   const renderFilterActions = () => (
-    <div className="flex gap-3">
+    <div className={filterStyles.actions}>
       <button type="button" onClick={clearFilters} className="btn-secondary flex min-h-11 flex-1 items-center justify-center gap-2 !px-3 text-sm">
         <RotateCcw size={16} /> Clear
       </button>
@@ -124,9 +126,9 @@ function PaginatedProperties() {
   );
 
   const renderFilters = (showActions = true) => (
-    <div className="space-y-5">
+    <div className={filterStyles.controls}>
       <div>
-        <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Keyword</label>
+        <FilterLabel>Keyword</FilterLabel>
         <div className="relative">
           <Search size={16} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -140,11 +142,12 @@ function PaginatedProperties() {
       </div>
 
       <div>
-        <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Property Type</label>
+        <FilterLabel>Property Type</FilterLabel>
         <div className="grid grid-cols-2 gap-1.5">
           {PROPERTY_TYPES.map((t) => (
             <button
               key={t.value}
+              aria-pressed={filters.type === t.value}
               onClick={() => setFilters({ ...filters, type: filters.type === t.value ? "" : t.value })}
               className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                 filters.type === t.value
@@ -160,7 +163,7 @@ function PaginatedProperties() {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Purpose</label>
+          <FilterLabel>Purpose</FilterLabel>
           <select
             value={filters.purpose}
             onChange={(e) => setFilters({ ...filters, purpose: e.target.value })}
@@ -172,7 +175,7 @@ function PaginatedProperties() {
           </select>
         </div>
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">City</label>
+          <FilterLabel>City</FilterLabel>
           <input
             type="text"
             value={filters.city}
@@ -185,7 +188,7 @@ function PaginatedProperties() {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Min Price</label>
+          <FilterLabel>Min Price</FilterLabel>
           <input
             type="number"
             value={filters.minPrice}
@@ -195,7 +198,7 @@ function PaginatedProperties() {
           />
         </div>
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Max Price</label>
+          <FilterLabel>Max Price</FilterLabel>
           <input
             type="number"
             value={filters.maxPrice}
@@ -208,7 +211,7 @@ function PaginatedProperties() {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Bedrooms</label>
+          <FilterLabel>Bedrooms</FilterLabel>
           <select
             value={filters.bedrooms}
             onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
@@ -221,7 +224,7 @@ function PaginatedProperties() {
           </select>
         </div>
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Bathrooms</label>
+          <FilterLabel>Bathrooms</FilterLabel>
           <select
             value={filters.bathrooms}
             onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
@@ -236,7 +239,7 @@ function PaginatedProperties() {
       </div>
 
       <div>
-        <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Sort By</label>
+        <FilterLabel>Sort By</FilterLabel>
         <select
           value={filters.sort}
           onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
@@ -341,70 +344,9 @@ function PaginatedProperties() {
           </AnimatePresence>
         </div>
 
-        <div className="flex gap-6">
-          {/* Mobile Filter Drawer - bottom sheet */}
-          <AnimatePresence>
-            {filtersOpen && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[60] lg:hidden"
-              >
-                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setFiltersOpen(false)} />
-                <motion.div
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  exit={{ y: "100%" }}
-                  transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                  role="dialog"
-                  aria-label="Property filters"
-                  className="absolute bottom-0 left-0 right-0 flex max-h-[85dvh] flex-col overflow-hidden bg-white dark:bg-slate-950 rounded-t-[32px] shadow-2xl"
-                >
-                  <div className="flex shrink-0 items-center justify-between px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <SlidersHorizontal size={18} className="text-indigo-600" />
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">Filters</h3>
-                    </div>
-                    <button type="button" aria-label="Close filters" onClick={() => setFiltersOpen(false)} className="w-11 h-11 flex items-center justify-center text-slate-400 hover:text-rose-500 bg-slate-100 dark:bg-white/5 rounded-xl transition-colors">
-                      <X size={18} />
-                    </button>
-                  </div>
-                  <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
-                    {renderFilters(false)}
-                  </div>
-                  <div className="shrink-0 border-t border-slate-200 bg-white px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-slate-800 dark:bg-slate-950">
-                    {renderFilterActions()}
-                  </div>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Desktop Filter Sidebar */}
-          <AnimatePresence>
-            {filtersOpen && (
-              <motion.aside
-                initial={{ opacity: 0, x: -20, width: 0 }}
-                animate={{ opacity: 1, x: 0, width: 300 }}
-                exit={{ opacity: 0, x: -20, width: 0 }}
-                className="hidden lg:block flex-shrink-0 overflow-hidden"
-              >
-                <div className="w-[300px] app-card p-5 sticky top-28">
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="flex items-center gap-2">
-                      <SlidersHorizontal size={16} className="text-indigo-600" />
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white">Filters</h3>
-                    </div>
-                    <button onClick={() => setFiltersOpen(false)} className="text-slate-400 hover:text-rose-500 transition-colors">
-                      <X size={16} />
-                    </button>
-                  </div>
-                  {renderFilters()}
-                </div>
-              </motion.aside>
-            )}
-          </AnimatePresence>
+        <div className={`${filterStyles.catalogLayout} ${filtersOpen ? filterStyles.catalogWithFilters : ""}`}>
+          <FilterDialog open={filtersOpen} onClose={() => setFiltersOpen(false)} footer={renderFilterActions()}>{renderFilters(false)}</FilterDialog>
+          {filtersOpen && <aside className={filterStyles.catalogAside} aria-label="Property filters"><FilterPanel onClose={() => setFiltersOpen(false)} footer={renderFilterActions()}>{renderFilters(false)}</FilterPanel></aside>}
 
           <div className="flex-1 min-w-0">
             {isError ? (

@@ -1,26 +1,11 @@
 "use client";
 
+import filterStyles from "@/components/filters/Filters.module.css";
+import { FilterDialog, FilterPanel, FilterLabel } from "@/components/filters/FilterUI";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Search,
-  X,
-  SlidersHorizontal,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  Home,
-  Bed,
-  Bath,
-  IndianRupee,
-  Building2,
-  Sparkles,
-  Layers,
-  Filter,
-  RotateCcw,
-} from "lucide-react";
+import { Search, X, ChevronDown, ChevronLeft, ChevronRight, Filter, RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import Footer from "@/components/Footer";
@@ -206,64 +191,9 @@ export default function SearchClient() {
           </motion.div>
 
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* Desktop Filter Sidebar */}
-            <motion.aside
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="hidden lg:block w-72 shrink-0"
-            >
-              <div className="app-card p-5 sticky top-28">
-                <FilterSection
-                  key={searchParams.toString()}
-                  params={params}
-                  updateParams={updateParams}
-                  activeFilters={activeFilters}
-                  clearAllFilters={clearAllFilters}
-                />
-              </div>
-            </motion.aside>
+            <aside className={filterStyles.quickAside} aria-label="Property filters"><FilterPanel bodyClassName={filterStyles.rawDialogBody}><FilterSection key={searchParams.toString()} params={params} updateParams={updateParams} clearAllFilters={clearAllFilters} /></FilterPanel></aside>
 
-            {/* Mobile Filter Drawer */}
-            <AnimatePresence>
-              {mobileFiltersOpen && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[60] lg:hidden"
-                >
-                  <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setMobileFiltersOpen(false)} />
-                  <motion.div
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    exit={{ y: "100%" }}
-                    transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                    role="dialog"
-                    aria-label="Property filters"
-                    className="absolute bottom-0 left-0 right-0 flex max-h-[85dvh] flex-col overflow-hidden bg-white dark:bg-slate-950 rounded-t-[32px] shadow-2xl"
-                  >
-                    <div className="flex shrink-0 items-center justify-between px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        <SlidersHorizontal size={18} className="text-indigo-600" />
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Filters</h3>
-                      </div>
-                      <button type="button" aria-label="Close filters" onClick={() => setMobileFiltersOpen(false)} className="w-11 h-11 flex items-center justify-center text-slate-400 hover:text-rose-500 bg-slate-100 dark:bg-white/5 rounded-xl transition-colors">
-                        <X size={18} />
-                      </button>
-                    </div>
-                    <FilterSection
-                      key={searchParams.toString()}
-                      params={params}
-                      updateParams={updateParams}
-                      activeFilters={activeFilters}
-                      clearAllFilters={clearAllFilters}
-                      mobile
-                      onApply={() => setMobileFiltersOpen(false)}
-                    />
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <FilterDialog open={mobileFiltersOpen} onClose={() => setMobileFiltersOpen(false)} bodyClassName={filterStyles.rawDialogBody}><FilterSection key={searchParams.toString()} params={params} updateParams={updateParams} clearAllFilters={clearAllFilters} mobile onApply={() => setMobileFiltersOpen(false)} /></FilterDialog>
 
             <div className="flex-1 min-w-0">
               {/* Results Header */}
@@ -475,7 +405,7 @@ export default function SearchClient() {
   );
 }
 
-function FilterSection({ params, updateParams, activeFilters, clearAllFilters, mobile, onApply }) {
+function FilterSection({ params, updateParams, clearAllFilters, mobile, onApply }) {
   const [draft, setDraft] = useState(params);
   const updateDraft = (updates) => setDraft(previous => ({ ...previous, ...updates }));
   const fieldId = (name) => `${mobile ? "mobile" : "desktop"}-search-${name}`;
@@ -490,26 +420,10 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
   };
 
   return (
-    <form onSubmit={submitFilters} aria-label="Property search filters" className={mobile ? "flex min-h-0 flex-1 flex-col" : ""}>
-      {!mobile && <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal size={16} className="text-indigo-600" />
-          <span className="text-sm font-bold text-slate-900 dark:text-white">Filters</span>
-        </div>
-        {activeFilters.length > 0 && (
-          <button
-            type="button"
-            onClick={resetFilters}
-            className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
-          >
-            Clear all
-          </button>
-        )}
-      </div>}
-
-      <div className={mobile ? "min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-5 pb-5" : "space-y-5"}>
+    <form onSubmit={submitFilters} aria-label="Property search filters" className={filterStyles.dialogForm}>
+      <div className={`${filterStyles.controls} ${filterStyles.dialogFields}`}>
         <div>
-          <label htmlFor={fieldId("q")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Keyword</label>
+          <FilterLabel htmlFor={fieldId("q")}>Keyword</FilterLabel>
           <div className="relative">
             <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
@@ -524,7 +438,7 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label htmlFor={fieldId("type")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Type</label>
+          <FilterLabel htmlFor={fieldId("type")}>Type</FilterLabel>
           <select
             id={fieldId("type")}
             value={draft.type}
@@ -545,7 +459,7 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label htmlFor={fieldId("purpose")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Purpose</label>
+          <FilterLabel htmlFor={fieldId("purpose")}>Purpose</FilterLabel>
           <select
             id={fieldId("purpose")}
             value={draft.purpose}
@@ -559,7 +473,7 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label htmlFor={fieldId("city")} className="text-xs font-semibold text-slate-400 mb-1.5 block">City</label>
+          <FilterLabel htmlFor={fieldId("city")}>City</FilterLabel>
           <input
             type="text"
             placeholder="e.g. Hisar"
@@ -571,7 +485,7 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Price Range</label>
+          <FilterLabel>Price Range</FilterLabel>
           <div className="flex items-center gap-2">
             <input
               type="number"
@@ -601,7 +515,7 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor={fieldId("bedrooms")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Bedrooms</label>
+            <FilterLabel htmlFor={fieldId("bedrooms")}>Bedrooms</FilterLabel>
             <select
               id={fieldId("bedrooms")}
               value={draft.bedrooms}
@@ -615,7 +529,7 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
             </select>
           </div>
           <div>
-            <label htmlFor={fieldId("bathrooms")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Bathrooms</label>
+            <FilterLabel htmlFor={fieldId("bathrooms")}>Bathrooms</FilterLabel>
             <select
               id={fieldId("bathrooms")}
               value={draft.bathrooms}
@@ -631,11 +545,12 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Furnishing</label>
+          <FilterLabel>Furnishing</FilterLabel>
           <div className="flex flex-wrap gap-1.5">
             {['furnished', 'semi-furnished', 'unfurnished'].map((opt) => (
               <button
                 key={opt}
+                aria-pressed={draft.furnishing === opt}
                 type="button"
                 onClick={() => updateDraft({ furnishing: draft.furnishing === opt ? '' : opt })}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
@@ -651,11 +566,12 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Posted By</label>
+          <FilterLabel>Posted By</FilterLabel>
           <div className="flex flex-wrap gap-1.5">
             {['owner', 'broker', 'builder'].map((opt) => (
               <button
                 key={opt}
+                aria-pressed={draft.postedBy === opt}
                 type="button"
                 onClick={() => updateDraft({ postedBy: draft.postedBy === opt ? '' : opt })}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
@@ -671,7 +587,7 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label htmlFor={fieldId("facing")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Facing</label>
+          <FilterLabel htmlFor={fieldId("facing")}>Facing</FilterLabel>
           <select
             id={fieldId("facing")}
             value={draft.facing}
@@ -686,7 +602,7 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label htmlFor={fieldId("possession")} className="text-xs font-semibold text-slate-400 mb-1.5 block">Possession</label>
+          <FilterLabel htmlFor={fieldId("possession")}>Possession</FilterLabel>
           <select
             id={fieldId("possession")}
             value={draft.possession}
@@ -703,7 +619,7 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
         </div>
 
         <div>
-          <label className="text-xs font-semibold text-slate-400 mb-1.5 block">Area Range (sqft)</label>
+          <FilterLabel>Area Range (sqft)</FilterLabel>
           <div className="flex items-center gap-2">
             <input
               type="number"
@@ -731,7 +647,7 @@ function FilterSection({ params, updateParams, activeFilters, clearAllFilters, m
           </div>
         </div>
       </div>
-      <div className={`flex shrink-0 gap-3 ${mobile ? "border-t border-slate-200 bg-white px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-slate-800 dark:bg-slate-950" : "mt-5"}`}>
+      <div className={filterStyles.actions}>
         <button type="button" onClick={resetFilters} className="btn-secondary flex min-h-11 items-center justify-center gap-2 !px-3 text-sm"><RotateCcw size={16} aria-hidden="true" />Clear</button>
         <button type="submit" className="btn-primary flex min-h-11 flex-1 items-center justify-center gap-2 !px-3 text-sm"><Filter size={16} aria-hidden="true" />Apply Filters</button>
       </div>

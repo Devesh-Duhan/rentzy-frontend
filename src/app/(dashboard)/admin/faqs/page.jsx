@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -136,11 +137,11 @@ export default function FaqsPage() {
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
+            className={(`px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
               activeCategory === cat
                 ? "bg-slate-900 dark:bg-indigo-600 text-white shadow-lg"
                 : "bg-white dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5"
-            }`}
+            }`) + " " + filterUiStyles.filterChoice} aria-pressed={activeCategory === cat}
           >
             {cat}
             {cat !== "All" && (
@@ -158,7 +159,7 @@ export default function FaqsPage() {
             placeholder="Search questions and answers..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-14 pr-6 py-3.5 bg-slate-50 dark:bg-white/5 border-none rounded-xl md:rounded-2xl text-[13px] md:text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all"
+            className={"w-full pl-14 pr-6 py-3.5 bg-slate-50 dark:bg-white/5 border-none rounded-xl md:rounded-2xl text-[13px] md:text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all" + " " + filterUiStyles.filterControl}
           />
         </div>
         <button onClick={fetchFaqs} className="p-4 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-2xl hover:text-indigo-600 transition-all active:scale-90">

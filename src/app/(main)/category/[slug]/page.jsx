@@ -1,4 +1,5 @@
 "use client";
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import ContentSkeleton from "@/components/ContentSkeleton";
 
 
@@ -145,7 +146,7 @@ export default function CategoryPage({ params }) {
                     router.push(`/search?q=${encodeURIComponent(searchQuery)}&type=${displayCategory.slug || slug}`);
                   }
                 }}
-                className="flex-1 bg-transparent text-white placeholder-white/60 text-xs md:text-sm font-bold outline-none w-full"
+                className={"flex-1 bg-transparent text-white placeholder-white/60 text-xs md:text-sm font-bold outline-none w-full" + " " + filterUiStyles.filterControl}
               />
               <button
                 onClick={() => {

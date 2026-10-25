@@ -3,10 +3,13 @@
 import { useState, useEffect } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building, MapPin, DollarSign, Home, BedDouble, Filter, ChevronDown } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from "lucide-react";
 import axios from "@/lib/axios";
 import PropertyCard from "@/components/PropertyCard";
 import PropertySkeleton from "@/components/PropertySkeleton";
+import styles from "@/components/filters/Filters.module.css";
+import PropertyQuickFilters from "@/components/filters/PropertyQuickFilters";
+import { FilterPanel, FilterDialog } from "@/components/filters/FilterUI";
 import Footer from "@/components/Footer";
 
 const PROPERTY_TYPES = ["All", "Apartment", "Villa", "Flat", "House", "PG", "Commercial"];
@@ -77,139 +80,7 @@ export default function RentClient() {
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== "All" && v !== "Any") || searchTerm.trim();
 
-  const FilterContent = () => (
-    <div className="space-y-7">
-      {/* Property Type */}
-      <div>
-        <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
-          <Building size={16} className="text-slate-400" /> Property Type
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {PROPERTY_TYPES.map((t) => {
-            const isActive = filters.type === t;
-            return (
-              <button
-                key={t}
-                onClick={() => handleFilterChange("type", t)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
-                  isActive
-                    ? "bg-slate-900 text-white border-slate-900 shadow-md dark:bg-white dark:text-slate-900 dark:border-white"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-400 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:border-slate-500"
-                }`}
-              >
-                {t}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Dropdowns (City & Price) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-5">
-        <div>
-          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
-            <MapPin size={16} className="text-slate-400" /> City
-          </label>
-          <div className="relative">
-            <select
-              value={filters.city}
-              onChange={(e) => handleFilterChange("city", e.target.value)}
-              className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-white dark:focus:border-white dark:focus:ring-white"
-            >
-              {CITIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-              <ChevronDown size={16} />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
-            <DollarSign size={16} className="text-slate-400" /> Price Range
-          </label>
-          <div className="relative">
-            <select
-              value={filters.priceRange}
-              onChange={(e) => handleFilterChange("priceRange", e.target.value)}
-              className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-white dark:focus:border-white dark:focus:ring-white"
-            >
-              {PRICE_RANGES.map((r) => (
-                <option key={r.label} value={r.label}>{r.label}</option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-              <ChevronDown size={16} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* BHK */}
-      <div>
-        <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
-          <BedDouble size={16} className="text-slate-400" /> BHK
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {BHK_OPTIONS.map((b) => {
-            const isActive = filters.bhk === b;
-            return (
-              <button
-                key={b}
-                onClick={() => handleFilterChange("bhk", b)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
-                  isActive
-                    ? "bg-slate-900 text-white border-slate-900 shadow-md dark:bg-white dark:text-slate-900 dark:border-white"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-400 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:border-slate-500"
-                }`}
-              >
-                {b}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Bedrooms */}
-      <div>
-        <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
-          <Home size={16} className="text-slate-400" /> Bedrooms
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {BEDROOM_OPTIONS.map((b) => {
-            const isActive = filters.bedrooms === b;
-            return (
-              <button
-                key={b}
-                onClick={() => handleFilterChange("bedrooms", b)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
-                  isActive
-                    ? "bg-slate-900 text-white border-slate-900 shadow-md dark:bg-white dark:text-slate-900 dark:border-white"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-400 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:border-slate-500"
-                }`}
-              >
-                {b}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Clear Filters */}
-      {hasActiveFilters && (
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-          <button
-            onClick={clearFilters}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
-          >
-            <X size={16} /> Clear All Filters
-          </button>
-        </div>
-      )}
-    </div>
-  );
+  const renderFilters = (idPrefix) => <PropertyQuickFilters filters={filters} onChange={handleFilterChange} onClear={clearFilters} hasActiveFilters={hasActiveFilters} idPrefix={idPrefix} types={PROPERTY_TYPES} cities={CITIES} priceRanges={PRICE_RANGES} bhkOptions={BHK_OPTIONS} bedroomOptions={BEDROOM_OPTIONS} />;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -280,21 +151,7 @@ export default function RentClient() {
       <section className="py-8 md:py-12">
         <div className="app-container">
           <div className="flex gap-8">
-            <aside className="hidden lg:block w-72 shrink-0">
-              <div className="sticky top-28 app-card p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-900 dark:text-white flex items-center gap-2">
-                    <Filter size={14} /> Filters
-                  </h3>
-                  {hasActiveFilters && (
-                    <button onClick={clearFilters} className="text-xs font-medium text-red-500 hover:text-red-600 transition-colors">
-                      Clear
-                    </button>
-                  )}
-                </div>
-                <FilterContent />
-              </div>
-            </aside>
+            <aside className={styles.quickAside} aria-label="Property filters"><FilterPanel>{renderFilters('rent-desktop')}</FilterPanel></aside>
 
             <div className="flex-1 min-w-0" aria-busy={isFetching}>
               <div className="flex items-center justify-between mb-8">
@@ -431,27 +288,7 @@ export default function RentClient() {
         </div>
       </section>
 
-      {showMobileFilters && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowMobileFilters(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm app-card rounded-none shadow-2xl overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-              <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-900 dark:text-white flex items-center gap-2">
-                <Filter size={14} /> Filters
-              </h3>
-              <button
-                onClick={() => setShowMobileFilters(false)}
-                className="btn-ghost !p-2"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-6">
-              <FilterContent />
-            </div>
-          </div>
-        </div>
-      )}
+      <FilterDialog open={showMobileFilters} onClose={() => setShowMobileFilters(false)} label="Filters" footer={<button type="button" onClick={() => setShowMobileFilters(false)} className={styles.applyButton}><Search size={17} />View properties</button>}>{renderFilters('rent-mobile')}</FilterDialog>
 
       <Footer />
     </main>

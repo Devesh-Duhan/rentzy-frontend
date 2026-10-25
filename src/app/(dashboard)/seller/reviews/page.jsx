@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Building2, User, Calendar, MessageSquare, Reply, X, Send, ArrowUpDown, Loader2 } from "lucide-react";
@@ -65,13 +66,13 @@ export default function SellerReviews() {
     <div className="space-y-6 animate-fade-in pb-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h2 className="section-title">Reviews</h2>
-        <div className="flex items-center gap-3">
+        <div className={"flex items-center gap-3" + " " + filterUiStyles.toolbar}>
           <div className="relative">
             <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" />
             <select
               value={propertyFilter}
               onChange={(e) => setPropertyFilter(e.target.value)}
-              className="input-field !pl-10 pr-8 appearance-none"
+              className={"input-field !pl-10 pr-8 appearance-none" + " " + filterUiStyles.filterControl}
             >
               <option value="all">All Properties</option>
               {uniqueProperties.map((p) => (
@@ -84,7 +85,7 @@ export default function SellerReviews() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="input-field !pl-10 pr-8 appearance-none"
+              className={"input-field !pl-10 pr-8 appearance-none" + " " + filterUiStyles.filterControl}
             >
               <option value="date">Newest First</option>
               <option value="rating">Highest Rated</option>

@@ -1,12 +1,13 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Grid, List, Sparkles, MapPin, ChevronDown, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, Grid, List, Sparkles, ChevronDown, SlidersHorizontal } from "lucide-react";
 
 import axiosInstance from "@/lib/axios";
 
@@ -224,12 +225,12 @@ export default function FeaturedProperties() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 md:gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0">
+            <div className={"flex items-center gap-2 md:gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0" + " " + filterUiStyles.toolbar}>
               <div className="relative group flex-shrink-0">
                 <select
                   value={priceRange}
                   onChange={handlePriceChange}
-                  className="appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 md:px-5 py-2.5 md:py-3 pr-9 md:pr-10 text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer shadow-sm hover:border-indigo-200 dark:hover:border-indigo-800"
+                  className={"appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 md:px-5 py-2.5 md:py-3 pr-9 md:pr-10 text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer shadow-sm hover:border-indigo-200 dark:hover:border-indigo-800" + " " + filterUiStyles.filterControl}
                 >
                   <option value="all">All Prices</option>
                   <option value="under20k">Under ₹20,000</option>
@@ -245,7 +246,7 @@ export default function FeaturedProperties() {
                 <select
                   value={sortBy}
                   onChange={handleSortChange}
-                  className="appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 md:px-5 py-2.5 md:py-3 pr-9 md:pr-10 text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer shadow-sm hover:border-indigo-200 dark:hover:border-indigo-800"
+                  className={"appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 md:px-5 py-2.5 md:py-3 pr-9 md:pr-10 text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer shadow-sm hover:border-indigo-200 dark:hover:border-indigo-800" + " " + filterUiStyles.filterControl}
                 >
                   <option value="newest">Newest First</option>
                   <option value="price_low">Price: Low to High</option>

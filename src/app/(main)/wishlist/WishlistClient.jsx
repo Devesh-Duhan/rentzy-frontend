@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
@@ -128,11 +129,11 @@ export default function WishlistClient() {
               <button
                 key={folder.id}
                 onClick={() => setActiveFolder(folder.id)}
-                className={`flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${
+                className={(`flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${
                   activeFolder === folder.id
                     ? "bg-rose-600 text-white shadow-lg shadow-rose-200 dark:shadow-rose-900/40"
                     : "app-card hover:border-rose-200 dark:hover:border-rose-800"
-                }`}
+                }`) + " " + filterUiStyles.filterChoice} aria-pressed={activeFolder === folder.id}
               >
                 {folder.id === "all" && <Bookmark size={14} />}
                 {folder.id === "favorites" && <Heart size={14} />}

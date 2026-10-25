@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
@@ -78,7 +79,7 @@ function CategoryRow({ category: { value, title, icon: Icon, featured = false } 
         </div>
       </div>
       {featured && <div role="group" aria-label="Featured property purpose" className="mb-4 inline-flex gap-1 rounded-full border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-900">
-        {[['sell', 'Sell'], ['rent', 'Rent']].map(([value, label]) => <button key={value} type="button" aria-pressed={purpose === value} aria-controls={railId} onClick={() => setPurpose(value)} className={`min-h-11 rounded-full px-5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${purpose === value ? 'bg-rose-600 text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`}>{label}</button>)}
+        {[['sell', 'Sell'], ['rent', 'Rent']].map(([value, label]) => <button key={value} type="button" aria-pressed={purpose === value} aria-controls={railId} onClick={() => setPurpose(value)} className={(`min-h-11 rounded-full px-5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${purpose === value ? 'bg-rose-600 text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`) + " " + filterUiStyles.filterChoice}>{label}</button>)}
       </div>}
       {isError ? <div role="alert" className="rounded-2xl border border-slate-200 p-6 dark:border-slate-800"><p className="text-sm text-slate-500">We couldn&apos;t load {title.toLowerCase()}.</p><button type="button" onClick={() => refetch()} className="mt-3 text-sm font-semibold text-indigo-600">Try again</button></div> : featured && !isPending && !properties.length ? <div id={railId} role="status" className="rounded-2xl border border-slate-200 p-6 text-sm text-slate-500 dark:border-slate-800">No featured properties for {purpose === 'sell' ? 'sale' : 'rent'} yet.</div> : (
         <ul ref={rail} id={railId} aria-labelledby={headingId} aria-busy={isPending} tabIndex={0} className={styles.rail}>

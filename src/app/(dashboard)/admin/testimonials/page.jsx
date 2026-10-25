@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import {
@@ -159,7 +160,7 @@ export default function TestimonialsPage() {
             placeholder="Search by name or content..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-14 pr-6 py-3.5 bg-slate-50 dark:bg-white/5 border-none rounded-xl md:rounded-2xl text-[13px] md:text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all"
+            className={"w-full pl-14 pr-6 py-3.5 bg-slate-50 dark:bg-white/5 border-none rounded-xl md:rounded-2xl text-[13px] md:text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all" + " " + filterUiStyles.filterControl}
           />
         </div>
         <button onClick={fetchTestimonials} className="p-4 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-2xl hover:text-indigo-600 transition-all active:scale-90">
@@ -426,7 +427,7 @@ export default function TestimonialsPage() {
               </div>
               <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Delete Testimonial?</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-8">
-                Delete testimonial from <span className="text-slate-900 dark:text-white font-bold">"{deleteConfig.name}"</span>? This cannot be undone.
+                Delete testimonial from <span className="text-slate-900 dark:text-white font-bold">&quot;{deleteConfig.name}&quot;</span>? This cannot be undone.
               </p>
               <div className="flex gap-4">
                 <button onClick={() => setIsDeleteModalOpen(false)} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Cancel</button>

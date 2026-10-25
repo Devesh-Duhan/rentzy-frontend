@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Building2, MapPin, Eye, Edit2, Trash2, Search, AlertTriangle, X, Plus, Loader2 } from "lucide-react";
@@ -65,7 +66,7 @@ export default function SellerProperties() {
               placeholder="Search my properties..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-field !pl-10"
+              className={"input-field !pl-10" + " " + filterUiStyles.filterControl}
             />
           </div>
           <Link href="/add" className="btn-primary flex items-center gap-2 text-sm px-5 py-3">

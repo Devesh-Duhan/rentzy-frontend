@@ -1,4 +1,5 @@
 "use client";
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import ContentSkeleton from "@/components/ContentSkeleton";
 
 
@@ -397,7 +398,7 @@ export default function CompareClient() {
                     <Plus size={16} /> Add Property
                   </button>
                   {showAddDropdown && (
-                    <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-50">
+                    <div className="app-dropdown-panel absolute top-full left-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-50">
                       <div className="p-3 border-b border-slate-100 dark:border-slate-700">
                         <div className="relative">
                           <Search
@@ -409,7 +410,7 @@ export default function CompareClient() {
                             placeholder="Search properties..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="input-field pl-9"
+                            className={"input-field pl-9" + " " + filterUiStyles.filterControl}
                             autoFocus
                           />
                         </div>

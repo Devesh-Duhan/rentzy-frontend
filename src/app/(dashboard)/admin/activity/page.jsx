@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -60,20 +61,20 @@ export default function ActivityPage() {
         <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">Track all admin actions and system changes</p>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-center">
+      <div className={"flex flex-wrap gap-3 items-center" + " " + filterUiStyles.toolbar}>
         <div className="relative flex-1 min-w-[200px] max-w-xs">
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             value={search}
             onChange={handleSearch}
             placeholder="Search by user, target..."
-            className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-100 outline-none focus:ring-4 focus:ring-indigo-100/50 transition-all"
+            className={"w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-100 outline-none focus:ring-4 focus:ring-indigo-100/50 transition-all" + " " + filterUiStyles.filterControl}
           />
         </div>
         <select
           value={actionFilter}
           onChange={(e) => setActionFilter(e.target.value)}
-          className="px-4 py-3 bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-100 outline-none focus:ring-4 focus:ring-indigo-100/50 transition-all appearance-none"
+          className={"px-4 py-3 bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-100 outline-none focus:ring-4 focus:ring-indigo-100/50 transition-all appearance-none" + " " + filterUiStyles.filterControl}
         >
           {ACTION_TYPES.map((a) => (
             <option key={a.value} value={a.value}>{a.label}</option>
@@ -83,14 +84,14 @@ export default function ActivityPage() {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="px-4 py-3 bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-100 outline-none focus:ring-4 focus:ring-indigo-100/50 transition-all"
+          className={"px-4 py-3 bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-100 outline-none focus:ring-4 focus:ring-indigo-100/50 transition-all" + " " + filterUiStyles.filterControl}
         />
         <span className="text-slate-400 text-sm font-bold">to</span>
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="px-4 py-3 bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-100 outline-none focus:ring-4 focus:ring-indigo-100/50 transition-all"
+          className={"px-4 py-3 bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-100 outline-none focus:ring-4 focus:ring-indigo-100/50 transition-all" + " " + filterUiStyles.filterControl}
         />
       </div>
 

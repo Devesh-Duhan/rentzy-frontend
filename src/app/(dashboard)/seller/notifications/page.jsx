@@ -1,5 +1,6 @@
 "use client";
 
+import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -145,11 +146,11 @@ const NotificationsPage = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all relative flex items-center gap-2 ${
+            className={(`px-4 py-2 rounded-xl text-sm font-semibold transition-all relative flex items-center gap-2 ${
               activeTab === tab.id
                 ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
                 : "text-slate-500 hover:text-slate-800 hover:bg-slate-50 dark:hover:bg-white/5"
-            }`}
+            }`) + " " + filterUiStyles.filterChoice} aria-pressed={activeTab === tab.id}
           >
             {tab.label}
             {tab.count !== undefined && tab.count > 0 && (
