@@ -9,13 +9,19 @@ import ReactQueryProvider from "@/components/ReactQueryProvider";
 import Navbar from "@/components/Navbar";
 import OrganizationSchema from "@/components/OrganizationSchema";
 import PWAProvider from "@/components/PWAProvider";
-import { LOGO_SRC } from "@/lib/constants";
+import { LOGO_SRC, LOGO_SIZE } from "@/lib/constants";
+
+const faviconUrl = `/favicon?v=${LOGO_SRC.split("/").pop()}`;
 
 export async function generateMetadata() {
   return {
     ...await siteMetadata(),
     manifest: '/manifest.webmanifest',
-    icons: { icon: LOGO_SRC, shortcut: LOGO_SRC, apple: LOGO_SRC },
+    icons: {
+      icon: { url: faviconUrl, type: "image/png", sizes: LOGO_SIZE },
+      shortcut: faviconUrl,
+      apple: { url: LOGO_SRC, type: "image/png", sizes: LOGO_SIZE },
+    },
     other: {
       'mobile-web-app-capable': 'yes',
       'apple-mobile-web-app-capable': 'yes',

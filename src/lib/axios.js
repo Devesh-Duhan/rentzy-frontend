@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   (process.env.NODE_ENV === 'production'
-    ? 'https://rentzy-backend-lh5y.onrender.com/api'
+    ? 'https://sea-turtle-app-g4msm.ondigitalocean.app/api'
     : 'http://localhost:5000/api');
 
 const PUBLIC_ROUTES = [

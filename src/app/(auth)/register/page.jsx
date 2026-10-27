@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
-import { useRouter } from "next/navigation";
+import { getAuthDestination } from "@/lib/authRedirect";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { register, reset, sendRegisterOtp, verifyRegisterOtp } from "@/store/slices/authSlice";
@@ -11,7 +11,6 @@ import { User, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2 } from "lucide
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 const RegisterPage = () => {
-  const router = useRouter();
   const dispatch = useDispatch();
   const { user, isLoading, isError, message } = useSelector((s) => s.auth);
 
@@ -22,10 +21,9 @@ const RegisterPage = () => {
   const [otp, setOtp] = useState("");
 
   const redirectUser = useCallback((u) => {
-    if (u.role === "admin") router.push("/admin");
-    else if (u.role === "seller") router.push("/seller");
-    else router.push("/");
-  }, [router]);
+    // A fresh navigation reads the new cookie instead of a cached anonymous RSC redirect.
+    window.location.replace(getAuthDestination(u, undefined));
+  }, []);
 
   useEffect(() => {
     if (user) {

@@ -10,7 +10,7 @@ const PING_INTERVAL_MS = 14 * 60 * 1000; // 14 minutes (Render sleeps after 15)
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   (process.env.NODE_ENV === "production"
-    ? "https://rentzy-backend-lh5y.onrender.com/api"
+    ? "https://sea-turtle-app-g4msm.ondigitalocean.app/api"
     : "http://localhost:5000/api");
 
 export default function KeepAlive() {

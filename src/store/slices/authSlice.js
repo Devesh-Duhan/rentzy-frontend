@@ -7,12 +7,14 @@ import axios from '../../lib/axios';
 const setToken = (token) => {
   if (typeof window === 'undefined' || !token) return;
   localStorage.setItem('token', token);
+  document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
   document.cookie = `rentzy_token=${token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
 };
 
 const clearToken = () => {
   if (typeof window === 'undefined') return;
   localStorage.removeItem('token');
+  document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
   localStorage.removeItem('user');
   document.cookie = 'rentzy_token=; path=/; max-age=0; SameSite=Lax';
 };

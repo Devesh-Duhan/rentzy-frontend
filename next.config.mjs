@@ -9,7 +9,7 @@ if (!process.env.NEXT_PUBLIC_URL) {
 }
 
 if (!process.env.NEXT_PUBLIC_API_URL) {
-  process.env.NEXT_PUBLIC_API_URL = 'https://rentzy-backend-lh5y.onrender.com/api';
+  process.env.NEXT_PUBLIC_API_URL = 'https://sea-turtle-app-g4msm.ondigitalocean.app/api';
 }
 
 if (process.env.NODE_ENV === 'production') {
@@ -28,10 +28,13 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 const nextConfig = {
+  async rewrites() {
+    return [{ source: '/favicon.ico', destination: '/favicon' }];
+  },
   ...(process.env.PLAYWRIGHT_TEST === '1' ? { distDir: '.next-playwright', typescript: { tsconfigPath: 'tests/tsconfig.next.json' } } : {}),
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://rentzy-backend-lh5y.onrender.com/api',
-    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://rentzy-backend-lh5y.onrender.com',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://sea-turtle-app-g4msm.ondigitalocean.app/api',
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://sea-turtle-app-g4msm.ondigitalocean.app',
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL || 'https://rentzypro.com',
   },
   images: {

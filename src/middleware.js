@@ -39,7 +39,8 @@ export function middleware(request) {
 
   if (!rule) return NextResponse.next();
 
-  const token = request.cookies.get("token")?.value || request.cookies.get("rentzy_token")?.value;
+  // Prefer the current session over a stale legacy cookie left by older mobile sessions.
+  const token = request.cookies.get("rentzy_token")?.value || request.cookies.get("token")?.value;
 
   if (!token) {
     const url = request.nextUrl.clone();

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
-import { useRouter } from "next/navigation";
+import { getAuthDestination } from "@/lib/authRedirect";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { login, reset } from "@/store/slices/authSlice";
@@ -11,7 +11,6 @@ import { Mail, Lock, Eye, EyeOff, LogIn, ChevronRight, AlertCircle, CheckCircle2
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 const LoginPage = () => {
-  const router = useRouter();
   const dispatch = useDispatch();
   const { user, isLoading, isError, message } = useSelector((s) => s.auth);
 
@@ -21,21 +20,9 @@ const LoginPage = () => {
   const [status, setStatus] = useState({ text: "", type: "" });
 
   const redirectUser = useCallback((u) => {
-    // Honour the destination captured by src/middleware.js, but only for
-    // same-origin absolute paths (never "//evil.com" or "https://...").
-    const next = new URLSearchParams(window.location.search).get("next");
-    const isSafeNext =
-      typeof next === "string" && next.startsWith("/") && !next.startsWith("//");
-
-    if (isSafeNext) {
-      router.push(next);
-      return;
-    }
-
-    if (u.role === "admin") router.push("/admin");
-    else if (u.role === "seller") router.push("/seller");
-    else router.push("/");
-  }, [router]);
+    // A fresh navigation reads the new cookie instead of a cached anonymous RSC redirect.
+    window.location.replace(getAuthDestination(u, new URLSearchParams(window.location.search).get("next")));
+  }, []);
 
   useEffect(() => {
     if (user) {
