@@ -1,9 +1,7 @@
+import { pageMetadata } from '@/seo';
 import CompareClient from "./CompareClient";
 
-export const metadata = {
-  title: "Compare Properties - rentzypro",
-  description: "Compare properties side by side to find the best deal for you.",
-};
+export const metadata = pageMetadata('/compare');
 
 export default function ComparePage() {
   return <CompareClient />;

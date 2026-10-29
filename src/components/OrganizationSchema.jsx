@@ -1,17 +1,10 @@
-import { LOGO_SRC } from '@/lib/constants';
+import { SITE_SEO } from '@/seo';
 
 export default function OrganizationSchema() {
   const schema = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateAgent",
-    "name": "rentzypro",
-    "description": "Find Rental Properties Direct From Owners - No Brokerage",
-    "url": process.env.NEXT_PUBLIC_URL || "https://rentzypro.com",
-    "logo": `${(process.env.NEXT_PUBLIC_URL || "https://rentzypro.com").replace(/\/$/, '')}${LOGO_SRC}`,
-    "areaServed": { "@type": "Country", "name": "India" },
-    "priceRange": "₹5000 - ₹500000",
+    '@context': 'https://schema.org', '@type': 'Organization',
+    name: SITE_SEO.name, description: SITE_SEO.description, url: SITE_SEO.baseUrl,
+    logo: new URL(SITE_SEO.image, SITE_SEO.baseUrl).href,
   };
-  return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }} />
-  );
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }} />;
 }

@@ -1,9 +1,7 @@
+import { pageMetadata } from '@/seo';
 import GalleryClient from "./GalleryClient";
 
-export const metadata = {
-  title: "Property Gallery - rentzypro",
-  description: "Browse through our collection of property images and find your dream home.",
-};
+export const metadata = pageMetadata('/gallery');
 
 export default function GalleryPage() {
   return <GalleryClient />;

@@ -17,7 +17,7 @@ async function holdApi(page: Page, path: string, response: (url: URL) => unknown
   return { release, calls: () => calls };
 }
 
-for (const [path, heading] of [['/buy', /^Properties for (?:Sale|Sell)$/], ['/rent', 'Properties for Rent']]) {
+for (const [path, heading] of [['/buy', /^Properties for (?:Sale|Sell)$/], ['/rent', 'Properties for Rent']] as const) {
   test(`${path} renders controls and skeletons before the listing API responds`, async ({ page }) => {
     const api = await holdApi(page, '/api/properties', url => propertyResults(url.searchParams));
     try {

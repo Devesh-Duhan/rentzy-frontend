@@ -1,9 +1,7 @@
+import { pageMetadata } from '@/seo';
 import ReraClient from "./ReraClient";
 
-export const metadata = {
-  title: "RERA Registered Properties - rentzypro",
-  description: "Browse RERA registered properties. Real Estate Regulatory Authority compliant listings for buyer protection.",
-};
+export const metadata = pageMetadata('/rera');
 
 export default function ReraPage() {
   return <ReraClient />;

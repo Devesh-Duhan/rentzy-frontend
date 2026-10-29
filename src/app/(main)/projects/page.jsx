@@ -1,9 +1,7 @@
+import { pageMetadata } from '@/seo';
 import ProjectsClient from "./ProjectsClient";
 
-export const metadata = {
-  title: "Projects & Builders - rentzypro",
-  description: "Explore property developers, builders, and their ongoing projects on rentzypro.",
-};
+export const metadata = pageMetadata('/projects');
 
 export default function ProjectsPage() {
   return <ProjectsClient />;

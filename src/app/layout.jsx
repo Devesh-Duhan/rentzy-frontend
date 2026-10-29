@@ -1,7 +1,7 @@
 import "./globals.css";
 import "./market.css";
 import "./dropdowns.css";
-import { siteMetadata } from "@/lib/siteMetadata";
+import { buildMetadata } from "@/seo";
 import StoreProvider from "@/store/StoreProvider";
 import { Toaster } from "react-hot-toast";
 import ThemeProvider from "@/components/ThemeProvider";
@@ -15,7 +15,7 @@ const faviconUrl = `/favicon?v=${LOGO_SRC.split("/").pop()}`;
 
 export async function generateMetadata() {
   return {
-    ...await siteMetadata(),
+    ...buildMetadata(),
     manifest: '/manifest.webmanifest',
     icons: {
       icon: { url: faviconUrl, type: "image/png", sizes: LOGO_SIZE },

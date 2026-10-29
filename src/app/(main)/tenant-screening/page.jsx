@@ -1,9 +1,7 @@
+import { pageMetadata } from '@/seo';
 import TenantScreeningClient from "./TenantScreeningClient";
 
-export const metadata = {
-  title: "Tenant Verification & Screening - rentzypro",
-  description: "Verify tenants with background checks, employment verification, and credit score screening.",
-};
+export const metadata = pageMetadata('/tenant-screening');
 
 export default function TenantScreeningPage() {
   return <TenantScreeningClient />;

@@ -1,10 +1,11 @@
 import { LOGO_SRC, LOGO_SIZE } from '@/lib/constants';
+import { SITE_SEO } from '@/seo';
 
 export default function manifest() {
   return {
-    name: "rentzypro - Find Your Perfect Property",
-    short_name: "rentzypro",
-    description: "Find Rental Properties Direct From Owners - No Brokerage",
+    name: SITE_SEO.name,
+    short_name: SITE_SEO.name,
+    description: SITE_SEO.description,
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

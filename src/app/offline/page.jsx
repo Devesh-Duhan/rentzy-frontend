@@ -1,9 +1,8 @@
+import { pageMetadata } from '@/seo';
 import Link from "next/link";
 import { WifiOff } from "lucide-react";
 
-export const metadata = {
-  title: "You're offline - RentzyPro",
-};
+export const metadata = pageMetadata('/offline');
 
 export default function OfflinePage() {
   return (

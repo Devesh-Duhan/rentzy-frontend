@@ -1,5 +1,5 @@
 import HomeClient from './HomeClient';
-import { siteMetadata } from '@/lib/siteMetadata';
+import { pageMetadata } from '@/seo';
 
-export const generateMetadata = () => siteMetadata();
+export const metadata = pageMetadata('/');
 export default function Home() { return <HomeClient />; }

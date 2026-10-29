@@ -11,7 +11,7 @@ test('marketplace keeps category previews bounded and scrolls to See more',async
    const bounds=element.getBoundingClientRect();
    return [...element.querySelectorAll('article')].filter(card=>{const box=card.getBoundingClientRect();return box.left>=bounds.left-1&&box.right<=bounds.right+1;}).length;
  })).toBe(page.viewportSize()!.width<640?2:6);
- await rail.locator('img').evaluateAll(images=>Promise.all(images.map(image=>image.decode().catch(()=>{}))));
+ await rail.locator('img').evaluateAll(images=>Promise.all(images.map(image=>image instanceof HTMLImageElement ? image.decode().catch(()=>{}) : undefined)));
  await page.screenshot({path:test.info().outputPath('marketplace.png')});
  await rail.evaluate(element=>element.scrollTo({left:element.scrollWidth,behavior:'instant'}));
  const more=rail.getByRole('link',{name:'See more commercial properties',exact:true});

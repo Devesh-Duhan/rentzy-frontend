@@ -15,7 +15,7 @@ async function captureStore(context: BrowserContext) {
     const visit = (fiber?: Fiber) => {
       if (!fiber) return;
       const store = fiber.memoizedProps?.store;
-      if (store?.getState()?.auth) (window as AuthWindow).__authTestStore = store;
+      if (store?.getState()?.auth) (window as unknown as AuthWindow).__authTestStore = store;
       visit(fiber.child); visit(fiber.sibling);
     };
     Object.assign(window, { __REACT_DEVTOOLS_GLOBAL_HOOK__: {
@@ -28,15 +28,15 @@ async function captureStore(context: BrowserContext) {
 
 async function completeGoogleExchange(page: Page) {
   // Exercise the actual Google-login thunk after Firebase would return an ID token.
-  await page.waitForFunction(() => Boolean((window as AuthWindow).__authTestStore));
+  await page.waitForFunction(() => Boolean((window as unknown as AuthWindow).__authTestStore));
   return page.evaluate(async () => {
     let runtime: Runtime | undefined;
-    (window as AuthWindow).webpackChunk_N_E.push([['auth-test-' + Date.now()], {}, (require: Runtime) => { runtime = require; }]);
+    (window as unknown as AuthWindow).webpackChunk_N_E.push([['auth-test-' + Date.now()], {}, (require: Runtime) => { runtime = require; }]);
     const id = Object.keys(runtime!.m).find(id => runtime!.m[id].toString().includes('auth/googleLogin'));
     if (!id) throw Error('Google auth thunk module not loaded');
     const thunk = Object.values(runtime!(id)).find((value): value is ((token: string) => unknown) & { typePrefix: string } => typeof value === 'function' && 'typePrefix' in value && value.typePrefix === 'auth/googleLogin');
     if (!thunk) throw Error('Google auth thunk export not found');
-    try { await (window as AuthWindow).__authTestStore!.dispatch(thunk('synthetic-google-id-token')).unwrap(); return null; }
+    try { await (window as unknown as AuthWindow).__authTestStore!.dispatch(thunk('synthetic-google-id-token')).unwrap(); return null; }
     catch (error) { return String(error); }
   });
 }

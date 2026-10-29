@@ -1,49 +1,10 @@
-const baseUrl = (process.env.NEXT_PUBLIC_URL || 'https://rentzypro.com').replace(/\/$/, '');
+import { SITE_SEO, PAGE_SEO, canonicalUrl } from '@/seo';
+const baseUrl = SITE_SEO.baseUrl;
 const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
-const staticPages = [
-  { url: baseUrl, changeFrequency: 'daily', priority: 1.0 },
-  { url: `${baseUrl}/properties`, changeFrequency: 'daily', priority: 0.9 },
-  { url: `${baseUrl}/buy`, changeFrequency: 'daily', priority: 0.8 },
-  { url: `${baseUrl}/rent`, changeFrequency: 'daily', priority: 0.8 },
-  { url: `${baseUrl}/featured-properties`, changeFrequency: 'daily', priority: 0.8 },
-  { url: `${baseUrl}/projects`, changeFrequency: 'weekly', priority: 0.7 },
-  { url: `${baseUrl}/gallery`, changeFrequency: 'weekly', priority: 0.6 },
-  { url: `${baseUrl}/blog`, changeFrequency: 'weekly', priority: 0.7 },
-  { url: `${baseUrl}/about`, changeFrequency: 'monthly', priority: 0.5 },
-  { url: `${baseUrl}/contact`, changeFrequency: 'monthly', priority: 0.5 },
-  { url: `${baseUrl}/help`, changeFrequency: 'monthly', priority: 0.4 },
-  { url: `${baseUrl}/rera`, changeFrequency: 'monthly', priority: 0.5 },
-  { url: `${baseUrl}/compare`, changeFrequency: 'monthly', priority: 0.4 },
-  { url: `${baseUrl}/tenant-screening`, changeFrequency: 'monthly', priority: 0.5 },
-  { url: `${baseUrl}/safety`, changeFrequency: 'monthly', priority: 0.4 },
-  { url: `${baseUrl}/mobile-app`, changeFrequency: 'monthly', priority: 0.4 },
-  { url: `${baseUrl}/testimonials`, changeFrequency: 'monthly', priority: 0.4 },
-  { url: `${baseUrl}/refer`, changeFrequency: 'monthly', priority: 0.4 },
-  { url: `${baseUrl}/privacy`, changeFrequency: 'yearly', priority: 0.2 },
-  { url: `${baseUrl}/terms`, changeFrequency: 'yearly', priority: 0.2 },
-  { url: `${baseUrl}/refund-policy`, changeFrequency: 'yearly', priority: 0.2 },
-];
-
-// Authenticated / private areas must never be indexed.
-const excludedPrefixes = [
-  '/dashboard',
-  '/admin',
-  '/seller',
-  '/owners',
-  '/profile',
-  '/chat',
-  '/wishlist',
-  '/search',
-  '/alerts',
-  '/notifications',
-  '/add',
-  '/become-seller',
-  '/sell',
-  '/login',
-  '/register',
-  '/logout',
-];
+const staticPages = Object.values(PAGE_SEO)
+  .filter(page => page.sitemap !== false && page.robots?.index !== false)
+  .map(page => ({ url: canonicalUrl(page.canonical) }));
 
 export default async function sitemap() {
   const now = new Date();
@@ -95,7 +56,5 @@ export default async function sitemap() {
     };
   });
 
-  return entries.filter(
-    (entry) => !excludedPrefixes.some((prefix) => new URL(entry.url).pathname === prefix)
-  );
+  return entries;
 }

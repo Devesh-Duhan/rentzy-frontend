@@ -1,9 +1,7 @@
+import { pageMetadata } from '@/seo';
 import RentClient from "./RentClient";
 
-export const metadata = {
-  title: "Rent Property - rentzypro",
-  description: "Find verified rental properties directly from owners. No brokerage, no middlemen.",
-};
+export const metadata = pageMetadata('/rent');
 
 export default function RentPage() {
   return <RentClient />;

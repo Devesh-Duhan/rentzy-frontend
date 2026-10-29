@@ -1,4 +1,5 @@
 import { cache, Suspense } from 'react';
+import { dynamicMetadata, metadataText } from '@/seo';
 import PropertyLoading from './PropertyLoading';
 import { notFound } from 'next/navigation';
 import PropertyDetailClient from './PropertyDetailClient';
@@ -16,11 +17,12 @@ const getPropertyData = cache(async id => {
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const property = await getPropertyData(id);
-  return {
-    title: property ? `${property.title} | RentzyPro` : 'Property details | RentzyPro',
-    description: property?.description?.slice(0, 160) || 'Explore property details and connect with the owner on RentzyPro.',
-    openGraph: { images: property?.images?.[0] ? [{ url: property.images[0] }] : [] },
-  };
+  return dynamicMetadata('property', `/properties/${encodeURIComponent(id)}`, {
+    ...(property?.title ? { title: property.title } : {}),
+    ...(property?.description ? { description: metadataText(property.description).slice(0, 160) } : {}),
+    ...(property?.images?.[0] ? { image: property.images[0] } : {}),
+    ...(property === false ? { robots: { index: false, follow: false } } : {}),
+  });
 }
 async function PropertyContent({ id }) {
   const initialData = await getPropertyData(id);

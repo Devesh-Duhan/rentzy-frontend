@@ -1,9 +1,7 @@
+import { pageMetadata } from '@/seo';
 import PreferencesClient from "./PreferencesClient";
 
-export const metadata = {
-  title: "Notification Preferences - rentzypro",
-  description: "Manage your notification preferences on rentzypro.",
-};
+export const metadata = pageMetadata('/notifications/preferences');
 
 export default function NotificationPreferencesPage() {
   return <PreferencesClient />;
