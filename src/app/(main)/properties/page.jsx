@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import PageClient from './SeoPageClient';
-import { pageMetadata } from '@/seo';
+import { filterMetadata, toSearchParams } from '@/seo/property-seo';
 
-export const metadata = pageMetadata('/properties');
+export async function generateMetadata({ searchParams }) { return filterMetadata('/properties', toSearchParams(await searchParams)); }
 
 export default function Page() {
   return <Suspense fallback={null}><PageClient /></Suspense>;

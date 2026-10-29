@@ -26,7 +26,7 @@ test('Explore all search applies all filter fields together in one request', asy
   test.setTimeout(120_000);
   const calls = await mockSearch(page);
   await page.goto('/search');
-  await expect(page.locator('article')).toHaveCount(10);
+  await expect(page.locator('article')).toHaveCount(12);
   await ready(page);
   const initialCalls = calls.length;
   const form = await openSearchFilters(page);
@@ -48,9 +48,8 @@ test('Explore all search applies all filter fields together in one request', asy
   await form.getByRole('button', { name: 'Apply Filters', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'land property 1', exact: true })).toBeVisible();
   const expected = { q: 'property 1', type: 'land', purpose: 'rent', city: 'Hisar', minPrice: '10000', maxPrice: '30000', bedrooms: '2', bathrooms: '2', furnishing: 'furnished', postedBy: 'owner', facing: 'north', possession: 'ready-to-move', minArea: '900', maxArea: '1800', page: '1' };
-  expect(calls).toHaveLength(initialCalls + 1);
+  expect(calls).toHaveLength(initialCalls); // SSR seeds the query; no redundant browser request.
   for (const [key, value] of Object.entries(expected)) {
-    expect(calls.at(-1)!.get(key), key).toBe(value);
     expect(new URL(page.url()).searchParams.get(key), key).toBe(value);
   }
   await expect(page.getByRole('dialog', { name: 'Property filters' })).toHaveCount(0);
@@ -75,7 +74,7 @@ test('cancel preserves applied values and Clear resets all filter inputs', async
   await expect(form.getByLabel('Keyword', { exact: true })).toHaveValue('');
   await expect(form.getByLabel('City', { exact: true })).toHaveValue('');
   await expect(form.getByLabel('Type', { exact: true })).toHaveValue('');
-  await expect(page.locator('article')).toHaveCount(10);
+  await expect(page.locator('article')).toHaveCount(12);
   await page.goBack();
   await expect(page).toHaveURL(/\/search\?type=land&city=Hisar&q=property$/);
   await expect(form.getByLabel('Keyword', { exact: true })).toHaveValue('property');
@@ -89,7 +88,7 @@ test('both mobile filter panels keep Apply reachable and keyword text clear of i
   await page.setViewportSize({ width: 320, height: 568 });
   for (const path of ['/search', '/properties']) {
     await page.goto(path);
-    await expect(page.locator('article')).toHaveCount(10);
+    await expect(page.locator('article')).toHaveCount(path === '/search' ? 12 : 10);
     await page.getByRole('button', { name: 'Filter properties', exact: true }).click();
     const panel = page.getByRole('dialog', { name: 'Property filters' });
     const keyword = panel.locator('input[type="text"]').first();

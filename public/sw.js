@@ -1,5 +1,6 @@
 // Bump this whenever the caching strategy changes so old caches get purged.
-const CACHE_NAME = 'rentzypro-v3';
+const CACHE_NAME = 'rentzypro-v4-brand-assets';
+const BRAND_URLS = new Set(['/favicon.ico', '/favicon', '/manifest.webmanifest', '/site.webmanifest', '/images/logo.png', '/images/apple-touch-icon.png', '/images/android-chrome-192x192.png', '/images/android-chrome-512x512.png', '/images/favicon-16x16.png', '/images/favicon-32x32.png']);
 const OFFLINE_URLS = ['/', '/offline'];
 
 // Static assets under /_next/static are content-hashed, so they are safe to
@@ -83,6 +84,12 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/')) return;
   if (/^\/(admin|seller|add|profile|wishlist|alerts|chat|notifications|login|register|verify-otp|reset-password)(\/|$)/.test(url.pathname)) return;
+
+  // Stable brand URLs must refresh after deployment; preserve offline fallback.
+  if (BRAND_URLS.has(url.pathname)) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
 
   if (isHtmlRequest(request)) {
     event.respondWith(networkFirst(request));

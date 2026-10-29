@@ -18,10 +18,17 @@ async function holdApi(page: Page, path: string, response: (url: URL) => unknown
 }
 
 for (const [path, heading] of [['/buy', /^Properties for (?:Sale|Sell)$/], ['/rent', 'Properties for Rent']] as const) {
-  test(`${path} renders controls and skeletons before the listing API responds`, async ({ page }) => {
+  test(`${path} keeps controls usable with server data or a pending listing request`, async ({ page }) => {
     const api = await holdApi(page, '/api/properties', url => propertyResults(url.searchParams));
     try {
       await page.goto(path);
+      if (path === '/rent') {
+        await expect(page.locator('article')).toHaveCount(12);
+        expect(api.calls()).toBe(0);
+        await expect(page.getByPlaceholder('Search by location, property name...')).toBeEditable();
+        await noOverflow(page);
+        return; // Rental HTML is populated by the shared SSR request.
+      }
       await expect.poll(api.calls).toBeGreaterThan(0);
       await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
       await expect(page.getByRole('status', { name: 'Loading properties', exact: true })).toBeVisible();
@@ -172,7 +179,8 @@ test('Browse navigation remains usable while APIs are pending and cancels the ol
     await page.getByRole('link', { name: 'Rent', exact: true }).click();
     await expect(page).toHaveURL(/\/rent$/, { timeout: 30000 });
     await expect(page.getByRole('heading', { name: 'Properties for Rent', exact: true })).toBeVisible();
-    await expect(page.getByRole('status', { name: 'Loading properties', exact: true })).toBeVisible();
+    await expect(page.locator('article')).toHaveCount(12);
+    await expect(page.getByRole('status', { name: 'Loading properties', exact: true })).toHaveCount(0);
     await expect.poll(() => canceled.length).toBeGreaterThan(0);
     api.release();
     await expect(page.locator('article')).toHaveCount(12);

@@ -1,4 +1,5 @@
 import { SITE_SEO, PAGE_SEO, canonicalUrl } from '@/seo';
+import { isPublicListing } from '@/seo/property-seo';
 const baseUrl = SITE_SEO.baseUrl;
 const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
@@ -36,7 +37,8 @@ export default async function sitemap() {
   };
 
   await collect('/properties?limit=500&status=available', (property) => {
-    const slug = property.slug || property._id || property.id;
+    const slug = property._id;
+    if (!isPublicListing(property)) return null;
     if (!slug) return null;
     return {
       url: `${baseUrl}/properties/${slug}`,

@@ -1,7 +1,7 @@
-import { pageMetadata } from '@/seo';
+import { filterMetadata, toSearchParams } from '@/seo/property-seo';
 import BuyClient from "./BuyClient";
 
-export const metadata = pageMetadata('/buy');
+export async function generateMetadata({ searchParams }) { return filterMetadata('/buy', toSearchParams(await searchParams)); }
 
 export default function BuyPage() {
   return <BuyClient />;

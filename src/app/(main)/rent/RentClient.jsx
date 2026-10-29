@@ -26,7 +26,7 @@ const PRICE_RANGES = [
 
 const CITIES = ["All", "Hisar", "Delhi", "Chandigarh", "Jaipur", "Gurugram", "Mumbai", "Bangalore"];
 
-export default function RentClient() {
+export default function RentClient({ initialData } = {}) {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
     type: "All",
@@ -57,6 +57,8 @@ export default function RentClient() {
       const response = await axios.get(`/properties?${params.toString()}`, { signal });
       return response.data;
     },
+    initialData: page === 1 && !searchTerm && Object.values(filters).every(value => value === 'All' || value === 'Any') ? initialData || undefined : undefined,
+    staleTime: 60000,
     placeholderData: keepPreviousData,
   });
 

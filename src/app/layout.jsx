@@ -9,24 +9,20 @@ import ReactQueryProvider from "@/components/ReactQueryProvider";
 import Navbar from "@/components/Navbar";
 import OrganizationSchema from "@/components/OrganizationSchema";
 import PWAProvider from "@/components/PWAProvider";
-import { LOGO_SRC, LOGO_SIZE } from "@/lib/constants";
+import { BRAND_ASSETS, BRAND_ICONS, WEB_APP_BRAND } from "@/lib/brand";
 
-const faviconUrl = `/favicon?v=${LOGO_SRC.split("/").pop()}`;
+export const viewport = { themeColor: WEB_APP_BRAND.theme_color };
 
 export async function generateMetadata() {
   return {
     ...buildMetadata(),
-    manifest: '/manifest.webmanifest',
-    icons: {
-      icon: { url: faviconUrl, type: "image/png", sizes: LOGO_SIZE },
-      shortcut: faviconUrl,
-      apple: { url: LOGO_SRC, type: "image/png", sizes: LOGO_SIZE },
-    },
+    manifest: BRAND_ASSETS.manifest,
+    icons: BRAND_ICONS,
     other: {
       'mobile-web-app-capable': 'yes',
       'apple-mobile-web-app-capable': 'yes',
       'apple-mobile-web-app-status-bar-style': 'black-translucent',
-      'msapplication-TileColor': '#4f46e5',
+      'msapplication-TileColor': WEB_APP_BRAND.theme_color,
     },
   };
 }
@@ -49,7 +45,6 @@ export default function RootLayout({ children }) {
           }}
         />
         <OrganizationSchema />
-        <meta name="theme-color" content="#4f46e5" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <StoreProvider>

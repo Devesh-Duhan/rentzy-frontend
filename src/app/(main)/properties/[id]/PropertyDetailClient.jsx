@@ -1,5 +1,6 @@
 "use client";
 import PropertyLoading from "./PropertyLoading";
+import { isPublicListing } from '@/seo/property-seo';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -24,22 +25,29 @@ const PropertyMap = dynamic(() => import('@/components/PropertyMap'), { ssr: fal
 
 function Section({ id, title, children, sectionRef }) { return <section ref={sectionRef} id={id} className="scroll-mt-28 border-b border-slate-200 py-8 last:border-0 sm:py-10 dark:border-slate-800"><h2 className="mb-5 text-xl font-semibold tracking-tight">{title}</h2>{children}</section>; }
 
-export default function PropertyDetailClient({ id, initialData }) {
+export default function PropertyDetailClient({ id, initialData, initialError = false }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useSelector(state => state.auth);
+  const [retryRequested, setRetryRequested] = useState(false);
   const [saving, setSaving] = useState(false);
   const [contacting, setContacting] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showMap, setShowMap] = useState(false);
-  const { data: property, isPending, isError, error, refetch } = useQuery({
+  const { data: loadedProperty, isPending, isError, error, refetch } = useQuery({
     queryKey: ['property-detail', id],
-    queryFn: async ({ signal }) => (await axios.get(`/properties/${id}`, { signal })).data,
+    queryFn: async ({ signal }) => {
+      const { data } = await axios.get(`/properties/${id}`, { signal });
+      if (!isPublicListing(data)) throw new Error('Property is not publicly available');
+      return data;
+    },
+    enabled: !initialError || retryRequested,
     initialData: initialData || undefined,
     staleTime: 60000,
   });
+  const property = initialError && !retryRequested ? null : loadedProperty;
   const [reviewsRef, showReviews] = useNearViewport({ enabled: Boolean(property), resetKey: id });
   const [extrasRef, showExtras] = useNearViewport({ enabled: Boolean(property), resetKey: id });
   const [relatedRef, showRelated] = useNearViewport({ enabled: Boolean(property), resetKey: id });
@@ -78,8 +86,8 @@ export default function PropertyDetailClient({ id, initialData }) {
     catch (failure) { toast.error(failure.response?.data?.message || 'Could not submit your review'); }
     finally { setSubmitting(false); }
   }
-  if (isPending) return <PropertyLoading />;
-  if (isError || !property) return <main className="app-container flex min-h-[70vh] flex-col items-center justify-center gap-4 pt-20 text-center"><Info size={40} className="text-indigo-500" /><h1 className="text-2xl font-semibold">{error?.response?.status === 404 ? 'This property is no longer available.' : 'We couldn’t load this property.'}</h1><p className="text-sm text-slate-500">Explore other properties or try again.</p><div className="flex gap-3"><button onClick={() => refetch()} className="btn-secondary">Try again</button><Link href="/properties" className="btn-primary">Browse properties</Link></div></main>;
+  if (isPending && (!initialError || retryRequested)) return <PropertyLoading />;
+  if (isError || !property) return <main className="app-container flex min-h-[70vh] flex-col items-center justify-center gap-4 pt-20 text-center"><Info size={40} className="text-indigo-500" /><h1 className="text-2xl font-semibold">{error?.response?.status === 404 ? 'This property is no longer available.' : 'We couldn’t load this property.'}</h1><p className="text-sm text-slate-500">Explore other properties or try again.</p><div className="flex gap-3"><button onClick={() => { if (retryRequested) refetch(); else setRetryRequested(true); }} className="btn-secondary">Try again</button><Link href="/properties" className="btn-primary">Browse properties</Link></div></main>;
   const sale = isSale(property.purpose);
   const phone = contactPhone('9996002136');
   const propertyUrl = `${(process.env.NEXT_PUBLIC_URL || '').replace(/\/$/, '')}/properties/${id}`;

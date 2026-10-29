@@ -1,17 +1,12 @@
-import { LOGO_SRC, LOGO_SIZE } from '@/lib/constants';
 import { SITE_SEO } from '@/seo';
+import { BRAND_ASSETS, WEB_APP_BRAND } from '@/lib/brand';
 
 export default function manifest() {
   return {
     name: SITE_SEO.name,
     short_name: SITE_SEO.name,
     description: SITE_SEO.description,
-    start_url: "/",
-    display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#4f46e5",
-    icons: [
-      { src: LOGO_SRC, sizes: LOGO_SIZE, type: "image/png", purpose: "any" },
-    ],
+    ...WEB_APP_BRAND,
+    icons: BRAND_ASSETS.manifestIcons,
   };
 }

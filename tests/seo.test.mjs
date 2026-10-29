@@ -26,7 +26,7 @@ test('every configured page has unique copy, canonical and complete social metad
     assert.ok(data.title.absolute.includes(SITE_SEO.name));
     assert.equal(data.openGraph.siteName, SITE_SEO.name);
     assert.equal(data.twitter.title, data.title.absolute);
-    assert.equal(data.openGraph.images[0].url, `${SITE_SEO.baseUrl}/images/logo.png`);
+    assert.equal(data.openGraph.images[0].url, `${SITE_SEO.baseUrl}${SITE_SEO.image}`);
     assert.equal(data.twitter.card, 'summary_large_image');
   }
 });
@@ -58,7 +58,7 @@ test('social overrides and images are normalized without losing defaults', () =>
   assert.equal(data.twitter.card, 'summary');
   assert.equal(data.twitter.title, 'Read this');
   assert.deepEqual(data.keywords, ['Hisar']);
-  assert.equal(data.twitter.images[0].url, `${SITE_SEO.baseUrl}/images/logo.png`);
+  assert.equal(data.twitter.images[0].url, `${SITE_SEO.baseUrl}${SITE_SEO.image}`);
 });
 
 test('dynamic routes preserve their own canonical and existing listing information', () => {
@@ -82,7 +82,7 @@ test('every existing static route has a native metadata integration and central 
         const route = '/' + relative.split('/').filter(part => !part.startsWith('(') && part !== 'page.jsx').join('/');
         assert.ok(PAGE_SEO[route], `Missing config: ${route}`);
         const source = fs.readFileSync(full, 'utf8');
-        assert.ok(source.includes(`pageMetadata('${route}')`), `Missing native metadata: ${route}`);
+        assert.ok((['pageMetadata', 'filterMetadata', 'listingMetadata'].some(helper => source.includes(`${helper}('${route}'`)) || (route === '/search' && source.includes('locationMetadata(params,'))), `Missing native metadata: ${route}`);
         assert.ok(!source.startsWith('"use client"'));
       }
     }

@@ -1,19 +1,16 @@
 import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { properties, propertyResults } from './fixtures/data.mjs';
+import { seoApiResponse } from './fixtures/seo-api.mjs';
 
 // SSR requests also use fixture data; no real backend or database is needed.
 const api = http.createServer((request, response) => {
   const url = new URL(request.url, 'http://127.0.0.1');
   response.setHeader('Content-Type', 'application/json');
   if (request.method !== 'GET') { response.writeHead(405); response.end('{}'); return; }
-  let data;
-  if (url.pathname === '/api/settings') data = {};
-  else if (url.pathname === '/api/properties') data = propertyResults(url.searchParams);
-  else if (url.pathname.startsWith('/api/properties/')) data = properties.find(item => item._id === url.pathname.split('/').pop());
-  if (!data) { response.writeHead(404); data = { message: 'Unknown test API route' }; }
-  response.end(JSON.stringify(data));
+  const result = seoApiResponse(url);
+  response.writeHead(result.status);
+  response.end(JSON.stringify(result.body));
 });
 await new Promise(resolve => api.listen(0, '127.0.0.1', resolve));
 const apiURL = `http://127.0.0.1:${api.address().port}`;

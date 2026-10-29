@@ -28,8 +28,8 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 const nextConfig = {
-  async rewrites() {
-    return [{ source: '/favicon.ico', destination: '/favicon' }];
+  async redirects() {
+    return [{ source: '/site.webmanifest', destination: '/manifest.webmanifest', permanent: true }];
   },
   ...(process.env.PLAYWRIGHT_TEST === '1' ? { distDir: '.next-playwright', typescript: { tsconfigPath: 'tests/tsconfig.next.json' } } : {}),
   env: {

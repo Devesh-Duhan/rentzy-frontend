@@ -3,7 +3,8 @@
 import filterStyles from "@/components/filters/Filters.module.css";
 import { FilterDialog, FilterPanel, FilterLabel } from "@/components/filters/FilterUI";
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { searchQuery } from "@/seo/property-seo";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, ChevronDown, ChevronLeft, ChevronRight, Filter, RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -54,8 +55,9 @@ const FILTER_LABELS = {
   maxArea: "Max Area",
 };
 
-export default function SearchClient() {
+export default function SearchClient({ initialData, initialQuery } = {}) {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const params = Object.fromEntries(
     FILTER_KEYS.map((k) => [k, searchParams.get(k) || ""])
@@ -77,11 +79,7 @@ export default function SearchClient() {
     };
   }, [mobileFiltersOpen]);
 
-  const queryString = new URLSearchParams(
-    Object.entries({ ...params, sort: sortValue, page: String(page) }).filter(
-      ([, v]) => v
-    )
-  ).toString();
+  const queryString = searchQuery(searchParams);
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["search", queryString],
@@ -89,6 +87,8 @@ export default function SearchClient() {
       const res = await axios.get(`/search?${queryString}`, { signal });
       return res.data;
     },
+    initialData: queryString === initialQuery ? initialData || undefined : undefined,
+    staleTime: 60000,
     placeholderData: previous => previous,
   });
 
@@ -104,33 +104,33 @@ export default function SearchClient() {
         else next.delete(k);
       });
       next.set("page", "1");
-      window.history.pushState(null, "", `/search?${next.toString()}`);
+      router.push(`/search?${next.toString()}`, { scroll: false });
     },
-    [searchParams]
+    [searchParams, router]
   );
 
   const removeFilter = (key) => {
     const next = new URLSearchParams(searchParams.toString());
     next.delete(key);
     next.set("page", "1");
-    window.history.pushState(null, "", `/search?${next.toString()}`);
+    router.push(`/search?${next.toString()}`, { scroll: false });
   };
 
   const clearAllFilters = () => {
-    window.history.pushState(null, "", "/search");
+    router.push("/search", { scroll: false });
   };
 
   const handleSortChange = (e) => {
     const next = new URLSearchParams(searchParams.toString());
     next.set("sort", e.target.value);
     next.set("page", "1");
-    window.history.pushState(null, "", `/search?${next.toString()}`);
+    router.push(`/search?${next.toString()}`, { scroll: false });
   };
 
   const goToPage = (p) => {
     const next = new URLSearchParams(searchParams.toString());
     next.set("page", String(p));
-    window.history.pushState(null, "", `/search?${next.toString()}`);
+    router.push(`/search?${next.toString()}`, { scroll: false });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 

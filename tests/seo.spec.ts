@@ -18,7 +18,7 @@ test('every public static route returns one title, description and production ca
     expect(html).toContain('content="index, follow"');
     expect(html).toContain('property="og:site_name" content="RentzyPro"');
     expect(html).toContain('name="twitter:card" content="summary_large_image"');
-    expect(html).toContain(`${SITE_SEO.baseUrl}/images/logo.png`);
+    expect(html).toContain(`${SITE_SEO.baseUrl}${SITE_SEO.image}`);
     expect(html).not.toContain('content="noindex');
   }
 });
