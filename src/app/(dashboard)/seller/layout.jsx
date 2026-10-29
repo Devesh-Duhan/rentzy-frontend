@@ -108,7 +108,7 @@ export default function SellerLayout({ children }) {
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+    <div className="flex min-h-dvh bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
       {isSidebarOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[110]"
@@ -129,8 +129,8 @@ export default function SellerLayout({ children }) {
         <SidebarContent />
       </aside>
 
-      <main className="flex-1 flex flex-col min-w-0 h-screen">
-        <header className="sticky top-0 z-[100] glass-effect border-b border-slate-200 dark:border-slate-800">
+      <main className="flex-1 flex flex-col min-w-0 min-h-dvh pt-[65px] lg:h-dvh lg:min-h-0 lg:pt-0">
+        <header className="fixed inset-x-0 top-0 z-[100] h-[65px] glass-effect bg-white dark:bg-slate-900 backdrop-blur-none lg:sticky lg:inset-x-auto lg:h-auto lg:bg-white/70 lg:dark:bg-slate-900/70 lg:backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
           <div className="flex justify-between items-center max-w-7xl mx-auto px-4 py-3 lg:px-8 lg:py-4">
             <div className="flex min-w-0 items-center gap-3">
               <button
@@ -160,7 +160,7 @@ export default function SellerLayout({ children }) {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 lg:p-8">
+        <div className="flex-1 p-4 lg:min-h-0 lg:overflow-y-auto lg:p-8">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

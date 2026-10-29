@@ -20,6 +20,7 @@ export default function VerificationPage() {
     refetchOnWindowFocus: true,
   });
   const updateProperty = (updated) => {
+    queryClient.invalidateQueries({ queryKey: ["admin", "verification-count"] });
     queryClient.setQueryData(["admin", "verification"], (previous = []) => previous.map(property => property._id === updated._id ? updated : property));
     queryClient.invalidateQueries({ predicate: query => ["home", "properties", "properties-buy", "properties-rent", "property-detail", "related-properties", "category-properties", "gallery-properties", "rera-properties", "compare", "compare-options", "savedProperties", "public-videos", "public-documents"].includes(query.queryKey[0]) });
   };

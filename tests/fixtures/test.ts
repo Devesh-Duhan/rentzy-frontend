@@ -60,6 +60,7 @@ export const test = base.extend<{ api: MockApi; mockRoutes: void }>({
       else if (path === '/auth/login') { status = body.password === 'TestPassword123!' ? 200 : 401; data = status === 200 ? testUser('buyer', body.email) : { message: 'Invalid email or password.' }; }
       else if (path === '/auth/register-otp') { pendingRole = body.role || 'buyer'; status = api.otpError ? 503 : 200; data = { message: api.otpError ? 'Email service unavailable. Try again.' : 'OTP sent.' }; }
       else if (path === '/auth/verify-register-otp') { status = body.otp === '123456' ? 200 : 400; data = status === 200 ? testUser(pendingRole, body.email) : { message: 'Invalid OTP.' }; }
+      else if (path === '/admin/properties/pending-count') data = { count: 0 };
       else if (path === '/admin/blogs' && method === 'GET') data = { data: api.blogs };
       else if (path === '/admin/blogs' && method === 'POST') {
         const blog: Blog = { _id: String(api.blogs.length + 1).padStart(24, '0'), title: body.title || '', content: body.content || '', slug: (body.title || '').toLowerCase().replace(/\s+/g, '-'), status: body.status || 'draft', categories: body.categories || [], tags: body.tags || [], featured: Boolean(body.featured), excerpt: body.excerpt || '', coverImage: body.coverImage || '', author: { name: 'Test admin' }, publishDate: new Date().toISOString(), createdAt: new Date().toISOString(), views: 0 };

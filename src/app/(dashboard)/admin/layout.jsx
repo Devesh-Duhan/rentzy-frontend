@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "@/lib/axios";
 import { useSelector, useDispatch } from "react-redux";
 import { logout, reset } from "@/store/slices/authSlice";
 import {
@@ -70,6 +72,35 @@ export default function AdminLayout({ children }) {
   const { theme, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const signingOut = useRef(false);
+  const queryClient = useQueryClient();
+  const previousPendingCount = useRef(undefined);
+  const { data: verificationSummary } = useQuery({
+    queryKey: ["admin", "verification-count", user?._id],
+    enabled: user?.role === "admin",
+    queryFn: async ({ signal }) => (await axios.get("/admin/properties/pending-count", { signal })).data,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
+  });
+  const pendingVerificationCount = verificationSummary?.count;
+
+  useEffect(() => {
+    if (typeof pendingVerificationCount !== "number") return;
+    if (previousPendingCount.current !== undefined && pendingVerificationCount > previousPendingCount.current) {
+      // Refresh an open queue only when new pending submissions arrive.
+      queryClient.invalidateQueries({ queryKey: ["admin", "verification"] });
+    }
+    previousPendingCount.current = pendingVerificationCount;
+  }, [pendingVerificationCount, queryClient]);
+
+  const verificationBadge = pendingVerificationCount > 0 ? (
+    <span role="status" aria-label={
+      pendingVerificationCount + (pendingVerificationCount === 1 ? " property" : " properties") + " pending verification"
+    } className="ml-auto inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">
+      {pendingVerificationCount > 99 ? "99+" : pendingVerificationCount}
+    </span>
+  ) : null;
 
   useEffect(() => {
     if (!signingOut.current && !isLoading && (!user || user.role !== 'admin')) {
@@ -122,7 +153,7 @@ export default function AdminLayout({ children }) {
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-white/5 z-50 flex items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-2 sm:gap-3">
-          <BrandLogo size={32} className="h-8 w-8 rounded-lg shadow-lg" />
+          <Link href="/" aria-label="Go to home" className="shrink-0"><BrandLogo size={32} className="h-8 w-8 rounded-lg shadow-lg" /></Link>
           <span className="font-black text-slate-900 dark:text-white tracking-tight uppercase text-[11px] sm:text-sm truncate">rentzypro Admin</span>
         </div>
         <button
@@ -152,10 +183,10 @@ export default function AdminLayout({ children }) {
               className="fixed left-0 top-0 bottom-0 w-[280px] bg-white dark:bg-slate-950 z-[70] lg:hidden p-6 flex flex-col shadow-2xl"
             >
               <div className="flex items-center gap-3 mb-10">
-                <BrandLogo size={40} className="h-10 w-10 rounded-xl" />
+                <Link href="/" aria-label="Go to home" className="shrink-0"><BrandLogo size={40} className="h-10 w-10 rounded-xl" /></Link>
                 <span className="text-xl font-black dark:text-white">Admin Panel</span>
               </div>
-              <nav className="flex-1 space-y-1">
+              <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain">
                 {MENU_ITEMS.map((item) => {
                   const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));
                   return (
@@ -173,6 +204,7 @@ export default function AdminLayout({ children }) {
                     >
                       <item.icon size={20} />
                       <span className="font-bold text-sm tracking-tight">{item.label}</span>
+                      {item.id === "verification" && verificationBadge}
                     </Link>
                   );
                 })}
@@ -195,7 +227,7 @@ export default function AdminLayout({ children }) {
       <aside className="fixed left-6 top-6 bottom-6 w-72 z-40 hidden lg:block">
         <div className="h-full bg-white/80 dark:bg-slate-900/40 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-2xl rounded-[40px] flex flex-col p-8 lg:p-6 transition-all">
           <div className="flex items-center gap-4 mb-12">
-            <BrandLogo size={48} className="h-12 w-12 rounded-2xl shadow-xl" />
+            <Link href="/" aria-label="Go to home" className="shrink-0"><BrandLogo size={48} className="h-12 w-12 rounded-2xl shadow-xl" /></Link>
             <div>
               <Link href="/" className="text-xl font-black tracking-tight dark:text-white block hover:text-indigo-600 transition-colors">rentzypro</Link>
               <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500">Master Console</p>
@@ -218,7 +250,8 @@ export default function AdminLayout({ children }) {
                 >
                   <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                   <span className="text-sm font-bold tracking-tight">{item.label}</span>
-                  {isActive && <motion.div layoutId="activePill" className="w-1.5 h-1.5 rounded-full bg-white ml-auto" />}
+                  {item.id === "verification" && verificationBadge}
+                  {isActive && (item.id !== "verification" || !pendingVerificationCount) && <motion.div layoutId="activePill" className="w-1.5 h-1.5 rounded-full bg-white ml-auto" />}
                 </Link>
               );
             })}

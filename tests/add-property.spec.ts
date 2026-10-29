@@ -1,18 +1,28 @@
 import { test, expect, signIn, ready } from './fixtures/test';
 import { properties } from './fixtures/data.mjs';
 
-const listing = { ...properties[0], title: 'Synthetic free listing', type: ['apartment'], contactNumber: '9999999999', bedrooms: 7, bathrooms: 6, isPaid: true };
 const image = { name: 'interior.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a9ioAAAAASUVORK5CYII=', 'base64') };
 
-for (const editing of [false, true]) {
-  test(`seller ${editing ? 'edits an unpaid draft' : 'creates a listing'} without opening either gateway`, async ({ page, context, baseURL, api }) => {
+for (const customType of [false, true]) for (const editing of [false, true]) {
+  const expectedType = customType ? 'independent-rooms' : 'apartment';
+  const listing = { ...properties[0], title: 'Synthetic free listing', type: [expectedType], contactNumber: '9999999999', bedrooms: 7, bathrooms: 6, isPaid: true };
+  test(`seller ${editing ? 'edits an unpaid draft' : 'creates a listing'} without opening either gateway (${customType ? 'admin-added category' : 'legacy category'})`, async ({ page, context, baseURL, api }) => {
     await signIn(context, baseURL!, 'seller');
+    await page.route('**/api/categories', route => route.fulfill({ headers: { 'Access-Control-Allow-Origin': '*' }, json: [
+      { name: 'Apartment', slug: 'apartment', isActive: true },
+      { name: 'Independent Rooms', slug: 'independent-rooms', isActive: true },
+    ] }));
     const writes: string[] = [];
     let saved = false;
     await page.route(/\/api\/properties(?:\/[^?]*)?(?:\?.*)?$/, async route => {
       const path = new URL(route.request().url()).pathname;
       const method = route.request().method();
       let data;
+      if (method === 'POST' || method === 'PUT') {
+        const payload = route.request().postData()!;
+        const types = [...payload.matchAll(/name="type"\r\n\r\n([^\r]+)\r\n/g)].map(match => match[1]);
+        expect(types).toEqual([expectedType]);
+      }
       if (method === 'GET' && path === `/api/properties/my/${listing._id}`) data = { ...listing, isPaid: false };
       else if (method === 'GET' && path === '/api/properties/my') data = saved ? [listing] : [];
       else if (method === 'POST' && path === '/api/properties') {
@@ -37,6 +47,14 @@ for (const editing of [false, true]) {
       await page.locator('input[name="district"]').fill('Hisar');
       await page.locator('input[name="contactNumber"]').fill(listing.contactNumber);
       await page.locator('textarea[name="description"]').fill(listing.description);
+    }
+    if (customType) {
+      const category = page.getByRole('button', { name: 'Independent Rooms', exact: true });
+      if (!editing) {
+        await category.click();
+        await page.getByRole('button', { name: 'Apartment', exact: true }).click();
+      }
+      await expect(category).toHaveClass(/bg-indigo-600/);
     }
     await page.getByRole('button', { name: '5+', exact: true }).click();
     await expect(page.getByRole('spinbutton', { name: 'Bedrooms', exact: true })).toHaveValue('5');

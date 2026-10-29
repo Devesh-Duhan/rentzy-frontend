@@ -1,8 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
-import { Building2, Eye, Mail, Star, Bolt, Plus, Bell, CheckCircle2, MessageSquare, CalendarCheck, TrendingUp } from "lucide-react";
+import { Building2, Eye, Mail, Star, Bolt, Plus, Bell, CheckCircle2, MessageSquare, CalendarCheck } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
@@ -100,7 +99,7 @@ export default function SellerOverview() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <div className="app-card p-6">
           <h3 className="section-title text-lg mb-6 flex items-center gap-2">
             <Bell className="text-indigo-500" size={20} /> Recent Activities
@@ -120,27 +119,6 @@ export default function SellerOverview() {
           </div>}
         </div>
 
-        <div className="app-card p-6">
-          <h3 className="section-title text-lg mb-8 flex items-center gap-2">
-            <TrendingUp className="text-indigo-500" size={20} /> Insights & Performance
-          </h3>
-          {statsLoading ? <ContentSkeleton label="Loading performance" count={1} itemClassName="h-56" /> : statsError ? <p className="text-sm text-slate-500">Performance could not be loaded.</p> : <div className="h-56 w-full flex items-end justify-between gap-3 px-4 pb-12 relative border-b border-l border-slate-100 dark:border-slate-700">
-            {(sellerStats?.performanceData || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).map((h, i) => (
-              <div key={i} className="flex-1 bg-indigo-100 dark:bg-indigo-500/10 rounded-t-lg relative group transition-all duration-500 hover:bg-indigo-200 dark:hover:bg-indigo-500/20">
-                <motion.div 
-                  initial={{ height: 0 }} 
-                  animate={{ height: `${h}%` }} 
-                  className="absolute bottom-0 left-0 right-0 bg-indigo-600 rounded-t-lg" 
-                />
-              </div>
-            ))}
-            <div className="absolute -bottom-8 left-0 right-0 flex justify-between text-xs text-slate-400 font-semibold">
-              <span>JAN</span>
-              <span>JUN</span>
-              <span>DEC</span>
-            </div>
-          </div>}
-        </div>
       </div>
     </div>
   );

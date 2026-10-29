@@ -54,6 +54,8 @@ export default function SellerProperties() {
     p.location.city.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
+  const gridClassName = "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4 2xl:grid-cols-5";
+
   return (
     <div className="space-y-6 animate-fade-in relative pb-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -76,12 +78,12 @@ export default function SellerProperties() {
       </div>
 
       {(!hasRequested || isLoading) && sellerProperties.length === 0 ? (
-        <ContentSkeleton label="Loading your properties" count={6} className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3" itemClassName="h-80" />
+        <ContentSkeleton label="Loading your properties" count={6} className={gridClassName} itemClassName="h-80" />
       ) : isError && sellerProperties.length === 0 ? (
         <div role="alert" className="app-card p-6 text-sm text-red-600">
           Properties could not be loaded. <button type="button" onClick={() => dispatch(getSellerProperties())} className="ml-2 underline">Try again</button>
         </div>
-      ) : <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      ) : <div className={gridClassName}>
         <AnimatePresence mode="popLayout">
           {filteredProperties.map((prop) => (
             <motion.div
@@ -90,32 +92,32 @@ export default function SellerProperties() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
               key={prop._id}
-              className="app-card overflow-hidden group hover:shadow-lg transition-all flex flex-col"
+              className="app-card overflow-hidden group hover:shadow-lg transition-all flex min-w-0 flex-col"
             >
-              <div className="h-48 relative overflow-hidden bg-slate-100 dark:bg-slate-800">
-                <Image src={prop.images?.[0]} width={400} height={224} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={prop.title} unoptimized />
-                <div className="absolute top-3 left-3 flex flex-col gap-2">
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm ${
+              <div className="aspect-[1.05] relative shrink-0 overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <Image src={prop.images?.[0]} width={400} height={380} sizes="(min-width: 1536px) 240px, (min-width: 1280px) 25vw, (min-width: 640px) 33vw, 50vw" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={prop.title} unoptimized />
+                <div className="absolute top-2 left-2 right-2 flex flex-col items-start gap-1">
+                  <span className={`max-w-full px-2 py-1 rounded-full text-[9px] font-bold uppercase leading-tight shadow-sm ${
                     prop.status === "available" ? "bg-emerald-100 text-emerald-700" : prop.status === "rented" ? "bg-amber-100 text-amber-700" : "bg-white text-slate-700"
                   }`}>
                     {prop.isVerified ? prop.status : prop.rejectionReason ? "Rejected" : "Pending verification"}
                   </span>
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-600 text-white shadow-sm w-fit">
+                  <span className="max-w-full px-2 py-1 rounded-full text-[9px] font-bold uppercase leading-tight bg-indigo-600 text-white shadow-sm w-fit">
                     {Array.isArray(prop.purpose) ? prop.purpose.join(' & ') : (prop.purpose || 'rent')}
                   </span>
                 </div>
               </div>
-              <div className="p-5 flex-1 flex flex-col">
-                <div className="flex items-center gap-1.5 text-indigo-600 text-xs font-semibold uppercase tracking-wider mb-2">
-                  <MapPin size={12} /> {prop.location.city}, {prop.location.state}
+              <div className="p-3 flex-1 flex min-w-0 flex-col">
+                <div className="flex min-w-0 items-center gap-1 text-indigo-600 text-[10px] font-semibold mb-1.5">
+                  <MapPin size={12} className="shrink-0" /> <span className="truncate">{prop.location.city}, {prop.location.state}</span>
                 </div>
-                <h3 className="font-bold text-slate-900 dark:text-white mb-3 line-clamp-1">{prop.title}</h3>
+                <h3 className="min-h-9 text-[13px] leading-[18px] sm:text-sm font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 break-words">{prop.title}</h3>
                 {prop.rejectionReason && !prop.isVerified && <p className="mb-3 text-xs text-rose-600">{prop.rejectionReason}</p>}
-                <div className="flex items-center justify-between py-3 border-y border-slate-100 dark:border-slate-700/50 mb-4">
+                <div className="flex flex-wrap items-start justify-between gap-2 py-2 border-y border-slate-100 dark:border-slate-700/50 mb-3">
                   <div>
-                    <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Monthly Rent</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-lg font-bold text-slate-900 dark:text-white">₹{prop.price.toLocaleString()}</p>
+                    <p className="text-[9px] text-slate-400 font-semibold uppercase">Monthly Rent</p>
+                    <div className="flex flex-wrap items-center gap-1">
+                      <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">₹{prop.price.toLocaleString()}</p>
                       {(prop.pricePerSqft || (prop.areaSqFt ? Math.round(prop.price / prop.areaSqFt) : null)) && (
                         <span className="text-[10px] font-medium text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 px-1.5 py-0.5 rounded whitespace-nowrap">
                           ₹{prop.pricePerSqft || Math.round(prop.price / prop.areaSqFt)}/sqft
@@ -124,17 +126,17 @@ export default function SellerProperties() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Views</p>
-                    <p className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-1.5 justify-end">
+                    <p className="text-[9px] text-slate-400 font-semibold uppercase">Views</p>
+                    <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-1 justify-end">
                       <Eye size={16} className="text-indigo-600" /> {prop.views || 0}
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-3 mt-auto">
-                  <Link href={`/add?edit=${prop._id}`} className="flex-1 btn-secondary flex items-center justify-center gap-2 text-xs py-3">
+                <div className="flex gap-2 mt-auto">
+                  <Link href={`/add?edit=${prop._id}`} className="flex-1 min-w-0 btn-secondary flex items-center justify-center gap-1 text-[11px] !px-1 !py-2">
                     <Edit2 size={14} /> Edit
                   </Link>
-                  <button onClick={() => initDelete(prop)} className="flex-1 py-3 bg-rose-50 dark:bg-rose-500/10 text-rose-600 rounded-xl font-bold text-xs hover:bg-rose-600 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95">
+                  <button onClick={() => initDelete(prop)} className="flex-1 min-w-0 py-2 px-1 bg-rose-50 dark:bg-rose-500/10 text-rose-600 rounded-xl font-bold text-[11px] hover:bg-rose-600 hover:text-white transition-all flex items-center justify-center gap-1 active:scale-95">
                     <Trash2 size={14} /> Delete
                   </button>
                 </div>
@@ -144,7 +146,7 @@ export default function SellerProperties() {
         </AnimatePresence>
 
         {filteredProperties.length === 0 && !isLoading && (
-          <div className="col-span-1 md:col-span-2 xl:col-span-3 text-center py-16 app-card border-dashed">
+          <div className="col-span-full text-center py-16 app-card border-dashed">
             <Building2 className="w-12 h-12 mx-auto text-slate-300 mb-4" />
             <h3 className="text-lg font-bold text-slate-700 dark:text-white">No properties found</h3>
             <p className="section-subtitle text-sm mt-2 max-w-sm mx-auto">{searchTerm ? "No properties match your search term." : "You haven't listed any properties yet. Start adding your first property to reach thousands of potential tenants."}</p>

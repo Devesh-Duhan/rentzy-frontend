@@ -131,6 +131,14 @@ const AddPropertyPage = () => {
     return () => { active = false; };
   }, [editId, editAttempt]);
 
+  useEffect(() => {
+    if (!categories.length) return;
+    setForm(previous => {
+      const type = previous.type.map(value => categories.find(category => category.slug === value.toLowerCase() || category.name.toLowerCase() === value.toLowerCase())?.name || value);
+      return type.every((value, index) => value === previous.type[index]) ? previous : { ...previous, type };
+    });
+  }, [categories, loadedEditId]);
+
   const totalSteps = 4;
   const dispatch = useDispatch();
   const { isSuccess: creationSuccess, isError: creationError, message: creationMessage } = useSelector(state => state.property);
@@ -301,7 +309,11 @@ const AddPropertyPage = () => {
         formData.append("deposit", Number(form.deposit));
         formData.append("city", form.district);
         formData.append("address", form.district);
-        form.type.forEach(t => { let normalizedType = t.toLowerCase(); if (normalizedType.includes('pg')) normalizedType = 'pg_hostel'; formData.append("type", normalizedType); });
+        form.type.forEach(type => {
+          const category = categories.find(item => item.name.toLowerCase() === type.toLowerCase() || item.slug === type.toLowerCase());
+          const value = /^pg(?: & hostels|[-_]hostel)?$/i.test(type) ? 'pg_hostel' : category?.slug || type.toLowerCase();
+          formData.append("type", value);
+        });
         formData.append("areaSqFt", Number(form.size));
         formData.append("bedrooms", form.bedrooms === "N/A" ? 0 : Number(form.bedrooms));
         formData.append("bathrooms", form.bathrooms === "N/A" ? 0 : Number(form.bathrooms));

@@ -88,7 +88,7 @@ for (const [path, heading, endpoint, label, data] of [
   ['/admin/reviews', 'Reviews', '/reviews', 'Loading admin reviews', []],
   ['/admin/reports', 'System Reports', '/admin/payments', 'Loading transactions', []],
   ['/admin/activity', 'Activity Log', '/admin/activity', '', []],
-  ['/admin/analytics', 'Analytics', '/admin/analytics', '', {}],
+  ['/admin/analytics', 'Analytics', '/admin/analytics', 'Loading analytics', { totals: { users: 0, properties: 0, leads: 0, pendingVerification: 0 }, usersOverTime: [], propertiesOverTime: [], propertyStatusStats: [], topProperties: [] }],
   ['/admin/users', 'Identity Vault', '/admin/users', '', []],
   ['/admin/categories', 'Property Categories', '/admin/categories', '', []],
   ['/admin/locations', 'Territory Locations', '/admin/locations', '', []],

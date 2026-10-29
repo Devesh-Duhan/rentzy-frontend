@@ -1,7 +1,7 @@
 "use client";
 
 import filterUiStyles from "@/components/filters/Filters.module.css";
-import { useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import {
   Search, RefreshCcw, Mail, Phone, Calendar, ChevronDown, ChevronUp,
   MessageSquare, User as UserIcon, Trash2
@@ -174,8 +174,8 @@ export default function LeadsPage() {
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((lead, idx) => (
-                    <motion.tbody key={lead._id} className="group">
+                  filtered.map((lead) => (
+                    <Fragment key={lead._id}>
                       <tr
                         onClick={() => setExpandedId(expandedId === lead._id ? null : lead._id)}
                         className="cursor-pointer hover:bg-slate-50/80 dark:hover:bg-white/2 transition-colors"
@@ -321,7 +321,7 @@ export default function LeadsPage() {
                           </motion.tr>
                         )}
                       </AnimatePresence>
-                    </motion.tbody>
+                    </Fragment>
                   ))
                 )}
               </AnimatePresence>
