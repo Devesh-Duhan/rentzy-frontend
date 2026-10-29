@@ -98,3 +98,14 @@
 .homeDialog input:focus-visible, .homeDialog select:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; border-radius: 6px; }
 :global(.dark) .homeSearch :global(.stay-search-bar), :global(.dark) .homeSearch :global(.stay-mobile-search), :global(.dark) .homeDialog, :global(.dark) .homeDialog :global(.stay-search-form) label { border-color: #4338ca; }
 :global(.dark) .homeDialog :global(.stay-search-form) label > span { color: #c4b5fd; }
+
+/* Compact homepage controls without changing selects elsewhere on the site. */
+:global(body) .homeSearch :global(.stay-search-bar) label > span { margin-bottom: 2px; font-size: 11px; line-height: 14px; }
+:global(body) .homeSearch :global(.stay-search-bar) label:nth-child(2) { flex: 1.2; }
+:global(body) .homeSearch :global(.stay-search-bar) label:nth-child(4) { flex: 1.35; }
+:global(body) .homeSearch :global(.stay-search-bar) label > input,
+:global(body) .homeSearch :global(.stay-search-bar) label > select { min-height: 44px; font-size: 13px; line-height: 20px; }
+:global(body) .homeSearch :global(.stay-search-bar) label > select,
+:global(body) .homeDialog :global(.stay-search-form) label > select { padding-inline-start: 12px; padding-inline-end: 32px !important; background-position: right 9px center, center; background-size: 16px 16px, 100% 100%; }
+:global(body) .homeSearch :global(.stay-search-bar) label > select { padding-block: 6px; }
+.homeSearch :global(.stay-search-bar) :global(.stay-search-submit) { width: 44px; height: 44px; }
