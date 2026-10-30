@@ -1,27 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { auth, googleProvider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { googleLogin } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
+import { runGoogleSignIn } from "@/lib/google-signin";
 
 const GoogleLoginButton = ({ text = "signin_with", onSuccess }) => {
   const dispatch = useDispatch();
   const [isConnecting, setIsConnecting] = useState(false);
+  const [stage, setStage] = useState('Connecting...');
+  const attempt = useRef(null);
+  useEffect(() => () => { attempt.current?.abort(); attempt.current = null; }, []);
 
   const handleGoogleLogin = async () => {
-    if (isConnecting) return;
+    if (attempt.current) return;
     if (!auth || !googleProvider) { toast.error('Google login is currently unavailable. Please use email login.'); return; }
+    const controller = new AbortController();
+    attempt.current = controller;
     setIsConnecting(true);
     const loadingToast = toast.loading("Connecting to Google...");
 
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const idToken = await result.user.getIdToken();
-
-      await dispatch(googleLogin(idToken)).unwrap();
+      await runGoogleSignIn({
+        popup: () => signInWithPopup(auth, googleProvider),
+        exchange: async token => {
+          const request = dispatch(googleLogin(token));
+          const abort = () => request.abort();
+          controller.signal.addEventListener('abort', abort, { once: true });
+          try { return await request.unwrap(); }
+          finally { controller.signal.removeEventListener('abort', abort); }
+        },
+        onStage: value => { setStage(value); toast.loading(value, { id: loadingToast }); },
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return;
       toast.dismiss(loadingToast);
       toast.success("Welcome!");
       if (typeof onSuccess === "function") {
@@ -29,6 +44,7 @@ const GoogleLoginButton = ({ text = "signin_with", onSuccess }) => {
       }
     } catch (error) {
       toast.dismiss(loadingToast);
+      if (controller.signal.aborted) return;
       let message;
       if (typeof error === "string") {
         message = error;
@@ -51,7 +67,9 @@ const GoogleLoginButton = ({ text = "signin_with", onSuccess }) => {
       }
       toast.error(message);
     } finally {
-      setIsConnecting(false);
+      controller.abort();
+      toast.dismiss(loadingToast);
+      if (attempt.current === controller) { attempt.current = null; setIsConnecting(false); }
     }
   };
 
@@ -61,6 +79,7 @@ const GoogleLoginButton = ({ text = "signin_with", onSuccess }) => {
         type="button"
         onClick={handleGoogleLogin}
         disabled={isConnecting}
+        aria-busy={isConnecting}
         className="flex items-center justify-center gap-3 w-full max-w-[360px] py-3.5 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-300 shadow-sm group disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {isConnecting ? (
@@ -75,7 +94,7 @@ const GoogleLoginButton = ({ text = "signin_with", onSuccess }) => {
         )}
         <span className="text-sm font-bold text-slate-700 dark:text-white uppercase tracking-tight">
           {isConnecting
-            ? "Connecting..."
+            ? stage
             : text === "signup_with"
             ? "Sign up with Google"
             : "Sign in with Google"}

@@ -32,7 +32,7 @@ test('destination search applies real rental filters on desktop and mobile',asyn
  });
  await page.goto('/');
  await ready(page,'button');
- const mobile=page.viewportSize()!.width<768;
+ const mobile=await page.getByRole('button',{name:/Start your search/}).isVisible();
  if(mobile)await page.getByRole('button',{name:/Start your search/}).click();
  const form=mobile?page.getByRole('dialog',{name:'Search homes',exact:true}):page.getByRole('form',{name:'Search homes',exact:true});
  await form.getByRole('textbox',{name:'City or neighbourhood',exact:true}).fill('Hisar');

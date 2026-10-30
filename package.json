@@ -11,8 +11,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report",
-    "test:seo": "node --test tests/seo.test.mjs tests/property-seo.test.mjs",
-    "test:branding": "node --test tests/branding.test.mjs"
+    "test:seo": "node --test tests/seo.test.mjs tests/property-seo.test.mjs tests/technical-seo.test.mjs tests/rendering.test.mjs tests/schema.test.mjs tests/production-audit.test.mjs",
+    "test:branding": "node --test tests/branding.test.mjs",
+    "test:auth": "node --test tests/google-signin.test.mjs"
   },
   "dependencies": {
     "@react-oauth/google": "^0.13.5",

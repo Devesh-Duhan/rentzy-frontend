@@ -34,7 +34,7 @@ export const PAGE_SEO = {
   '/terms': page('/terms', 'Terms & Conditions', 'Review the terms and conditions for using RentzyPro, including accounts, property listings and website services.'),
   '/refund-policy': page('/refund-policy', 'Refund Policy', 'Read the RentzyPro refund policy for information about payment terms, cancellations and applicable refund requests.'),
   '/safety': page('/safety', 'Property Search Safety', 'Read safety guidance for searching properties, contacting owners and reviewing listing information on RentzyPro.'),
-  '/featured-properties': page('/featured-properties', 'Featured Properties', 'Explore featured property listings on RentzyPro and review locations, prices and listing details.'),
+  '/featured-properties': page('/featured-properties', 'Featured Properties', 'Explore featured property listings on RentzyPro and review locations, prices and listing details.', { robots: { index: false, follow: true }, sitemap: false }),
   '/projects': page('/projects', 'Property Projects', 'Explore the property projects page on RentzyPro and review available project information and property details.'),
   '/gallery': page('/gallery', 'Property Gallery', 'Explore property photos in the RentzyPro gallery and take a closer look at spaces before reviewing their listings.'),
   '/rera': page('/rera', 'RERA Information', 'Read RERA information on RentzyPro to help you understand real estate registration and property-related checks.'),
@@ -69,7 +69,7 @@ export const DYNAMIC_SEO = {
   property: { title: 'Property Details', description: 'Explore property details and connect with the owner on RentzyPro.' },
   blog: { title: 'Property & Rental Article', description: 'Read property and rental information on the RentzyPro blog.', type: 'article' },
   category: { title: 'Properties by Category', description: 'Explore RentzyPro property listings in this category.' },
-  featured: { title: 'Featured Properties', description: 'Browse featured RentzyPro property listings and review their details.' },
+  featured: { title: 'Featured Properties', description: 'Browse featured RentzyPro property listings and review their details.', robots: { index: false, follow: true } },
 };
 
 // Let crawlers read page-level noindex directives; authentication remains the security boundary.
@@ -101,3 +101,26 @@ export const PROPERTY_SEO = {
 };
 
 export const SEARCH_FILTER_KEYS = ['q', 'type', 'purpose', 'city', 'minPrice', 'maxPrice', 'bedrooms', 'bathrooms', 'furnishing', 'possession', 'facing', 'postedBy', 'minArea', 'maxArea'];
+
+// Editable article metadata; text comes only from a publicly published record.
+export const BLOG_SEO = {
+  descriptionLength: 220,
+  failure: { title: 'Article Temporarily Unavailable', description: 'This article could not be loaded. Please try again later.', robots: { index: false, follow: true } },
+};
+
+// Editable structured-data labels. Business credentials/ratings are deliberately not assumed.
+export const STRUCTURED_SEO = {
+  home: 'Home', properties: 'Properties', blog: 'Blog', descriptionLength: 220,
+  rentalLink: 'Browse rental properties', saleLink: 'Browse properties for sale', allLink: 'Browse all properties',
+  cityLink: 'Properties in {city}',
+};
+
+// Category metadata uses actual active database records; filtered variants stay out of the index.
+export const CATEGORY_SEO = {
+  title: '{name} Properties',
+  description: 'Browse {name} property listings on RentzyPro. Review public listing details, locations and photos.',
+  missing: { title: 'Category Not Found', description: 'This property category is not available. Browse other properties on RentzyPro.', robots: { index: false, follow: true } },
+  failure: { title: 'Category Temporarily Unavailable', description: 'Category information could not be loaded. Please try again later.', robots: { index: false, follow: true } },
+};
+
+export const FEED_SEO = { title: 'RentzyPro Property & Rental Blog', description: 'Published RentzyPro articles about rental homes and property searches.', language: 'en-IN' };

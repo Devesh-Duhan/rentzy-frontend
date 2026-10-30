@@ -67,7 +67,9 @@ test('private panels are noindex; robots and sitemap allow login and registratio
   expect(robots).toContain('Allow: /');
   expect(robots).not.toMatch(/Disallow: \/(?:login|register)/);
   expect(robots).toContain('Sitemap: https://rentzypro.com/sitemap.xml');
-  const sitemap = await (await request.get('/sitemap.xml')).text();
+  const index = await (await request.get('/sitemap.xml')).text();
+  expect(index).toContain('<sitemapindex');
+  const sitemap = await (await request.get('/sitemap-static.xml')).text();
   for (const route of ['/login', '/register', '/rent', '/blog']) expect(sitemap).toContain(`<loc>${canonicalUrl(route)}</loc>`);
   for (const route of ['/admin', '/seller', '/profile', '/search', '/forgot-password']) expect(sitemap).not.toContain(`<loc>${canonicalUrl(route)}</loc>`);
   expect(sitemap).not.toContain('localhost');

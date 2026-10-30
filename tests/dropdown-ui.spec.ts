@@ -34,7 +34,7 @@ test('Buy native picker selects a city, updates its query and closes with Escape
 
 test('Home search dropdown changes purpose and resets its dependent budget', async ({ page }) => {
   await page.goto('/');
-  if (page.viewportSize()!.width < 768) await page.getByRole('button', { name: /Start your search/ }).click();
+  if (await page.getByRole('button', { name: /Start your search/ }).isVisible()) await page.getByRole('button', { name: /Start your search/ }).click();
   const form = page.locator('form:visible').first();
   const purpose = form.getByLabel('Listing purpose', { exact: true });
   const budget = form.getByLabel('Maximum budget', { exact: true });

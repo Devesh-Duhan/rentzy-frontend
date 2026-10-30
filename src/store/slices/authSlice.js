@@ -244,7 +244,11 @@ export const googleLogin = createAsyncThunk(
   async (idToken, thunkAPI) => {
     try {
       const token = typeof idToken === 'object' && idToken !== null ? idToken.idToken : idToken;
-      const response = await axios.post('/auth/google', { idToken: token });
+      const response = await axios.post('/auth/google', { idToken: token }, { signal: thunkAPI.signal, timeout: 30000 });
+      thunkAPI.signal.throwIfAborted();
+      if (!response.data?.token || !response.data?._id || !['buyer', 'seller', 'admin'].includes(response.data.role)) {
+        return thunkAPI.rejectWithValue('The login server returned an incomplete session. Please try again.');
+      }
       if (response.data && typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(response.data));
 
@@ -358,7 +362,7 @@ export const authSlice = createSlice({
         state.isLoading = false; state.isSuccess = true; state.user = action.payload;
       })
       .addCase(googleLogin.rejected, (state, action) => {
-        state.isLoading = false; state.isError = true; state.message = action.payload;
+        state.isLoading = false; state.isError = true; state.message = action.payload || (action.meta.aborted ? 'Google sign-in cancelled. Please try again.' : 'Google sign-in failed. Please try again.');
       })
       .addCase(resetPassword.pending, (state) => { state.isLoading = true; state.isError = false; state.message = ""; })
       .addCase(resetPassword.fulfilled, (state, action) => {

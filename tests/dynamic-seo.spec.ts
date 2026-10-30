@@ -29,9 +29,7 @@ test('missing attributes use honest fallbacks',async({page})=>{
 test('unapproved, rejected, inactive, removed and invalid records never leak and are noindex',async({request})=>{
  for(const value of [id(3),id(4),id(5),id(6),id(8),'invalid']) {
   const response=await request.get(`/properties/${value}`,{headers:{'User-Agent':'Twitterbot/1.0'}});
-  // Next 15 may have committed its shared loading shell before notFound resolves.
-  // API 404 behavior is covered by backend tests; streamed HTML must still be noindex.
-  expect([200,404],value).toContain(response.status());
+  expect(response.status(),value).toBe(404);
   const html=await response.text();expect(html).toContain('content="noindex"');
   expect(html).not.toContain('PRIVATE_PROPERTY_MARKER');expect(html).not.toContain('PRIVATE_PAYMENT_MARKER');
  }

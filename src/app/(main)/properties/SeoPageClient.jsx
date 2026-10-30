@@ -51,12 +51,12 @@ function PaginatedProperties() {
   });
 
   const [appliedFilters, setAppliedFilters] = useState(() => ({ ...(initialType ? { type: initialType } : {}), ...(initialPurpose ? { purpose: initialPurpose } : {}) }));
-  const gridClassName = `grid grid-cols-2 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 ${filtersOpen ? 'xl:grid-cols-3' : 'lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'}`;
+  const gridClassName = `grid grid-cols-2 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 ${filtersOpen ? 'lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' : featuredOnly ? 'lg:grid-cols-6' : 'lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'}`;
 
   const buildQueryString = (f) => {
     const params = new URLSearchParams();
     params.set("page", pageParam);
-    if (featuredOnly) params.set("featured", "true");
+    if (featuredOnly) { params.set("featured", "true"); params.set("limit", "12"); }
     if (f.keyword) params.set("keyword", f.keyword);
     if (f.type) params.set("type", f.type);
     if (f.purpose) params.set("purpose", f.purpose);
@@ -356,7 +356,7 @@ function PaginatedProperties() {
               </div>
             ) : isLoading ? (
               <div className={gridClassName}>
-                {[...Array(6)].map((_, i) => <PropertySkeleton key={i} />)}
+                {[...Array(featuredOnly ? 12 : 6)].map((_, i) => <PropertySkeleton key={i} />)}
               </div>
             ) : propertiesData.length > 0 ? (
               <>

@@ -88,11 +88,11 @@ const RegisterPage = () => {
           <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/10 rounded-full" />
         </div>
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative z-50 text-center pointer-events-auto">
+        <motion.div initial={false} animate={{ opacity: 1, y: 0 }} className="relative z-50 text-center pointer-events-auto">
           <Link href="/" aria-label="Go to homepage" title="Go to homepage" className="inline-flex items-center justify-center w-20 h-20 bg-white/15 backdrop-blur rounded-3xl mb-8 border border-white/20 hover:bg-white/25 transition-all cursor-pointer shadow-xl relative z-50">
             <BrandLogo size={80} className="h-full w-full rounded-3xl" />
           </Link>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">Join rentzypro</h1>
+          <p className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">Join rentzypro</p>
           <p className="text-lg text-indigo-200 max-w-sm mx-auto leading-relaxed">
             Create your account and start listing properties on India&apos;s most trusted rental platform.
           </p>
@@ -106,7 +106,7 @@ const RegisterPage = () => {
 
       {/* Right Form Panel */}
       <div className="flex-1 flex items-center justify-center p-6 bg-slate-50 dark:bg-[#0a0a1a]">
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="w-full max-w-md">
+        <motion.div initial={false} animate={{ opacity: 1, x: 0 }} className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden flex flex-wrap items-center gap-3 mb-8">
             <Link href="/" aria-label="Go to homepage" title="Go to homepage" className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/30">
@@ -117,7 +117,7 @@ const RegisterPage = () => {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Create account</h2>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Create account</h1>
             <p className="text-slate-500 dark:text-slate-400 mt-2">Join as a seller and list your properties.</p>
           </div>
 

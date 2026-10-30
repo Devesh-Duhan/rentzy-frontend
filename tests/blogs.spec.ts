@@ -49,6 +49,7 @@ test('admin can save a private draft then publish it', async ({ context, baseURL
 
 test('public blog errors show retry instead of a false empty state', async ({ page, api }) => {
   api.blogError = true;
+  await api.syncBlogs();
   await page.goto('/blog');
   await expect(page.getByRole('alert').filter({ hasText: 'Articles could not be loaded.' })).toBeVisible();
   api.blogError = false;

@@ -136,6 +136,7 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
+                    prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   pathname === item.href
                     ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
@@ -149,7 +150,7 @@ export default function Navbar() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-1">
-            <Link href={user && ["seller", "admin"].includes(user.role) ? "/add" : "/become-seller"} className="market-host-link">Become a host</Link>
+            <Link prefetch={false} href={user && ["seller", "admin"].includes(user.role) ? "/add" : "/become-seller"} className="market-host-link">Become a host</Link>
             {/* Existing quick actions remain available in account/mobile menus. */}
             <div className="hidden">
               {BOTTOM_NAV_ITEMS.map((item) => {
@@ -160,6 +161,7 @@ export default function Navbar() {
                   <Link
                     key={item.id}
                     href={item.href}
+                    prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
                     className={`relative p-2.5 rounded-xl transition-all ${
                       active
                         ? "text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-500/10"
@@ -220,7 +222,7 @@ export default function Navbar() {
                         ))}
                       </div>
                     )}
-                    <Link href="/notifications/preferences" className="block shrink-0 p-3 text-center text-xs font-semibold text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10">
+                    <Link prefetch={false} href="/notifications/preferences" className="block shrink-0 p-3 text-center text-xs font-semibold text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10">
                       Notification Settings
                     </Link>
                   </motion.div>
@@ -256,19 +258,19 @@ export default function Navbar() {
                         </div>
                         <div className="p-2">
                           {user.role === "admin" && (
-                            <Link href="/admin" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 text-sm font-medium text-slate-700 dark:text-slate-300" onClick={() => setShowUserMenu(false)}>
+                            <Link prefetch={false} href="/admin" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 text-sm font-medium text-slate-700 dark:text-slate-300" onClick={() => setShowUserMenu(false)}>
                               <Settings size={16} /> Admin Dashboard
                             </Link>
                           )}
                           {user.role === "seller" && (
-                            <Link href="/seller" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 text-sm font-medium text-slate-700 dark:text-slate-300" onClick={() => setShowUserMenu(false)}>
+                            <Link prefetch={false} href="/seller" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 text-sm font-medium text-slate-700 dark:text-slate-300" onClick={() => setShowUserMenu(false)}>
                               <Building2 size={16} /> Seller Dashboard
                             </Link>
                           )}
-                          <Link href="/profile" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 text-sm font-medium text-slate-700 dark:text-slate-300" onClick={() => setShowUserMenu(false)}>
+                          <Link prefetch={false} href="/profile" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 text-sm font-medium text-slate-700 dark:text-slate-300" onClick={() => setShowUserMenu(false)}>
                             <UserCircle size={16} /> My Profile
                           </Link>
-                          <Link href="/wishlist" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 text-sm font-medium text-slate-700 dark:text-slate-300" onClick={() => setShowUserMenu(false)}>
+                          <Link prefetch={false} href="/wishlist" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 text-sm font-medium text-slate-700 dark:text-slate-300" onClick={() => setShowUserMenu(false)}>
                             <Heart size={16} /> Saved Properties
                           </Link>
                           <button onClick={handleLogout} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/10 text-sm font-medium text-rose-600 mt-1">
@@ -278,8 +280,8 @@ export default function Navbar() {
                       </>
                     ) : (
                       <div className="p-4 space-y-2">
-                        <Link href="/login" className="block w-full text-center btn-primary text-sm" onClick={() => setShowUserMenu(false)}>Sign In</Link>
-                        <Link href="/register" className="block w-full text-center btn-secondary text-sm" onClick={() => setShowUserMenu(false)}>Create Account</Link>
+                        <Link prefetch={false} href="/login" className="block w-full text-center btn-primary text-sm" onClick={() => setShowUserMenu(false)}>Sign In</Link>
+                        <Link prefetch={false} href="/register" className="block w-full text-center btn-secondary text-sm" onClick={() => setShowUserMenu(false)}>Create Account</Link>
                       </div>
                     )}
                   </motion.div>
@@ -369,6 +371,7 @@ export default function Navbar() {
                       <Link
                         key={item.id}
                         href={item.href}
+                    prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${
                           active
@@ -398,6 +401,7 @@ export default function Navbar() {
                       <Link
                         key={item.href}
                         href={item.href}
+                    prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all ${
                           pathname === item.href
@@ -426,6 +430,7 @@ export default function Navbar() {
                     <Link
                       key={item.href}
                       href={item.href}
+                    prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all ${
                         pathname === item.href
@@ -448,8 +453,8 @@ export default function Navbar() {
                   </button>
                 ) : (
                   <div className="flex flex-col gap-2.5">
-                    <Link href="/login" className="w-full text-center btn-primary text-sm" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
-                    <Link href="/register" className="w-full text-center btn-secondary text-sm" onClick={() => setMobileMenuOpen(false)}>Create Account</Link>
+                    <Link prefetch={false} href="/login" className="w-full text-center btn-primary text-sm" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
+                    <Link prefetch={false} href="/register" className="w-full text-center btn-secondary text-sm" onClick={() => setMobileMenuOpen(false)}>Create Account</Link>
                   </div>
                 )}
               </div>
@@ -468,6 +473,7 @@ export default function Navbar() {
             <Link
               key={item.id}
               href={item.href}
+                    prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
               className={`bottom-nav-item ${active ? "active" : ""}`}
             >
               <div className={`relative p-1.5 rounded-xl transition-all duration-200 ${active ? "bg-indigo-50 dark:bg-indigo-500/10" : ""}`}>

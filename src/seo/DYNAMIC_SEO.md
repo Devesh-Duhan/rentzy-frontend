@@ -20,7 +20,7 @@
 - Frontend server loaders independently reject malformed, nonpublic or mismatched records before metadata or RSC/HTML serialization. Private payment/contact fields are stripped. Generic errors never serialize upstream private records.
 - The current schema has no separate expiry or hidden flag. No expiry dates or business rules were invented. Unsupported statuses (including legacy `expired`/`hidden` values) cannot pass the available-status check.
 - Invalid identifiers make no frontend API request. Backend invalid identifiers return 400; unavailable records return 404. Native Next `notFound()` adds noindex and the not-found UI.
-- **Next.js 15 streaming limitation:** the shared loading shell can commit HTTP 200 before `notFound()` resolves, including some bot requests. Those HTML responses are noindex and contain no unavailable record data. The backend API returns a real 404. This is covered explicitly rather than claiming every HTML response is 404.
+- Phase 4 resolves the earlier streamed-200 limitation: property availability is checked before streaming. Invalid, removed and nonpublic property URLs return HTTP 404, including browser and bot requests. Shared loading fallbacks remain on other route groups.
 - Temporary API failures are distinct from missing records: neutral noindex metadata and a retry UI, without an automatic duplicate detail request. An explicit retry can recover; a fresh server navigation/refresh resolves metadata again.
 - Request-scoped React cache shares successful/error lookups for metadata and rendering. No persistent frontend property cache or extra metadata-only database query was added. Existing backend listing cache invalidation remains in place.
 

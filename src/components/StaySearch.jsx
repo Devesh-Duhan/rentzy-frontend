@@ -33,16 +33,28 @@ export default function StaySearch(){
    if(budget)params.set('maxPrice',budget);
    setOpen(false);router.push(`/search?${params}`);
  }
- function fields(){return <>
+ function fields(withSubmit = true){return <>
    <label className="stay-search-location"><span>Where</span><input aria-label="City or neighbourhood" value={city} onChange={event=>setCity(event.target.value)} placeholder="Search destinations" maxLength={100}/></label>
    <label><span>Property type</span><select aria-label="Property type" value={type} onChange={event=>setType(event.target.value)}><option value="">Any property</option><option value="apartment">Apartment</option><option value="villa">Independent home</option><option value="room">Room</option><option value="pg_hostel">PG / Hostel</option><option value="commercial">Commercial</option><option value="land">Land / Plot</option></select></label>
    <label><span>Looking to</span><select aria-label="Listing purpose" value={purpose} onChange={event=>{setPurpose(event.target.value);setBudget('');}}><option value="rent">Rent a home</option><option value="sell">Buy a home</option></select></label>
    <label><span>Budget</span><select aria-label="Maximum budget" value={budget} onChange={event=>setBudget(event.target.value)}><option value="">Any budget</option>{(purpose==='rent'?[10000,20000,35000,50000,100000]:[2500000,5000000,10000000,20000000]).map(amount=><option key={amount} value={amount}>Up to ₹{amount.toLocaleString('en-IN')}</option>)}</select></label>
-   <button type="submit" className="stay-search-submit" aria-label="Search properties"><Search size={22}/><span>Search</span></button>
+   {withSubmit&&<button type="submit" className="stay-search-submit" aria-label="Search properties"><Search size={22}/><span>Search</span></button>}
  </>;}
  return <div className={`${filterStyles.homeSearch} mx-auto max-w-[900px] px-4 sm:px-6`}>
    <form onSubmit={search} className="stay-search-bar hidden md:flex" aria-label="Search homes">{fields()}</form>
    <button type="button" onClick={()=>setOpen(true)} className="stay-mobile-search md:hidden"><Search size={21}/><span><strong>Start your search</strong><small>Anywhere · Any property · Any budget</small></span><SlidersHorizontal size={18}/></button>
-   {open&&<dialog ref={dialog} aria-label="Search homes" onCancel={()=>setOpen(false)} onClick={event=>{if(event.target===event.currentTarget)setOpen(false);}} className={`${filterStyles.homeDialog} stay-search-dialog overscroll-contain overflow-y-auto`}><div className="mb-7 flex items-center gap-4"><button type="button" onClick={()=>setOpen(false)} aria-label="Close search" className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700"><X size={19}/></button><h2 className="text-xl font-semibold">Where would you like to live?</h2></div><div className="mb-5 flex items-center gap-2 text-sm text-slate-500"><MapPin size={17}/> Find a place that suits you</div><form onSubmit={search} className="stay-search-form">{fields()}</form></dialog>}
+   {open&&<dialog ref={dialog} aria-label="Search homes" aria-describedby="home-search-description" onCancel={()=>setOpen(false)} onClick={event=>{if(event.target===event.currentTarget)setOpen(false);}} className={filterStyles.homeDialog + " stay-search-dialog"}>
+     <header className={filterStyles.searchDialogHeader}>
+       <div><p className={filterStyles.searchDialogEyebrow}><MapPin size={14} aria-hidden="true"/> Your next move</p><h2>Find your next home</h2><p id="home-search-description" className={filterStyles.searchDialogDescription}>Choose where and how you want to live.</p></div>
+       <button type="button" onClick={()=>setOpen(false)} aria-label="Close search" className={filterStyles.searchDialogClose}><X size={20}/></button>
+     </header>
+     <form onSubmit={search} className={filterStyles.searchDialogForm}>
+       <div className={"stay-search-form " + filterStyles.searchDialogFields}>{fields(false)}</div>
+       <div className={filterStyles.searchDialogFooter}>
+         <button type="button" className={filterStyles.searchDialogClear} onClick={()=>{setCity('');setType('');setPurpose('rent');setBudget('');}}>Clear all</button>
+         <button type="submit" className="stay-search-submit" aria-label="Search properties"><Search size={18}/><span>Search properties</span></button>
+       </div>
+     </form>
+   </dialog>}
  </div>;
 }

@@ -38,10 +38,9 @@ export default function BuyClient() {
     bedrooms: "Any",
   });
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
 
   const { data, isLoading, isFetching, isPlaceholderData, isError, error, refetch } = useQuery({
-    queryKey: ["properties-buy", page, filters, searchTerm],
+    queryKey: ["properties-buy", page, filters],
     queryFn: async ({ signal }) => {
       const params = new URLSearchParams({ purpose: "sell", page: String(page), limit: "12" });
       if (filters.type !== "All") params.append("type", filters.type.toLowerCase());
@@ -55,7 +54,6 @@ export default function BuyClient() {
       }
       if (filters.bhk !== "Any") params.append("bhk", filters.bhk);
       if (filters.bedrooms !== "Any") params.append("bedrooms", filters.bedrooms);
-      if (searchTerm.trim()) params.append("search", searchTerm.trim());
       const response = await axios.get(`/properties?${params.toString()}`, { signal });
       return response.data;
     },
@@ -76,11 +74,10 @@ export default function BuyClient() {
 
   const clearFilters = () => {
     setFilters({ type: "All", city: "All", priceRange: "Any", bhk: "Any", bedrooms: "Any" });
-    setSearchTerm("");
     setPage(1);
   };
 
-  const hasActiveFilters = Object.values(filters).some((v) => v !== "All" && v !== "Any") || searchTerm.trim();
+  const hasActiveFilters = Object.values(filters).some((v) => v !== "All" && v !== "Any");
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -128,23 +125,7 @@ export default function BuyClient() {
             </p>
           </motion.div>
 
-          <motion.div
-            initial={false}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-8 max-w-2xl mx-auto"
-          >
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search by location, property name..."
-                value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
-                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-indigo-300 outline-none focus:ring-2 focus:ring-amber-400/50 text-sm font-medium"
-              />
-            </div>
-          </motion.div>
+
         </div>
       </section>
 

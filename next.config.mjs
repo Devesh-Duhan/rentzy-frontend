@@ -1,3 +1,4 @@
+import { CRAWL } from './src/seo/crawl.constants.mjs';
 /** @type {import('next').NextConfig} */
 // Fallback values for build environments (e.g., Vercel / CI) if not explicitly set
 if (!process.env.NEXT_PUBLIC_URL) {
@@ -28,8 +29,28 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 const nextConfig = {
+  trailingSlash: false,
+  async rewrites() {
+    // Root URLs give every sitemap site-wide scope without relying on Search Console submission.
+    return [
+      { source: '/sitemap-static.xml', destination: '/sitemaps/static.xml' },
+      { source: '/sitemap-locations.xml', destination: '/sitemaps/locations.xml' },
+      { source: '/sitemap-:kind(properties|blogs)-:page(\\d+).xml', destination: '/sitemaps/:kind/:page.xml' },
+    ];
+  },
+  async headers() {
+    const noindex = [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }];
+    return [
+      ...CRAWL.privatePaths.map(source => ({ source: source+'/:path*', headers: noindex })),
+      ...(process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production' ? [{ source: '/:path*', headers: noindex }] : []),
+    ];
+  },
   async redirects() {
-    return [{ source: '/site.webmanifest', destination: '/manifest.webmanifest', permanent: true }];
+    return [
+      { source: '/:path*', has: [{ type: 'host', value: 'www.rentzypro.com' }], destination: 'https://rentzypro.com/:path*', permanent: true },
+      { source: '/:path*', has: [{ type: 'host', value: 'rentzypro.com' }, { type: 'header', key: 'x-forwarded-proto', value: 'http' }], destination: 'https://rentzypro.com/:path*', permanent: true },
+      { source: '/site.webmanifest', destination: '/manifest.webmanifest', permanent: true },
+    ];
   },
   ...(process.env.PLAYWRIGHT_TEST === '1' ? { distDir: '.next-playwright', typescript: { tsconfigPath: 'tests/tsconfig.next.json' } } : {}),
   env: {

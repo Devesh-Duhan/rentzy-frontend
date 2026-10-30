@@ -4,8 +4,8 @@ import { properties, propertyId, propertyResults } from './data.mjs';
 type Role = 'buyer' | 'seller' | 'admin';
 type Blog = { _id: string; title: string; slug: string; content: string; status: string; categories: string[]; tags: string[]; featured: boolean; excerpt: string; coverImage: string; publishDate: string; createdAt: string; author: { name: string }; views: number };
 type Call = { method: string; path: string; params: URLSearchParams };
-export type MockApi = { blogs: Blog[]; calls: Call[]; saved: boolean; propertyError: boolean; blogError: boolean; emptyProperties: boolean; otpError: boolean };
-const newApi = (): MockApi => ({ blogs: [], calls: [], saved: false, propertyError: false, blogError: false, emptyProperties: false, otpError: false });
+export type MockApi = { blogs: Blog[]; calls: Call[]; saved: boolean; propertyError: boolean; blogError: boolean; emptyProperties: boolean; otpError: boolean; syncBlogs: () => Promise<void> };
+const newApi = (): MockApi => ({ blogs: [], calls: [], saved: false, propertyError: false, blogError: false, emptyProperties: false, otpError: false, syncBlogs: async () => {} });
 
 export function testUser(role: Role = 'buyer', email = `${role}@example.test`) {
   const id = role === 'admin' ? 'aaaaaaaaaaaaaaaaaaaaaaaa' : role === 'seller' ? 'bbbbbbbbbbbbbbbbbbbbbbbb' : 'cccccccccccccccccccccccc';
@@ -28,8 +28,20 @@ export async function noOverflow(page: Page) {
 
 export const test = base.extend<{ api: MockApi; mockRoutes: void }>({
   api: async ({}, provide) => { await provide(newApi()); },
-  mockRoutes: [async ({ context, page, api, baseURL }, provide) => {
+  mockRoutes: [async ({ context, page, api, baseURL }, provide, testInfo) => {
     const errors: string[] = [], unhandled: string[] = [];
+    let releaseLease: (()=>Promise<void>)|undefined;
+    if (/(blogs|rendering|structured-data|feed)\.spec\.ts$/.test(testInfo.file)) {
+      const apiURL=process.env.SEO_TEST_API_URL || 'http://127.0.0.1:'+(Number(new URL(baseURL!).port)+1);
+      if(!['localhost','127.0.0.1'].includes(new URL(apiURL).hostname))throw new Error('Test controls require loopback');
+      const owner=testInfo.testId+'-'+testInfo.project.name;
+      const send=async(endpoint:string,body:Record<string,unknown>)=>fetch(apiURL+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({owner,...body})});
+      const deadline=Date.now()+90000;
+      while((await send('/__test/lease',{})).status!==200){if(Date.now()>deadline)throw new Error('Test API lease unavailable');await new Promise(resolve=>setTimeout(resolve,100));}
+      api.syncBlogs=async()=>{const response=await send('/__test/blogs',{blogs:api.blogs,error:api.blogError});if(!response.ok)throw new Error('Test API snapshot failed');};
+      if(/blogs\.spec\.ts$/.test(testInfo.file))await api.syncBlogs();
+      releaseLease=async()=>{await send('/__test/lease',{release:true});};
+    }
     page.on('pageerror', error => errors.push(error.message));
     let pendingRole: Role = 'buyer';
     await context.route('**/*', async route => {
@@ -64,12 +76,12 @@ export const test = base.extend<{ api: MockApi; mockRoutes: void }>({
       else if (path === '/admin/blogs' && method === 'GET') data = { data: api.blogs };
       else if (path === '/admin/blogs' && method === 'POST') {
         const blog: Blog = { _id: String(api.blogs.length + 1).padStart(24, '0'), title: body.title || '', content: body.content || '', slug: (body.title || '').toLowerCase().replace(/\s+/g, '-'), status: body.status || 'draft', categories: body.categories || [], tags: body.tags || [], featured: Boolean(body.featured), excerpt: body.excerpt || '', coverImage: body.coverImage || '', author: { name: 'Test admin' }, publishDate: new Date().toISOString(), createdAt: new Date().toISOString(), views: 0 };
-        api.blogs.unshift(blog); status = 201; data = { data: blog };
+        api.blogs.unshift(blog); await api.syncBlogs(); status = 201; data = { data: blog };
       } else if (path.startsWith('/admin/blogs/')) {
         const index = api.blogs.findIndex(blog => blog._id === path.split('/').pop());
         if (index < 0) { status = 404; data = { message: 'Blog not found' }; }
-        else if (method === 'DELETE') { api.blogs.splice(index, 1); data = { message: 'Deleted' }; }
-        else if (method === 'PUT') { Object.assign(api.blogs[index], body); data = { data: api.blogs[index] }; }
+        else if (method === 'DELETE') { api.blogs.splice(index, 1); await api.syncBlogs(); data = { message: 'Deleted' }; }
+        else if (method === 'PUT') { Object.assign(api.blogs[index], body); await api.syncBlogs(); data = { data: api.blogs[index] }; }
       } else if (path === '/blogs') {
         status = api.blogError ? 503 : 200; data = api.blogError ? { message: 'Blogs unavailable' } : { data: api.blogs.filter(blog => blog.status === 'published') };
       } else if (path.startsWith('/blogs/')) {
@@ -77,7 +89,7 @@ export const test = base.extend<{ api: MockApi; mockRoutes: void }>({
       } else { status = 501; data = { message: `Unhandled fixture: ${method} ${path}` }; unhandled.push(`${method} ${path}`); }
       await route.fulfill({ status, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(data ?? {}) });
     });
-    await provide();
+    try { await provide(); } finally { await releaseLease?.(); }
     expect(unhandled, 'Add explicit fixtures for unexpected API calls').toEqual([]);
     expect(errors, 'Browser runtime errors').toEqual([]);
   }, { auto: true }],

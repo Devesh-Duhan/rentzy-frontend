@@ -25,14 +25,14 @@ for (const [path, heading] of [['/buy', /^Properties for (?:Sale|Sell)$/], ['/re
       if (path === '/rent') {
         await expect(page.locator('article')).toHaveCount(12);
         expect(api.calls()).toBe(0);
-        await expect(page.getByPlaceholder('Search by location, property name...')).toBeEditable();
+        await expect(page.locator('.hero-section input')).toHaveCount(0);
         await noOverflow(page);
         return; // Rental HTML is populated by the shared SSR request.
       }
       await expect.poll(api.calls).toBeGreaterThan(0);
       await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
       await expect(page.getByRole('status', { name: 'Loading properties', exact: true })).toBeVisible();
-      await expect(page.getByPlaceholder('Search by location, property name...')).toBeEditable();
+      await expect(page.locator('.hero-section input')).toHaveCount(0);
       const wasDark = await page.locator('html').evaluate(element => element.classList.contains('dark'));
       if (page.viewportSize()!.width < 768) {
         await page.getByRole('button', { name: 'Menu', exact: true }).click();

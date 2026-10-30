@@ -67,3 +67,17 @@ test('detail uses SSR data and owner links and saving work', async ({ context, b
   expect(api.calls.filter(call => call.path === `/properties/${propertyId}`)).toHaveLength(0);
   await noOverflow(page);
 });
+
+
+test('featured listings show twelve cards before advancing to the next page', async ({ page, api, isMobile }) => {
+  await page.goto('/properties?featured=true');
+  await expect(page.locator('article')).toHaveCount(12);
+  expect(api.calls.some(call => call.path === '/properties' && call.params.get('featured') === 'true' && call.params.get('limit') === '12')).toBe(true);
+  if (!isMobile) expect(await page.locator('article').first().evaluate(card => getComputedStyle(card.parentElement!.parentElement!).gridTemplateColumns.split(' ').length)).toBe(6);
+  await page.getByRole('button', { name: 'Next page', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'commercial property 13', exact: true })).toBeVisible();
+  await expect(page.locator('article')).toHaveCount(12);
+  await page.getByRole('button', { name: 'Previous page', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'commercial property 1', exact: true })).toBeVisible();
+  await noOverflow(page);
+});
