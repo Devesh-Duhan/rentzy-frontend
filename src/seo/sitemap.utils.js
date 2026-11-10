@@ -20,6 +20,13 @@ export function locationEntries(locations) {
     return {url:url.href};
   });
 }
+export function categoryEntries(categories) {
+  if (!Array.isArray(categories) || categories.length > CRAWL.maxUrls) throw new Error('Invalid sitemap categories');
+  return categories.map(item => {
+    if (!item || typeof item.slug !== 'string' || !/^[a-z\d_-]{1,120}$/i.test(item.slug)) throw new Error('Invalid sitemap category');
+    return {url:base+'/category/'+encodeURIComponent(item.slug)};
+  });
+}
 export function dynamicEntries(kind, data) {
   if (!['properties','blogs'].includes(kind) || !Array.isArray(data.entries) || data.entries.length > CRAWL.pageSize || data.pageSize !== CRAWL.pageSize) throw new Error('Invalid sitemap page');
   return data.entries.map(item => {
@@ -29,9 +36,10 @@ export function dynamicEntries(kind, data) {
   });
 }
 export function indexEntries(manifest) {
-  if (manifest.pageSize !== CRAWL.pageSize) throw new Error('Invalid sitemap page size');
+  if (manifest.pageSize !== CRAWL.pageSize || !Array.isArray(manifest.categories)) throw new Error('Invalid sitemap page size or categories');
   const entries = [{url:base+'/sitemap-static.xml'}];
   if (locationEntries(manifest.locations).length) entries.push({url:base+'/sitemap-locations.xml'});
+  if (categoryEntries(manifest.categories).length) entries.push({url:base+'/sitemap-categories.xml'});
   for (const kind of ['properties','blogs']) {
     const info=manifest[kind];
     if (!info || !Number.isSafeInteger(info.count) || info.count < 0 || info.pages !== Math.ceil(info.count / CRAWL.pageSize) || info.pages > CRAWL.maxPages) throw new Error('Invalid sitemap count');

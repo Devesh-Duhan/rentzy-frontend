@@ -35,6 +35,7 @@ const nextConfig = {
     return [
       { source: '/sitemap-static.xml', destination: '/sitemaps/static.xml' },
       { source: '/sitemap-locations.xml', destination: '/sitemaps/locations.xml' },
+      { source: '/sitemap-categories.xml', destination: '/sitemaps/categories.xml' },
       { source: '/sitemap-:kind(properties|blogs)-:page(\\d+).xml', destination: '/sitemaps/:kind/:page.xml' },
     ];
   },

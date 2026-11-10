@@ -3,19 +3,20 @@ const base='https://rentzypro.com';
 test('sitemap index and every shard return valid XML with canonical public URLs',async({request,page})=>{
  const response=await request.get('/sitemap.xml');expect(response.status()).toBe(200);expect(response.headers()['content-type']).toContain('application/xml');
  const parse=async(xml:string)=>page.evaluate(xml=>{const doc=new DOMParser().parseFromString(xml,'application/xml');return {error:!!doc.querySelector('parsererror'),root:doc.documentElement.localName,urls:[...doc.querySelectorAll('loc')].map(el=>el.textContent||'')};},xml);
- const index=await parse(await response.text());expect(index.error).toBe(false);expect(index.root).toBe('sitemapindex');expect(index.urls).toContain(base+'/sitemap-properties-2.xml');
+ const index=await parse(await response.text());expect(index.error).toBe(false);expect(index.root).toBe('sitemapindex');expect(index.urls).toContain(base+'/sitemap-properties-2.xml');expect(index.urls).toContain(base+'/sitemap-categories.xml');
  const urls:string[]=[];
  for(const url of index.urls){const result=await request.get(new URL(url).pathname);expect(result.status(),url).toBe(200);expect(result.headers()['content-type']).toContain('application/xml');const parsed=await parse(await result.text());expect(parsed.error).toBe(false);expect(parsed.root).toBe('urlset');expect(parsed.urls.length).toBeLessThanOrEqual(50000);urls.push(...parsed.urls);}
- expect(urls).toContain(base+'/properties/999999999999999999999999');expect(urls).toContain(base+'/blog/published-guide');expect(urls).toContain(base+'/search?city=Hisar&purpose=rent');
- expect(urls).toContain(base+'/login');expect(urls).toContain(base+'/register');expect(urls.length).toBe(new Set(urls).size);
+ expect(urls).toContain(base+'/properties/999999999999999999999999');expect(urls).toContain(base+'/blog/published-guide');expect(urls).toContain(base+'/category/commercial');expect(urls).toContain(base+'/search?city=Hisar&purpose=rent');
+ expect(urls).not.toContain(base+'/login');expect(urls).not.toContain(base+'/register');expect(urls.length).toBe(new Set(urls).size);
  expect(urls.some(url=>/admin|seller|profile|private|draft|pending|localhost/.test(url))).toBe(false);
  expect((await request.get('/sitemap-properties-0.xml')).status()).toBe(404);
  expect((await request.get('/sitemaps/private/1.xml')).status()).toBe(404);
  expect((await request.get('/sitemap-properties-3.xml')).status()).toBe(404);
 });
-test('crawl controls keep public auth indexable, private redirects and panels noindex',async({request,context,baseURL})=>{
+test('crawl controls keep account-entry and private pages out of search results',async({request,context,baseURL})=>{
  const robots=await request.get('/robots.txt');expect(robots.status()).toBe(200);expect(robots.headers()['content-type']).toContain('text/plain');const text=await robots.text();expect(text).toContain('Sitemap: '+base+'/sitemap.xml');expect(text).toContain('Allow: /');expect(text).not.toMatch(/Disallow: \/(?:login|register|_next|images)/);
- for(const url of ['/login','/register','/properties']){const response=await request.get(url);expect(response.status()).toBe(200);expect(await response.text()).toContain('content="index, follow"');expect(response.headers()['x-robots-tag']||'').not.toContain('noindex');}
+ for(const url of ['/login','/register']){const response=await request.get(url);expect(response.status()).toBe(200);expect(await response.text()).toContain('content="noindex, follow"');expect(response.headers()['x-robots-tag']||'').not.toContain('noindex');}
+ const publicPage=await request.get('/properties');expect(publicPage.status()).toBe(200);expect(await publicPage.text()).toContain('content="index, follow"');expect(publicPage.headers()['x-robots-tag']||'').not.toContain('noindex');
  const redirect=await request.get('/admin',{maxRedirects:0});expect([307,308]).toContain(redirect.status());expect(redirect.headers()['x-robots-tag']).toContain('noindex');
  await signIn(context,baseURL!,'admin');const panel=await context.request.get('/admin');expect(panel.status()).toBe(200);expect(panel.headers()['x-robots-tag']).toContain('noindex');expect(await panel.text()).toContain('content="noindex, nofollow"');
 });

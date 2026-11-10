@@ -1,14 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {staticEntries,locationEntries,dynamicEntries,indexEntries,renderSitemap,lastmod,xmlEscape} from '../src/seo/sitemap.utils.js';
+import {staticEntries,locationEntries,categoryEntries,dynamicEntries,indexEntries,renderSitemap,lastmod,xmlEscape} from '../src/seo/sitemap.utils.js';
 import {CRAWL} from '../src/seo/crawl.constants.mjs';
-const manifest={pageSize:5000,properties:{count:5001,pages:2},blogs:{count:1,pages:1},locations:[{city:'Hisar',purpose:'rent'}]};
+const manifest={pageSize:5000,properties:{count:5001,pages:2},blogs:{count:1,pages:1},locations:[{city:'Hisar',purpose:'rent'}],categories:[{slug:'apartment'}]};
 test('index contains all pages, locations and independent static sitemap',()=>{
- const entries=indexEntries(manifest);assert.equal(entries.length,5);assert.ok(entries.some(e=>e.url.endsWith('/sitemap-properties-2.xml')));
+ const entries=indexEntries(manifest);assert.equal(entries.length,6);assert.ok(entries.some(e=>e.url.endsWith('/sitemap-properties-2.xml')));assert.ok(entries.some(e=>e.url.endsWith('/sitemap-categories.xml')));
  assert.match(renderSitemap(entries,true),/<sitemapindex xmlns=/);assert.throws(()=>indexEntries({...manifest,properties:{count:5001,pages:1}}));
 });
-test('static canonical pages exclude personal data, filters and callbacks but include public auth',()=>{
- const urls=staticEntries().map(e=>e.url);assert.ok(urls.includes('https://rentzypro.com/login'));assert.ok(urls.includes('https://rentzypro.com/register'));
+test('category sitemap emits only safe canonical slugs',()=>{
+ assert.deepEqual(categoryEntries([{slug:'apartments'}]),[{url:'https://rentzypro.com/category/apartments'}]);
+ for(const categories of [null,[{slug:'../admin'}],[{slug:'a'.repeat(121)}]])assert.throws(()=>categoryEntries(categories));
+});
+test('static canonical pages exclude personal data, filters, callbacks and account-entry pages',()=>{
+ const urls=staticEntries().map(e=>e.url);assert.ok(!urls.includes('https://rentzypro.com/login'));assert.ok(!urls.includes('https://rentzypro.com/register'));
  assert.ok(!urls.some(url=>/admin|seller|profile|reset-password|search|\?/.test(url)));
  assert.equal(new Set(urls).size,urls.length);
 });

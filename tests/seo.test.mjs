@@ -31,9 +31,8 @@ test('every configured page has unique copy, canonical and complete social metad
   }
 });
 
-test('login and registration indexable; account and recovery routes noindex', () => {
-  for (const route of ['/login', '/register']) assert.equal(pageMetadata(route).robots.index, true);
-  for (const route of ['/profile', '/chat', '/wishlist', '/alerts', '/notifications/preferences', '/become-seller', '/verify-otp', '/reset-password', '/forgot-password']) {
+test('account-entry, account and recovery routes are excluded from search results and sitemap', () => {
+  for (const route of ['/login', '/register', '/profile', '/chat', '/wishlist', '/alerts', '/notifications/preferences', '/become-seller', '/verify-otp', '/reset-password', '/forgot-password']) {
     assert.equal(pageMetadata(route).robots.index, false, route);
     assert.equal(PAGE_SEO[route].sitemap, false);
   }

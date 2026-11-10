@@ -8,9 +8,12 @@ import PublicQueryBoundary from '@/seo/PublicQueryBoundary';
 import { CATEGORY_SEO } from '@/seo/seo.constants';
 
 export async function generateMetadata({ params, searchParams }) {
-  const result = await getPublicCategory((await params).slug);
+  const { slug } = await params;
+  const result = await getPublicCategory(slug);
   const filtered = Object.keys(await searchParams || {}).length > 0;
-  return categoryMetadata(result.category, filtered, result.state === 'error');
+  if (!result.category || filtered || result.state === 'error') return categoryMetadata(result.category, filtered, result.state === 'error');
+  const snapshot = await getPublicListings('/properties', new URLSearchParams({ type: result.category.slug }).toString());
+  return categoryMetadata(result.category, snapshot.state !== 'ok' || snapshot.data.count === 0);
 }
 export default async function CategoryPage({ params, searchParams }) {
   const { slug } = await params;

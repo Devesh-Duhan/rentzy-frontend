@@ -55,7 +55,7 @@ test('native client navigation replaces metadata, keeps state and removes query 
   expect(await page.evaluate(() => window.__seoNavigationMarker)).toBe('auth-preserved');
 });
 
-test('private panels are noindex; robots and sitemap allow login and registration', async ({ context, request, baseURL }) => {
+test('private and account-entry pages are noindex; sitemap contains public landing pages only', async ({ context, request, baseURL }) => {
   test.setTimeout(180_000);
   await signIn(context, baseURL!, 'admin');
   for (const route of ['/admin', '/seller', '/profile', '/chat', '/wishlist', '/alerts', '/notifications/preferences', '/add', '/owners']) {
@@ -70,7 +70,7 @@ test('private panels are noindex; robots and sitemap allow login and registratio
   const index = await (await request.get('/sitemap.xml')).text();
   expect(index).toContain('<sitemapindex');
   const sitemap = await (await request.get('/sitemap-static.xml')).text();
-  for (const route of ['/login', '/register', '/rent', '/blog']) expect(sitemap).toContain(`<loc>${canonicalUrl(route)}</loc>`);
-  for (const route of ['/admin', '/seller', '/profile', '/search', '/forgot-password']) expect(sitemap).not.toContain(`<loc>${canonicalUrl(route)}</loc>`);
+  for (const route of ['/rent', '/blog']) expect(sitemap).toContain(`<loc>${canonicalUrl(route)}</loc>`);
+  for (const route of ['/login', '/register', '/admin', '/seller', '/profile', '/search', '/forgot-password']) expect(sitemap).not.toContain(`<loc>${canonicalUrl(route)}</loc>`);
   expect(sitemap).not.toContain('localhost');
 });

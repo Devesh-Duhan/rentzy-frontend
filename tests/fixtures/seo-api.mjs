@@ -18,7 +18,7 @@ export function seoApiResponse(url){
   return {status:blog?200:404,body:{data:blog}};
  }
 
- if(url.pathname==='/api/seo/sitemap')return {status:200,body:{pageSize:5000,properties:{count:5001,pages:2},blogs:{count:1,pages:1},locations:[{city:'Hisar'},{city:'Hisar',purpose:'rent'}]}};
+ if(url.pathname==='/api/seo/sitemap')return {status:200,body:{pageSize:5000,properties:{count:5001,pages:2},blogs:{count:1,pages:1},locations:[{city:'Hisar'},{city:'Hisar',purpose:'rent'}],categories:[{slug:'commercial'}]}};
  if(url.pathname.startsWith('/api/seo/sitemap/')){
   const [,kind,page]=url.pathname.match(/\/sitemap\/([^/]+)\/(\d+)$/)||[];
   return {status:200,body:{page:Number(page),pageSize:5000,entries:kind==='properties'&&page==='1'?[{id:seoPropertyId,lastmod:'2026-01-01T00:00:00Z'}]:kind==='properties'&&page==='2'?[{id:id(2)}]:kind==='blogs'&&page==='1'?[{id:'aaaaaaaaaaaaaaaaaaaaaaaa',slug:'published-guide',lastmod:'2026-01-01T00:00:00Z'}]:[]}};
