@@ -19,6 +19,8 @@ export default function FeaturedProperties() {
   const address = searchParams.get('address');
   const searchKeyword = searchParams.get('search');
   const typeFilter = searchParams.get('type');
+  // Only the schema enum values are honored; anything else means "no purpose filter".
+  const purposeFilter = ['rent', 'sell'].includes(searchParams.get('purpose')) ? searchParams.get('purpose') : '';
 
   const [properties, setProperties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,6 +47,10 @@ export default function FeaturedProperties() {
           params: {
             page: currentPage,
             limit: 12,
+            // This page is titled "Featured Properties", so request the featured
+            // inventory explicitly and honor a purpose tab passed in the URL.
+            featured: "true",
+            ...(purposeFilter ? { purpose: purposeFilter } : {}),
             minPrice,
             maxPrice,
             city,
@@ -67,7 +73,7 @@ export default function FeaturedProperties() {
     };
 
     fetchProperties();
-  }, [currentPage, sortBy, priceRange, city, address, searchKeyword, typeFilter]);
+  }, [currentPage, sortBy, priceRange, city, address, searchKeyword, typeFilter, purposeFilter]);
 
   const formatProperty = (prop) => ({
     id: prop._id || prop.id,

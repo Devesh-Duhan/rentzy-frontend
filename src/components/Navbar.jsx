@@ -25,6 +25,14 @@ const BOTTOM_NAV_ITEMS = [
   { id: "profile", icon: UserCircle, label: "Profile", href: "/profile" },
 ];
 
+// Auth-gated items stay visible for guests: tapping them opens the login page
+// with a `next` param so the user is returned to the original destination
+// after signing in (see src/lib/authRedirect.js and src/middleware.js).
+const resolveNavItem = (item, mounted, user) => {
+  if (!item.auth || (mounted && user)) return { href: item.href, needsLogin: false };
+  return { href: `/login?next=${encodeURIComponent(item.href)}`, needsLogin: true };
+};
+
 export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -154,20 +162,20 @@ export default function Navbar() {
             {/* Existing quick actions remain available in account/mobile menus. */}
             <div className="hidden">
               {BOTTOM_NAV_ITEMS.map((item) => {
-                if (item.auth && (!mounted || !user)) return null;
-                const active = isActive(item.href);
+                const { href, needsLogin } = resolveNavItem(item, mounted, user);
+                const active = !needsLogin && isActive(item.href);
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.id}
-                    href={item.href}
+                    href={href}
                     prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
+                    aria-label={needsLogin ? `${item.label} (sign in required)` : item.label}
                     className={`relative p-2.5 rounded-xl transition-all ${
                       active
                         ? "text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-500/10"
                         : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
                     }`}
-                    aria-label={item.label}
                   >
                     <Icon size={20} strokeWidth={active ? 2.5 : 1.5} />
                     {item.id === "wishlist" && user && (
@@ -364,14 +372,15 @@ export default function Navbar() {
                 <p className="px-2 text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Quick Actions</p>
                 <div className="grid grid-cols-4 gap-2 min-h-[58px]">
                   {mounted && BOTTOM_NAV_ITEMS.map((item) => {
-                    if (item.auth && !user) return null;
-                    const active = isActive(item.href);
+                    const { href, needsLogin } = resolveNavItem(item, mounted, user);
+                    const active = !needsLogin && isActive(item.href);
                     const Icon = item.icon;
                     return (
                       <Link
                         key={item.id}
-                        href={item.href}
-                    prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
+                        href={href}
+                        prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
+                        aria-label={needsLogin ? `${item.label} (sign in required)` : item.label}
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${
                           active
@@ -466,14 +475,15 @@ export default function Navbar() {
       {/* Mobile Bottom Navigation */}
       <nav className="bottom-nav md:hidden flex items-center px-2 safe-bottom">
         {BOTTOM_NAV_ITEMS.map((item) => {
-          if (item.auth && (!mounted || !user)) return null;
-          const active = isActive(item.href);
+          const { href, needsLogin } = resolveNavItem(item, mounted, user);
+          const active = !needsLogin && isActive(item.href);
           const Icon = item.icon;
           return (
             <Link
               key={item.id}
-              href={item.href}
-                    prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
+              href={href}
+              prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
+              aria-label={needsLogin ? `${item.label} (sign in required)` : item.label}
               className={`bottom-nav-item ${active ? "active" : ""}`}
             >
               <div className={`relative p-1.5 rounded-xl transition-all duration-200 ${active ? "bg-indigo-50 dark:bg-indigo-500/10" : ""}`}>
