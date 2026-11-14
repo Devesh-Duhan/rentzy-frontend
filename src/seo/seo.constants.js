@@ -3,6 +3,7 @@ import { BRAND_ASSETS } from '../lib/brand.js';
 // Edit site identity, page copy and crawl policies here. Never use preview/local URLs for SEO.
 export const SITE_SEO = {
   name: 'RentzyPro',
+  titleAliases: ['Rentzy Pro'],
   baseUrl: 'https://rentzypro.com',
   title: 'RentzyPro | Rental Homes & Properties',
   description: 'Explore rental homes and properties on RentzyPro. Browse listings, compare details and connect with property owners.',

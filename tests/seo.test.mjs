@@ -90,3 +90,25 @@ test('every existing static route has a native metadata integration and central 
   assert.ok(fs.readFileSync(path.join(app, '(dashboard)/layout.jsx'), 'utf8').includes('dashboardMetadata()'));
   assert.equal(fs.existsSync(new URL('../public/robots.txt', import.meta.url)), false, 'Only one robots.txt implementation');
 });
+
+
+test('admin titles normalize brand aliases without duplicate search/social suffixes', () => {
+  for (const suffix of ['Rentzy Pro', 'rentzypro', 'RENTZY PRO', 'Rentzy Pro | RentzyPro']) {
+    const data = buildMetadata({ title: 'Apartments Near Me | ' + suffix, canonical: '/blog/real-guide' });
+    assert.equal(data.title.absolute, 'Apartments Near Me | RentzyPro');
+    assert.equal(data.openGraph.title, data.title.absolute);
+    assert.equal(data.twitter.title, data.title.absolute);
+    assert.equal(data.alternates.canonical, 'https://rentzypro.com/blog/real-guide');
+  }
+  assert.equal(buildMetadata({ title: 'About Rentzy Pro' }).title.absolute, 'About RentzyPro');
+  assert.equal(buildMetadata().title.absolute, SITE_SEO.title);
+});
+
+
+test('editable brand aliases containing regex punctuation are treated literally', () => {
+  const aliases = SITE_SEO.titleAliases;
+  try {
+    SITE_SEO.titleAliases = [...aliases, 'Rentzy (Pro)'];
+    assert.equal(buildMetadata({ title: 'About Rentzy (Pro)' }).title.absolute, 'About RentzyPro');
+  } finally { SITE_SEO.titleAliases = aliases; }
+});

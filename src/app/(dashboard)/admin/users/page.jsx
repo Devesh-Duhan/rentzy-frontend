@@ -245,7 +245,7 @@ export default function UsersSection() {
                         <div className="flex items-center gap-5">
                           <div className="relative">
                             <div className="w-14 h-14 rounded-[20px] bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white text-xl font-black shadow-lg shadow-indigo-100 dark:shadow-none overflow-hidden border-2 border-white dark:border-slate-800 group-hover:scale-105 transition-transform">
-                              {user.profileImage ? <Image src={user.profileImage} width={56} height={56} className="w-full h-full object-cover" unoptimized /> : user.name.charAt(0)}
+                              {user.profileImage ? <Image src={user.profileImage} alt={`${user.name || "User"} profile photo`} width={56} height={56} className="w-full h-full object-cover" unoptimized /> : user.name.charAt(0)}
                             </div>
                             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800"></div>
                           </div>

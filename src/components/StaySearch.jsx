@@ -40,7 +40,7 @@ export default function StaySearch(){
    <label><span>Budget</span><select aria-label="Maximum budget" value={budget} onChange={event=>setBudget(event.target.value)}><option value="">Any budget</option>{(purpose==='rent'?[10000,20000,35000,50000,100000]:[2500000,5000000,10000000,20000000]).map(amount=><option key={amount} value={amount}>Up to ₹{amount.toLocaleString('en-IN')}</option>)}</select></label>
    {withSubmit&&<button type="submit" className="stay-search-submit" aria-label="Search properties"><Search size={22}/><span>Search</span></button>}
  </>;}
- return <div className={`${filterStyles.homeSearch} mx-auto max-w-[900px] px-4 sm:px-6`}>
+ return <div className={`${filterStyles.homeSearch} mx-auto max-w-[1008px] px-4 sm:px-6`}>
    <form onSubmit={search} className="stay-search-bar hidden md:flex" aria-label="Search homes">{fields()}</form>
    <button type="button" onClick={()=>setOpen(true)} className="stay-mobile-search md:hidden"><Search size={21}/><span><strong>Start your search</strong><small>Anywhere · Any property · Any budget</small></span><SlidersHorizontal size={18}/></button>
    {open&&<dialog ref={dialog} aria-label="Search homes" aria-describedby="home-search-description" onCancel={()=>setOpen(false)} onClick={event=>{if(event.target===event.currentTarget)setOpen(false);}} className={filterStyles.homeDialog + " stay-search-dialog"}>

@@ -27,9 +27,19 @@ function imageUrl(value) {
   return new URL(SITE_SEO.image, SITE_SEO.baseUrl).href;
 }
 
+function brandedTitle(value) {
+  const aliases = [SITE_SEO.name, ...(SITE_SEO.titleAliases || [])];
+  const isBrand = text => aliases.some(alias => alias.toLowerCase() === text.toLowerCase());
+  const parts = metadataText(value).split('|').map(part => part.trim()).filter(Boolean);
+  // Stored admin titles may already end with the brand (including its older spelling).
+  while (parts.length > 1 && isBrand(parts[parts.length - 1])) parts.pop();
+  const pattern = aliases.map(alias => alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const title = parts.join(' | ').replace(new RegExp('(^|\\W)(?:' + pattern + ')(?!\\w)', 'gi'), (_, prefix) => prefix + SITE_SEO.name);
+  return title.includes(SITE_SEO.name) ? title : `${title} | ${SITE_SEO.name}`;
+}
+
 export function buildMetadata(config = {}) {
-  const titleText = metadataText(config.title || SITE_SEO.title);
-  const title = titleText.includes(SITE_SEO.name) ? titleText : `${titleText} | ${SITE_SEO.name}`;
+  const title = brandedTitle(config.title || SITE_SEO.title);
   const description = metadataText(config.description || SITE_SEO.description);
   const canonical = config.canonical == null ? undefined : canonicalUrl(config.canonical);
   const image = imageUrl(config.image);
