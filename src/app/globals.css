@@ -8,13 +8,19 @@
     --foreground: #0f172a;
     --card: #ffffff;
     --card-foreground: #0f172a;
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
     --primary: #ff385c;
+    --primary-foreground: #ffffff;
     --primary-dark: #e31c5f;
     --secondary: #a855f7;
+    --secondary-foreground: #ffffff;
     --accent: #f59e0b;
+    --accent-foreground: #0f172a;
     --muted: #f1f5f9;
     --muted-foreground: #64748b;
     --border: #e2e8f0;
+    --input: #e2e8f0;
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
     --ring: #ff385c;
@@ -28,9 +34,18 @@
     --foreground: #f1f5f9;
     --card: #1a1a2e;
     --card-foreground: #f1f5f9;
+    --popover: #1a1a2e;
+    --popover-foreground: #f1f5f9;
+    --primary: #ff385c;
+    --primary-foreground: #ffffff;
+    --secondary: #a855f7;
+    --secondary-foreground: #ffffff;
+    --accent: #f59e0b;
+    --accent-foreground: #f1f5f9;
     --muted: #1e293b;
     --muted-foreground: #94a3b8;
     --border: #1e293b;
+    --input: #1e293b;
     --destructive: #7f1d1d;
     --destructive-foreground: #f1f5f9;
     --ring: #ff385c;
@@ -41,16 +56,16 @@
     box-sizing: border-box;
   }
 
-  html,
-  body {
+  html {
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow-x: clip;
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   body {
+    min-height: 100dvh;
     background: var(--background);
     color: var(--foreground);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -300,4 +315,11 @@
 @layer components {
   .eyebrow { @apply mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-400; }
   .section-heading { @apply text-2xl font-semibold leading-tight tracking-[-0.035em] text-slate-950 sm:text-3xl dark:text-white; }
+}
+
+/* Dialog Backdrop Blur & Dimming */
+[data-slot="dialog-overlay"] {
+  background-color: rgba(3, 2, 18, 0.75) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
 }
