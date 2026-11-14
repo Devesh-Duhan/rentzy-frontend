@@ -9,7 +9,8 @@ import PropertyCard from "@/components/PropertyCard";
 import PropertySkeleton from "@/components/PropertySkeleton";
 import styles from "@/components/filters/Filters.module.css";
 import PropertyQuickFilters from "@/components/filters/PropertyQuickFilters";
-import { FilterPanel, FilterDialog } from "@/components/filters/FilterUI";
+import { FilterDialog } from "@/components/filters/FilterUI";
+import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
 import JsonLd from '@/seo/JsonLd';
 import { collectionSchema } from '@/seo/schema';
@@ -116,51 +117,62 @@ export default function RentClient({ initialData, initialError = false } = {}) {
   };
 
   return (
-    <main className="market-browse min-h-screen bg-[var(--background)]">
+    <main className="market-browse min-h-screen bg-[var(--background)] pt-[calc(var(--header-height,80px)+1.5rem)]">
       <JsonLd id="rental-collection-schema" data={!isError && !isLoading ? collectionSchema({canonical:"/rent",name:PAGE_SEO["/rent"].title,properties}):null} />
-      <section className="hero-section bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 dark:from-slate-900 dark:via-emerald-950 dark:to-slate-900">
-        <div className="hero-overlay" />
-        <div className="app-container relative z-20 w-full">
-          <motion.div
-            initial={false}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tighter mb-4">
-              Find a home <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-400">for rent</span>
-            </h1>
-            <p className="section-subtitle !text-emerald-200 !text-lg md:!text-xl max-w-2xl mx-auto">
-              Browse rental homes and properties. Compare listing details before contacting the person who listed the property.
-            </p>
-          </motion.div>
 
-
-        </div>
-      </section>
-
-      <section className="py-8 md:py-12">
-        <div className="app-container">
-          <div className="flex gap-8">
-            <aside className={styles.quickAside} aria-label="Property filters"><FilterPanel>{renderFilters('rent-desktop')}</FilterPanel></aside>
+      <section className="pb-12">
+        <div className="app-container max-w-[1600px]">
+          <div className="flex gap-6 lg:gap-8 items-start">
+            <aside
+              aria-label="Property filters"
+              className="hidden lg:flex flex-col w-72 xl:w-80 shrink-0 sticky top-[calc(var(--header-height,80px)+1.5rem)] self-start max-h-[calc(100dvh-var(--header-height,80px)-2.5rem)] rounded-xl border border-border/80 bg-card shadow-sm overflow-hidden z-20"
+            >
+              {/* Flipkart-style Fixed Filter Header */}
+              <div className="flex shrink-0 items-center justify-between px-4 py-3.5 border-b border-border bg-card">
+                <span className="text-sm font-bold uppercase tracking-wider text-foreground">
+                  Filters
+                </span>
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="text-xs font-bold text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 uppercase tracking-wider transition-colors"
+                    aria-label="Clear all filters"
+                  >
+                    CLEAR ALL
+                  </button>
+                )}
+              </div>
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 overscroll-contain">
+                {renderFilters('rent-desktop')}
+              </div>
+            </aside>
 
             <div className="flex-1 min-w-0" aria-busy={isFetching}>
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-border/60 gap-3">
                 <div>
-                  <h2 className="section-title !text-2xl md:!text-3xl">
+                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground tracking-tight">
                     Properties for Rent
-                  </h2>
-                  <p className="section-subtitle">
+                  </h1>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {isFetching ? (isLoading ? "Loading..." : "Updating properties...") : `${properties.length} propert${properties.length !== 1 ? "ies" : "y"} found`}
                   </p>
                 </div>
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => setShowMobileFilters(true)}
-                  className="lg:hidden btn-secondary flex items-center gap-2 !px-4 !py-2.5 text-sm"
+                  className="lg:hidden flex items-center gap-2 h-9 px-3.5 text-xs font-semibold rounded-xl"
+                  aria-label="Filters"
                 >
-                  <SlidersHorizontal size={16} />
-                  Filters
-                </button>
+                  <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
+                  <span>Filters</span>
+                  {hasActiveFilters && (
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500 text-white">
+                      Active
+                    </span>
+                  )}
+                </Button>
               </div>
 
               {isError ? (
@@ -181,7 +193,7 @@ export default function RentClient({ initialData, initialError = false } = {}) {
                   </button>
                 </div>
               ) : isLoading ? (
-                <div role="status" aria-label="Loading properties" className="app-grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+                <div role="status" aria-label="Loading properties" className="app-grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                   {[...Array(6)].map((_, i) => (
                     <PropertySkeleton key={i} />
                   ))}
@@ -209,7 +221,7 @@ export default function RentClient({ initialData, initialError = false } = {}) {
                   variants={containerVariants}
                   initial={false}
                   animate="visible"
-                  className="app-grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                  className="app-grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
                 >
                   {properties.map((prop, i) => (
                     <motion.div key={prop._id || prop.id || i} variants={itemVariants} className="h-full flex">
