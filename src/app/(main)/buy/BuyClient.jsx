@@ -29,7 +29,7 @@ const PRICE_RANGES = [
 
 const CITIES = ["All", "Hisar", "Delhi", "Chandigarh", "Jaipur", "Gurugram", "Mumbai", "Bangalore"];
 
-export default function BuyClient() {
+export default function BuyClient({ contentGuide } = {}) {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
     type: "All",
@@ -283,6 +283,8 @@ export default function BuyClient() {
       <FilterDialog open={showMobileFilters} onClose={() => setShowMobileFilters(false)} label="Filters" desktopQuery="(min-width: 1024px)" footer={<button type="button" onClick={() => setShowMobileFilters(false)} className={styles.applyButton}><Search size={17} />View properties</button>}>
         <BuyFilters filters={filters} onChange={handleFilterChange} onClear={clearFilters} hasActiveFilters={hasActiveFilters} idPrefix="buy-mobile" types={PROPERTY_TYPES} cities={CITIES} priceRanges={PRICE_RANGES} bhkOptions={BHK_OPTIONS} bedroomOptions={BEDROOM_OPTIONS} />
       </FilterDialog>
+
+      {contentGuide}
 
       <Footer />
     </main>

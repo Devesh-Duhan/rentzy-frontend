@@ -50,6 +50,9 @@ const nextConfig = {
     return [
       { source: '/:path*', has: [{ type: 'host', value: 'www.rentzypro.com' }], destination: 'https://rentzypro.com/:path*', permanent: true },
       { source: '/:path*', has: [{ type: 'host', value: 'rentzypro.com' }, { type: 'header', key: 'x-forwarded-proto', value: 'http' }], destination: 'https://rentzypro.com/:path*', permanent: true },
+      // The former Homes listing page was removed; retain shared category/featured links.
+      { source: '/properties', has: [{ type: 'query', key: 'featured', value: 'true' }], destination: '/featured-properties/1', permanent: true },
+      { source: '/properties', destination: '/search', permanent: true },
       { source: '/site.webmanifest', destination: '/manifest.webmanifest', permanent: true },
     ];
   },

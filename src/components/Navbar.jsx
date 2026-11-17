@@ -19,7 +19,7 @@ import {
 
 const BOTTOM_NAV_ITEMS = [
   { id: "home", icon: Home, label: "Home", href: "/" },
-  { id: "search", icon: Search, label: "Explore", href: "/properties" },
+  { id: "search", icon: Search, label: "Explore", href: "/search" },
   { id: "add", icon: PlusCircle, label: "Add", href: "/add", auth: true },
   { id: "wishlist", icon: Heart, label: "Saved", href: "/wishlist" },
   { id: "profile", icon: UserCircle, label: "Profile", href: "/profile" },
@@ -136,7 +136,6 @@ export default function Navbar() {
           {/* Center Nav Links */}
           <nav className="market-tabs hidden lg:flex items-center gap-1">
             {[
-              { label: "Homes", href: "/properties" },
               { label: "Buy", href: "/buy" },
               { label: "Rent", href: "/rent" },
               { label: "Sell", href: "/sell" },
@@ -159,33 +158,6 @@ export default function Navbar() {
           {/* Right Actions */}
           <div className="flex items-center gap-1">
             <Link prefetch={false} href={user && ["seller", "admin"].includes(user.role) ? "/add" : "/become-seller"} className="market-host-link">Become a host</Link>
-            {/* Existing quick actions remain available in account/mobile menus. */}
-            <div className="hidden">
-              {BOTTOM_NAV_ITEMS.map((item) => {
-                const { href, needsLogin } = resolveNavItem(item, mounted, user);
-                const active = !needsLogin && isActive(item.href);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.id}
-                    href={href}
-                    prefetch={['profile', 'wishlist', 'add'].includes(item.id) ? false : null}
-                    aria-label={needsLogin ? `${item.label} (sign in required)` : item.label}
-                    className={`relative p-2.5 rounded-xl transition-all ${
-                      active
-                        ? "text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-500/10"
-                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <Icon size={20} strokeWidth={active ? 2.5 : 1.5} />
-                    {item.id === "wishlist" && user && (
-                      <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-rose-500 text-white text-[7px] font-bold rounded-full flex items-center justify-center">0</span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-
             {/* Separator */}
             <div className="hidden md:block w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1" />
 

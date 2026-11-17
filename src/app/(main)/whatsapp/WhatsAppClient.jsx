@@ -26,7 +26,7 @@ const features = [
   { icon: TrendingUp, title: "Price Updates", desc: "Receive price drop alerts and market trend updates" },
 ];
 
-export default function WhatsAppClient() {
+export default function WhatsAppClient({ contentGuide } = {}) {
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [showSubscribeModal, setShowSubscribeModal] = useState(false);
   const [phone, setPhone] = useState("");
@@ -199,6 +199,8 @@ export default function WhatsAppClient() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {contentGuide}
 
       <Footer />
     </main>

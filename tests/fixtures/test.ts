@@ -31,7 +31,7 @@ export const test = base.extend<{ api: MockApi; mockRoutes: void }>({
   mockRoutes: [async ({ context, page, api, baseURL }, provide, testInfo) => {
     const errors: string[] = [], unhandled: string[] = [];
     let releaseLease: (()=>Promise<void>)|undefined;
-    if (/(blogs|rendering|structured-data|feed)\.spec\.ts$/.test(testInfo.file)) {
+    if (/(blogs|rendering|structured-data|feed|markdown)\.spec\.ts$/.test(testInfo.file)) {
       const apiURL=process.env.SEO_TEST_API_URL || 'http://127.0.0.1:'+(Number(new URL(baseURL!).port)+1);
       if(!['localhost','127.0.0.1'].includes(new URL(apiURL).hostname))throw new Error('Test controls require loopback');
       const owner=testInfo.testId+'-'+testInfo.project.name;
@@ -57,6 +57,7 @@ export const test = base.extend<{ api: MockApi; mockRoutes: void }>({
       const body = (request.postData() ? request.postDataJSON() : {}) as Partial<Blog> & { email?: string; password?: string; otp?: string; role?: Role; propertyId?: string };
       let status = 200, data: unknown;
       if (path === '/settings') data = {};
+      else if (path === '/testimonials') data = [];
       else if (path === '/categories') data = [{ _id: propertyId, name: 'Apartment', slug: 'apartment', isActive: true }];
       else if (path === '/notifications') data = { notifications: [], unreadCount: 0 };
       else if (path === '/properties') {

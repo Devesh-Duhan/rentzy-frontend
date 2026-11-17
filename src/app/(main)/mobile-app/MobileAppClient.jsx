@@ -31,7 +31,7 @@ const features = [
   { icon: Star, title: "Save Favorites", desc: "Bookmark properties and compare them easily" },
 ];
 
-export default function MobileAppClient() {
+export default function MobileAppClient({ contentGuide } = {}) {
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
@@ -202,6 +202,8 @@ export default function MobileAppClient() {
           </p>
         </motion.div>
       </div>
+
+      {contentGuide}
 
       <Footer />
     </main>

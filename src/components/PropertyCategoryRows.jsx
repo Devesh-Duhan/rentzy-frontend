@@ -1,6 +1,5 @@
 "use client";
 
-import filterUiStyles from "@/components/filters/Filters.module.css";
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
@@ -8,7 +7,7 @@ import { ArrowRight, BedDouble, Building2, ChevronLeft, ChevronRight, Home, Land
 import axios from '@/lib/axios';
 import { cardProperty } from '@/lib/property';
 import useNearViewport from '@/lib/useNearViewport';
-import { HOME_CATEGORIES, HOME_PREVIEW_LIMIT, homeQueryKey } from '@/lib/home-properties';
+import { HOME_CATEGORIES, HOME_PREVIEW_LIMIT, homeQuery, homeQueryKey } from '@/lib/home-properties';
 import PropertyCard from './PropertyCard';
 import PropertySkeleton from './PropertySkeleton';
 import styles from './PropertyCategoryRows.module.css';
@@ -19,30 +18,23 @@ const PREVIEW_LIMIT = HOME_PREVIEW_LIMIT;
 
 function CategoryRow({ category: { value, title, icon: Icon, featured = false }, initialError = false }) {
   const [sectionRef, visible] = useNearViewport();
-  const [purpose, setPurpose] = useState('sell');
   const [retryRequested, setRetryRequested] = useState(false);
-  const failedSeed = initialError && !retryRequested && (!featured || purpose === 'sell');
+  const failedSeed = initialError && !retryRequested;
   const rail = useRef(null);
   const [edges, setEdges] = useState({ start: true, end: true });
   const { data, isPending: queryPending, isError: queryError, refetch } = useQuery({
-    queryKey: homeQueryKey({value,featured},purpose),
-    queryFn: async ({ signal }) => (await axios.get('/properties', { params: { ...(featured ? { featured: true, purpose } : { type: value }), page: 1, limit: PREVIEW_LIMIT }, signal })).data,
+    queryKey: homeQueryKey({value,featured}),
+    queryFn: async ({ signal }) => (await axios.get(`/properties?${homeQuery({value,featured})}`, { signal })).data,
     enabled: visible && !failedSeed,
     staleTime: 60000,
   });
   const isPending = queryPending && !failedSeed;
   const isError = queryError || failedSeed;
-  const properties = (data?.properties || [])
-    .filter(property => !featured || (Array.isArray(property.purpose) ? property.purpose : [property.purpose]).includes(purpose))
-    .slice(0, PREVIEW_LIMIT);
+  const properties = (data?.properties || []).slice(0, PREVIEW_LIMIT);
   const hasMore = (data?.count || 0) > properties.length;
   const headingId = `category-${value}`;
   const railId = `${headingId}-properties`;
-  const categoryHref = featured ? `/properties?featured=true&purpose=${purpose}` : `/properties?type=${value}`;
-
-  useEffect(() => {
-    if (featured && rail.current) rail.current.scrollLeft = 0;
-  }, [featured, purpose]);
+  const categoryHref = featured ? '/featured-properties/1' : `/properties?type=${value}`;
 
   useEffect(() => {
     const element = rail.current;
@@ -76,12 +68,9 @@ function CategoryRow({ category: { value, title, icon: Icon, featured = false },
           <button type="button" onClick={() => scroll(1)} disabled={edges.end || isPending} aria-label={`Next ${title.toLowerCase()}`} aria-controls={railId} className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-35 dark:bg-slate-800 dark:text-slate-200"><ChevronRight size={18} /></button>
         </div>
       </div>
-      {featured && <div role="group" aria-label="Featured property purpose" className="mb-4 inline-flex gap-1 rounded-full border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-900">
-        {[['sell', 'Sell'], ['rent', 'Rent']].map(([value, label]) => <button key={value} type="button" aria-pressed={purpose === value} aria-controls={railId} onClick={() => setPurpose(value)} className={(`min-h-11 rounded-full px-5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${purpose === value ? 'bg-rose-600 text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`) + " " + filterUiStyles.filterChoice}>{label}</button>)}
-      </div>}
-      {isError ? <div role="alert" className="rounded-2xl border border-slate-200 p-6 dark:border-slate-800"><p className="text-sm text-slate-500">We couldn&apos;t load {title.toLowerCase()}.</p><button type="button" onClick={() => { setRetryRequested(true); refetch(); }} className="mt-3 text-sm font-semibold text-indigo-600">Try again</button></div> : featured && !isPending && !properties.length ? <div id={railId} role="status" className="rounded-2xl border border-slate-200 p-6 text-sm text-slate-500 dark:border-slate-800">No featured properties for {purpose === 'sell' ? 'sale' : 'rent'} yet.</div> : (
+      {isError ? <div role="alert" className="rounded-2xl border border-slate-200 p-6 dark:border-slate-800"><p className="text-sm text-slate-500">We couldn&apos;t load {title.toLowerCase()}.</p><button type="button" onClick={() => { setRetryRequested(true); refetch(); }} className="mt-3 text-sm font-semibold text-indigo-600">Try again</button></div> : featured && !isPending && !properties.length ? <div id={railId} role="status" className="rounded-2xl border border-slate-200 p-6 text-sm text-slate-500 dark:border-slate-800">No featured properties yet.</div> : (
         <ul ref={rail} id={railId} aria-labelledby={headingId} aria-busy={isPending} tabIndex={0} className={styles.rail}>
-          {isPending ? Array.from({ length: 6 }, (_, index) => <li key={index} className={styles.item}><PropertySkeleton /></li>) : properties.map(property => <li key={property._id} className={styles.item}><PropertyCard {...cardProperty(featured ? { ...property, purpose: [purpose] } : property)} compact /></li>)}
+          {isPending ? Array.from({ length: 6 }, (_, index) => <li key={index} className={styles.item}><PropertySkeleton /></li>) : properties.map(property => <li key={property._id} className={styles.item}><PropertyCard {...cardProperty(property)} compact /></li>)}
           {!isPending && hasMore && <li className={styles.item}><Link href={categoryHref} aria-label={`See more ${title.toLowerCase()}`} className={styles.moreLink}><span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950"><Icon size={30} /></span><span className="inline-flex items-center gap-2 text-sm font-semibold sm:text-base">See more <ArrowRight size={18} /></span></Link></li>}
         </ul>
       )}

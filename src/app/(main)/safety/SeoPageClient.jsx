@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
 import { Shield, Eye, Lock, AlertTriangle } from "lucide-react";
 
-export default function SafetyTips() {
+export default function SafetyTips({ contentGuide } = {}) {
   const tips = [
     {
       title: "Verifying the Owner",
@@ -93,6 +93,8 @@ export default function SafetyTips() {
           </button>
         </div>
       </section>
+
+      {contentGuide}
 
       <Footer />
     </main>

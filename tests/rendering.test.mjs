@@ -12,7 +12,7 @@ test('missing fields and temporary failures have honest fallbacks',()=>{
  assert.equal(blogMetadata(null,'unavailable').robots.index,false);assert.equal(blogMetadata(article,'rental-guide').openGraph.images[0].url,'https://rentzypro.com/images/android-chrome-512x512.png');
  assert.equal(publicBlog({...article,content:undefined},true).content,undefined);assert.equal(publicBlog({...article,content:undefined}),null);
 });
-test('homepage queries remain bounded, separated by category and featured purpose',()=>{
+test('homepage queries remain bounded and category-specific without a featured purpose filter',()=>{
  assert.equal(HOME_CATEGORIES.length,7);for(const category of HOME_CATEGORIES){const query=new URLSearchParams(homeQuery(category));assert.equal(query.get('limit'),'10');assert.equal(query.get('page'),'1');}
- const featured=HOME_CATEGORIES[0];assert.notDeepEqual(homeQueryKey(featured,'sell'),homeQueryKey(featured,'rent'));assert.equal(new URLSearchParams(homeQuery(featured,'rent')).get('purpose'),'rent');
+ const featured=HOME_CATEGORIES[0];assert.equal(new URLSearchParams(homeQuery(featured)).get('purpose'),null);assert.equal(new URLSearchParams(homeQuery(featured)).get('featured'),'true');assert.notDeepEqual(homeQueryKey(featured),homeQueryKey(HOME_CATEGORIES[1]));
 });

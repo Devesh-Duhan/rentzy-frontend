@@ -27,7 +27,7 @@ const PropertyMap = dynamic(() => import('@/components/PropertyMap'), { ssr: fal
 
 function Section({ id, title, children, sectionRef }) { return <section ref={sectionRef} id={id} className="scroll-mt-28 border-b border-slate-200 py-8 last:border-0 sm:py-10 dark:border-slate-800"><h2 className="mb-5 text-xl font-semibold tracking-tight">{title}</h2>{children}</section>; }
 
-export default function PropertyDetailClient({ id, initialData, initialError = false }) {
+export default function PropertyDetailClient({ id, initialData, initialError = false, contentGuide }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useSelector(state => state.auth);
@@ -126,6 +126,7 @@ export default function PropertyDetailClient({ id, initialData, initialError = f
         </div>
         <span ref={relatedRef} aria-hidden="true" className="block h-px" />
         {related.length > 0 && <section className="mt-12 border-t border-slate-200 pt-12 dark:border-slate-800"><div className="mb-7 flex flex-wrap items-center justify-between gap-4"><h2 className="section-heading">A few more places to consider</h2><Link href={`/search?type=${encodeURIComponent(propertyType(property.type))}`} className="flex items-center gap-2 text-sm font-semibold text-indigo-600">Explore more <ArrowUpRight size={17} /></Link></div><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{related.map(item => <PropertyCard key={item._id} {...cardProperty(item)} />)}</div></section>}
+        {contentGuide}
       </main>
       <div className="fixed inset-x-0 bottom-[var(--bottom-nav-height)] z-40 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-md md:bottom-0 lg:hidden dark:border-slate-800 dark:bg-slate-900/95"><div className="min-w-0"><p className="text-[10px] text-slate-500">{sale ? 'Asking price' : 'Monthly rent'}</p><p className="truncate text-lg font-semibold">{formatMoney(property.price)}</p></div><a href="#overview" className="sr-only">Property overview</a><button onClick={() => document.querySelector('aside')?.scrollIntoView({ behavior: 'smooth', block: 'center' })} className="btn-primary flex min-h-11 items-center gap-2 !px-5 !py-2.5 text-sm">Contact owner <ArrowUpRight size={16} /></button></div>
       <Footer />

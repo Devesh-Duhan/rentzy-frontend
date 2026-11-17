@@ -13,7 +13,8 @@
     "test:e2e:report": "playwright show-report",
     "test:seo": "node --test tests/seo.test.mjs tests/property-seo.test.mjs tests/technical-seo.test.mjs tests/rendering.test.mjs tests/schema.test.mjs tests/production-audit.test.mjs",
     "test:branding": "node --test tests/branding.test.mjs",
-    "test:auth": "node --test tests/google-signin.test.mjs"
+    "test:auth": "node --test tests/google-signin.test.mjs",
+    "test:markdown": "node --test tests/markdown.test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -25,10 +26,15 @@
     "axios": "^1.15.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
+    "dompurify": "3.4.17",
     "firebase": "^12.13.0",
     "framer-motion": "^12.38.0",
+    "github-markdown-css": "5.3.0",
+    "highlight.js": "11.9.0",
+    "isomorphic-dompurify": "2.26.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.7.0",
+    "marked": "9.1.6",
     "next": "15.5.27",
     "react": "19.2.4",
     "react-dom": "19.2.4",

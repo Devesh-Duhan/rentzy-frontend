@@ -23,7 +23,6 @@ const privatePage = (canonical, title, description) => page(canonical, title, de
 
 export const PAGE_SEO = {
   '/': page('/', 'RentzyPro | Rental Homes & Properties', 'Find rental homes and properties on RentzyPro. Explore listings in Hisar, review property details and contact owners.'),
-  '/properties': page('/properties', 'Browse Properties', 'Browse RentzyPro property listings. Filter by location, property type and budget to find a place that suits your needs.'),
   '/rent': page('/rent', 'Homes & Properties for Rent', 'Explore properties for rent on RentzyPro. Compare rental homes, review listing details and get in touch with landlords.'),
   '/buy': page('/buy', 'Properties for Sale', 'Browse properties for sale on RentzyPro. Compare locations, prices and property details before contacting the owner.'),
   '/sell': page('/sell', 'List Your Property', 'Learn how to list your property on RentzyPro and share its details with people searching for a home or rental property.'),
@@ -42,7 +41,7 @@ export const PAGE_SEO = {
   '/tenant-screening': page('/tenant-screening', 'Tenant Screening Information', 'Explore tenant screening information on RentzyPro and learn about checks landlords can consider when reviewing rental applications.'),
   '/mobile-app': page('/mobile-app', 'Mobile App', 'Find information about the RentzyPro mobile app and the available ways to browse properties on your mobile device.'),
   '/testimonials': page('/testimonials', 'Community Testimonials', 'Read testimonials shared on RentzyPro about using the website to search for properties and connect with owners.'),
-  '/refer': page('/refer', 'Refer RentzyPro', 'Find out how to share RentzyPro with someone searching for a property or looking to list a rental home.'),
+  '/refer': privatePage('/refer', 'Referrals', 'Manage referral information for your RentzyPro account.'),
   '/whatsapp': page('/whatsapp', 'WhatsApp Contact', 'Find the WhatsApp contact options on RentzyPro for property enquiries and questions about using the website.'),
   '/login': page('/login', 'Sign In', 'Sign in to your RentzyPro account to manage saved properties, contact owners and access your account features.', { robots: { index: false, follow: true }, sitemap: false }),
   '/register': page('/register', 'Create an Account', 'Create a RentzyPro account to explore rental homes, save properties and connect with landlords and property owners.', { robots: { index: false, follow: true }, sitemap: false }),

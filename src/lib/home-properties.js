@@ -8,5 +8,5 @@ export const HOME_CATEGORIES = [
   { value: 'industrial', title: 'Industrial spaces' },
   { value: 'short_term', title: 'Short-term stays' },
 ];
-export const homeQueryKey = (category, purpose = 'sell') => ['home','category',category.value,HOME_PREVIEW_LIMIT,...(category.featured?[purpose]:[])];
-export const homeQuery = (category, purpose = 'sell') => new URLSearchParams({...(category.featured?{featured:'true',purpose}:{type:category.value}),page:'1',limit:String(HOME_PREVIEW_LIMIT)}).toString();
+export const homeQueryKey = category => ['home','category',category.value,HOME_PREVIEW_LIMIT];
+export const homeQuery = category => new URLSearchParams({...(category.featured?{featured:'true'}:{type:category.value}),page:'1',limit:String(HOME_PREVIEW_LIMIT)}).toString();

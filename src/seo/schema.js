@@ -62,7 +62,7 @@ export function breadcrumbSchema(items) {
 }
 
 export const propertyBreadcrumbs = property => [
-  {name:STRUCTURED_SEO.home,path:'/'}, {name:STRUCTURED_SEO.properties,path:'/properties'},
+  {name:STRUCTURED_SEO.home,path:'/'}, {name:STRUCTURED_SEO.properties,path:'/search'},
   {name:text(property.title),path:'/properties/'+String(property._id).toLowerCase()},
 ];
 export const articleBreadcrumbs = blog => [
@@ -126,7 +126,7 @@ export function propertyContextLinks(property) {
   const purposes = Array.isArray(property.purpose) ? property.purpose : [property.purpose];
   const rent = purposes.length === 1 && purposes[0] === 'rent';
   const sale = purposes.length === 1 && purposes[0] === 'sell';
-  const links = [{name:rent?STRUCTURED_SEO.rentalLink:sale?STRUCTURED_SEO.saleLink:STRUCTURED_SEO.allLink,path:rent?'/rent':sale?'/buy':'/properties'}];
+  const links = [{name:rent?STRUCTURED_SEO.rentalLink:sale?STRUCTURED_SEO.saleLink:STRUCTURED_SEO.allLink,path:rent?'/rent':sale?'/buy':'/search'}];
   const city = text(property.location?.city);
   if (city && city.length <= 100) links.push({name:STRUCTURED_SEO.cityLink.replace('{city}',city),path:'/search?'+new URLSearchParams({city})});
   return links;

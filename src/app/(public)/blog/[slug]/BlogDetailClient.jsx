@@ -21,6 +21,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Footer from "@/components/Footer";
+import MarkdownViewer from "@/components/markdown/MarkdownViewer";
 import JsonLd from '@/seo/JsonLd';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { articleSchema, articleBreadcrumbs } from '@/seo/schema';
@@ -205,17 +206,7 @@ export default function SingleBlogPage({ initialData, initialError = false }) {
           )}
 
           {/* Article Full Body */}
-          <div className="prose prose-slate dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 text-base sm:text-lg leading-relaxed space-y-6">
-            {blog.content ? (
-              blog.content.split("\n\n").map((paragraph, index) => (
-                <p key={index} className="whitespace-pre-line leading-relaxed">
-                  {paragraph}
-                </p>
-              ))
-            ) : (
-              <p>No content provided for this article.</p>
-            )}
-          </div>
+          <MarkdownViewer content={blog.content} headingOffset={1} />
 
           {/* Tags */}
           {Array.isArray(blog.tags) && blog.tags.length > 0 && (

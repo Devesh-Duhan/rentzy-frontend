@@ -29,7 +29,7 @@ const screeningFeatures = [
   { icon: FileText, title: "Landlord Reference", desc: "Verify rental history with previous landlords" },
 ];
 
-export default function TenantScreeningClient() {
+export default function TenantScreeningClient({ contentGuide } = {}) {
   const { user } = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
     name: "",
@@ -112,6 +112,7 @@ export default function TenantScreeningClient() {
             <ArrowRight size={18} /> {user ? "Become a Seller" : "Sign In"}
           </Link>
         </div>
+        {contentGuide}
         <Footer />
       </main>
     );
@@ -269,6 +270,8 @@ export default function TenantScreeningClient() {
           </p>
         </motion.div>
       </div>
+
+      {contentGuide}
 
       <Footer />
     </main>

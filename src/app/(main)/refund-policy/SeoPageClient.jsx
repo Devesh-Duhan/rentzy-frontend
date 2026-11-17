@@ -3,9 +3,9 @@ import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
 import { ShieldAlert, RefreshCcw, HelpCircle, Clock } from "lucide-react";
 
-const RefundPolicyPage = () => {
+const RefundPolicyPage = ({ contentGuide } = {}) => {
   return (
-    <div className="min-h-screen bg-background pt-24 pb-20 md:pt-32">
+    <main className="min-h-screen bg-background pt-24 pb-20 md:pt-32">
       <div className="app-container max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -80,7 +80,9 @@ const RefundPolicyPage = () => {
           </a>
         </motion.div>
       </div>
-    </div>
+      {contentGuide}
+
+    </main>
   );
 };
 

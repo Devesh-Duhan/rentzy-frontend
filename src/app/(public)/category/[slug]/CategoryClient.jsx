@@ -20,7 +20,7 @@ import Footer from "@/components/Footer";
 import axiosInstance from "@/lib/axios";
 import PropertyCard from "@/components/PropertyCard";
 
-export default function CategoryPage({ params }) {
+export default function CategoryPage({ params, contentGuide }) {
   const resolvedParams = params && typeof params.then === "function" ? React.use(params) : params;
   const slug = resolvedParams?.slug;
   const router = useRouter();
@@ -100,7 +100,7 @@ export default function CategoryPage({ params }) {
   const activeSub = activeSubIndex !== null && displayCategory.sub ? displayCategory.sub[activeSubIndex] : null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Hero Banner */}
       <section className="relative pt-36 pb-20 bg-gradient-to-br from-indigo-700 via-purple-700 to-slate-900 overflow-hidden text-white">
         <div className="absolute inset-0 pointer-events-none">
@@ -283,7 +283,8 @@ export default function CategoryPage({ params }) {
         </div>
       </section>
 
+      {contentGuide}
       <Footer />
-    </div>
+    </main>
   );
 }

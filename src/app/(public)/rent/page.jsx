@@ -1,3 +1,4 @@
+import PageGuide from '@/components/content/PageGuide';
 import RentClient from './RentClient';
 import { getPublicListings } from '@/seo/property.server';
 import { listingMetadata, toSearchParams } from '@/seo/property-seo';
@@ -7,5 +8,5 @@ export async function generateMetadata({ searchParams }) {
 }
 export default async function RentPage() {
   const result = await getPublicListings('/properties',query);
-  return <RentClient initialData={result.data} initialError={result.state === 'error'} />;
+  return <RentClient initialData={result.data} initialError={result.state === 'error'}  contentGuide={<PageGuide page="rent" />} />;
 }

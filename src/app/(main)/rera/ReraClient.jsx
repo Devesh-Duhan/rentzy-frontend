@@ -21,7 +21,7 @@ import Link from "next/link";
 import axios from "@/lib/axios";
 import Footer from "@/components/Footer";
 
-export default function ReraClient() {
+export default function ReraClient({ contentGuide } = {}) {
   const [searchRera, setSearchRera] = useState("");
 
   const { data: reraProperties, isLoading } = useQuery({
@@ -59,10 +59,10 @@ export default function ReraClient() {
   }, [reraProperties, searchRera]);
 
   const reraInfoCards = [
-    { icon: ShieldCheck, title: "Project Transparency", desc: "Developers must disclose all project details, approvals, and timelines" },
-    { icon: Scale, title: "Buyer Protection", desc: "Legal framework protects homebuyers from delays and fraudulent practices" },
-    { icon: Award, title: "Registered Projects", desc: "Only RERA registered projects can advertise and sell properties" },
-    { icon: BookOpen, title: "Regular Updates", desc: "Developers must provide quarterly updates on project progress" },
+    { icon: ShieldCheck, title: "Project Transparency", desc: "Compare recorded project details, approvals and timelines with the relevant official record" },
+    { icon: Scale, title: "Buyer Protection", desc: "Review the available records and seek qualified help for document questions" },
+    { icon: Award, title: "Registered Projects", desc: "Check the recorded registration number with the appropriate authority" },
+    { icon: BookOpen, title: "Regular Updates", desc: "Read the current official record rather than relying only on a document image" },
   ];
 
   return (
@@ -78,7 +78,7 @@ export default function ReraClient() {
               RERA Registered <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-400">Properties</span>
             </h1>
             <p className="text-lg md:text-xl text-emerald-200 font-medium max-w-2xl mx-auto">
-              RERA registration ensures project transparency and buyer protection
+              Review recorded project information and confirm details with the appropriate official authority
             </p>
           </motion.div>
 
@@ -204,6 +204,8 @@ export default function ReraClient() {
           </p>
         </motion.div>
       </div>
+
+      {contentGuide}
 
       <Footer />
     </main>

@@ -7,7 +7,7 @@ test('favicon is the original ICO, served directly with the right MIME; old URL 
  const response=await request.get('/favicon.ico',{maxRedirects:0});
  expect(response.status()).toBe(200);expect(response.headers()['content-type']).toMatch(/^image\/(x-icon|vnd.microsoft.icon)/);
  expect((await response.body()).equals(fs.readFileSync('public/favicon.ico'))).toBe(true);
- const legacy=await request.get('/favicon',{maxRedirects:0});expect(legacy.status()).toBe(307);expect(legacy.headers().location).toMatch(/\/favicon.ico$/);
+ const legacy=await request.get('/favicon',{maxRedirects:0});expect(legacy.status()).toBe(308);expect(legacy.headers().location).toMatch(/\/favicon.ico$/);
 });
 test('manifest is complete, every declared icon decodes at its real size, and legacy manifest redirects',async({request,page})=>{
  const response=await request.get('/manifest.webmanifest');expect(response.status()).toBe(200);expect(response.headers()['content-type']).toMatch(/application\/manifest\+json/);

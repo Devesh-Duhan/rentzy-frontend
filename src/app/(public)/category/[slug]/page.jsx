@@ -1,3 +1,4 @@
+import PageGuide from '@/components/content/PageGuide';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import CategoryClient from './CategoryClient';
@@ -28,5 +29,5 @@ export default async function CategoryPage({ params, searchParams }) {
   const snapshot = await getPublicListings('/properties', new URLSearchParams({ type: result.category.slug }).toString());
   const entries = [{ key: ['public-category', slug], data: result.category }];
   if (snapshot.data) entries.push({ key: ['category-properties', slug, result.category.slug, null], data: snapshot.data.properties });
-  return <PublicQueryBoundary entries={entries}><CategoryClient params={{ slug }} /></PublicQueryBoundary>;
+  return <PublicQueryBoundary entries={entries}><CategoryClient params={{ slug }} contentGuide={snapshot.data?.count > 0 ? <PageGuide page="category" subject={result.category.name} /> : null} /></PublicQueryBoundary>;
 }

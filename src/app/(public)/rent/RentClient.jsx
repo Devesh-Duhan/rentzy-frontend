@@ -30,7 +30,7 @@ const PRICE_RANGES = [
 
 const CITIES = ["All", "Hisar", "Delhi", "Chandigarh", "Jaipur", "Gurugram", "Mumbai", "Bangalore"];
 
-export default function RentClient({ initialData, initialError = false } = {}) {
+export default function RentClient({ initialData, initialError = false, contentGuide } = {}) {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
     type: "All",
@@ -292,6 +292,8 @@ export default function RentClient({ initialData, initialError = false } = {}) {
       </section>
 
       <FilterDialog open={showMobileFilters} onClose={() => setShowMobileFilters(false)} label="Filters" footer={<button type="button" onClick={() => setShowMobileFilters(false)} className={styles.applyButton}><Search size={17} />View properties</button>}>{renderFilters('rent-mobile')}</FilterDialog>
+
+      {contentGuide}
 
       <Footer />
     </main>

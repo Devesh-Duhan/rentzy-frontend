@@ -7,7 +7,7 @@ import { useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import axios from "@/lib/axios";
 
-export default function ContactPage() {
+export default function ContactPage({ contentGuide } = {}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const sending = useRef(false);
@@ -220,6 +220,8 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+
+      {contentGuide}
 
       <Footer />
     </main>

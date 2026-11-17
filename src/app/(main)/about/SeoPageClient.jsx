@@ -5,12 +5,12 @@ import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
 import { Users, Building2, MapPin, TrendingUp, ShieldCheck } from "lucide-react";
 
-export default function AboutPage() {
+export default function AboutPage({ contentGuide } = {}) {
   const stats = [
-    { label: "Happy Customers", value: "10,000+", icon: Users },
-    { label: "Premium Properties", value: "5,000+", icon: Building2 },
-    { label: "Cities Covered", value: "50+", icon: MapPin },
-    { label: "Brokerage Saved", value: "₹50Cr+", icon: TrendingUp },
+    { label: "Published listings", value: "Browse", icon: Users },
+    { label: "Property details", value: "Compare", icon: Building2 },
+    { label: "Contact options", value: "Enquire", icon: MapPin },
+    { label: "Seller workspace", value: "Manage", icon: TrendingUp },
   ];
 
   return (
@@ -22,7 +22,7 @@ export default function AboutPage() {
           <div className="app-container relative z-10 w-full">
             <div className="max-w-3xl mx-auto text-center pt-20 md:pt-32 pb-16">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
               >
@@ -32,7 +32,7 @@ export default function AboutPage() {
               </motion.div>
 
               <motion.h1
-                initial={{ opacity: 0, y: 20 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="section-title text-4xl md:text-6xl lg:text-7xl !leading-tight mb-6"
@@ -41,12 +41,12 @@ export default function AboutPage() {
               </motion.h1>
 
               <motion.p
-                initial={{ opacity: 0, y: 20 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="section-subtitle text-base md:text-lg max-w-2xl mx-auto"
               >
-                rentzypro was founded on a simple principle: finding a home shouldn't be stressful, and it definitely shouldn't cost you an entire month's rent in hidden brokerage fees.
+                RentzyPro helps you explore published property listings, compare their details and prepare an informed enquiry. Start with your requirements, review the available information and confirm important details before making a decision.
               </motion.p>
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function AboutPage() {
         {/* Stats */}
         <section className="app-container -mt-10 relative z-20 mb-20">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 md:p-8 rounded-2xl glass-effect"
@@ -76,22 +76,22 @@ export default function AboutPage() {
         <section className="app-container mb-20">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
+              initial={false}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
               <h2 className="section-title text-3xl md:text-5xl !leading-tight mb-6">Built for the <br />Modern Renter</h2>
               <p className="text-muted-foreground text-base md:text-lg mb-8 leading-relaxed">
-                For decades, the standard real estate market heavily favored the middlemen. We built rentzypro to democratize property leasing by empowering landlords and tenants to interact directly—yielding faster decisions, absolute transparency, and immense savings.
+                Our website brings property browsing, search and account tools into one place. Advertisers supply the details of their premises, sellers manage their submissions, and administration approval controls which listings become public. Property decisions still require your own checks and direct clarification of the proposed terms.
               </p>
               <div className="space-y-5">
                  – 
                 {[
-                  { title: "100% Transparency", desc: "Clear property details, pricing, and rental information." },
-                  { title: "Verified Listings", desc: "Every property goes through a rigorous verification process." },
-                  { title: "Direct Contact", desc: "Talk directly to the owner via WhatsApp or Call." },
-                  { title: "Faster Decisions", desc: "Discover properties, connect, and finalize deals quickly." }
+                  { title: "Property information", desc: "Clear property details, pricing, and rental information." },
+                  { title: "Verified Listings", desc: "Listings require approval before publication; confirm documents and condition independently." },
+                  { title: "Direct Contact", desc: "Use the contact options on a property page to ask questions and arrange a viewing." },
+                  { title: "Faster Decisions", desc: "Compare your shortlist and clarify missing information before committing." }
                 ].map((val, i) => (
                   <div key={i} className="flex items-start gap-4">
                     <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -106,7 +106,7 @@ export default function AboutPage() {
               </div>
             </motion.div>
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
+              initial={false}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
@@ -124,6 +124,8 @@ export default function AboutPage() {
             </motion.div>
           </div>
         </section>
+      {contentGuide}
+
       </main>
 
       <Footer />

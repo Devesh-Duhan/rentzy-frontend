@@ -10,7 +10,7 @@ import { Building2, Home, MapPin, Mail } from "lucide-react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 
-export default function ProjectsClient() {
+export default function ProjectsClient({ contentGuide } = {}) {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["projects-builders"],
     queryFn: async () => {
@@ -120,12 +120,14 @@ export default function ProjectsClient() {
           className="mt-12 text-center p-6 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl border border-indigo-100 dark:border-indigo-900/50"
         >
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Are you a property developer?</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">List your projects and reach thousands of potential buyers directly</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">List your property and share its details with people browsing RentzyPro</p>
           <Link href="/add" className="inline-flex btn-primary">
             List Your Properties
           </Link>
         </motion.div>
       </div>
+      {contentGuide}
+
       <Footer />
     </main>
   );

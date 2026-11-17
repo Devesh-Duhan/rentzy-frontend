@@ -1,4 +1,5 @@
 import { cache } from 'react';
+import { listingCardData } from '../lib/listing-card-data.js';
 import { PROPERTY_SEO } from './seo.constants.js';
 import { isPublicListing, validPropertyId } from './property-seo.js';
 
@@ -28,6 +29,6 @@ export const getPublicListings = cache(async (endpoint, query) => {
   const rows = result.data?.properties || result.data?.data;
   const count = result.data?.count;
   if (!Array.isArray(rows) || !Number.isSafeInteger(count) || count < rows.length || rows.some(property => !isPublicListing(property))) return { state: 'error', data: null };
-  const clean = rows.map(({ listingPayment, contactNumber, ...property }) => { void listingPayment; void contactNumber; return property; });
+  const clean = rows.map(listingCardData);
   return { state: 'ok', data: { ...result.data, ...(Array.isArray(result.data.properties) ? { properties: clean } : {}), ...(Array.isArray(result.data.data) ? { data: clean } : {}) } };
 });

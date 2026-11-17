@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import Footer from "@/components/Footer";
 
-export default function GalleryClient() {
+export default function GalleryClient({ contentGuide } = {}) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
@@ -342,6 +342,8 @@ export default function GalleryClient() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {contentGuide}
 
       <Footer />
     </main>

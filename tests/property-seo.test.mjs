@@ -1,3 +1,4 @@
+import { listingCardData } from '../src/lib/listing-card-data.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { properties } from './fixtures/data.mjs';
@@ -61,7 +62,7 @@ test('rental inventory metadata uses real count; filters, empty inventory and fa
  assert.equal(listingMetadata('/rent',new URLSearchParams('sort=price'),snapshot()).robots.index,false);
  assert.equal(listingMetadata('/rent',new URLSearchParams(),snapshot([],0)).robots.index,false);
  assert.equal(listingMetadata('/rent',new URLSearchParams(),{state:'error',data:null}).robots.index,false);
- for(const route of ['/buy','/properties']) assert.equal(filterMetadata(route,new URLSearchParams('type=room')).robots.index,false);
+ for(const route of ['/buy']) assert.equal(filterMetadata(route,new URLSearchParams('type=room')).robots.index,false);
 });
 test('server and browser search query normalization use identical existing filters',()=>{
  assert.equal(searchQuery(toSearchParams({city:'Hisar',purpose:'rent',utm_source:'ad'})),'purpose=rent&city=Hisar&sort=relevance&page=1');
@@ -71,4 +72,21 @@ test('server and browser search query normalization use identical existing filte
 test('a record cannot supply metadata for another property identifier',()=>{
  const result=propertyMetadata(home,'999999999999999999999999');
  assert.equal(result.robots.index,false);assert.doesNotMatch(JSON.stringify(result),/Sunny|home-interior/);
+});
+
+test('listing hydration keeps card facts, galleries, prices and public eligibility', () => {
+ const source={...home,images:['/one.jpg','/two.jpg'],price:0,bedrooms:0,areaSqFt:0,featured:false,isSaved:false,postedBy:'owner',pricePerSqft:25};
+ const result=listingCardData(source);
+ for(const key of ['_id','title','type','purpose','price','location','images','bedrooms','bathrooms','areaSqFt','featured','isSaved','postedBy','pricePerSqft'])assert.deepEqual(result[key],source[key],key);
+ assert.equal(isPublicListing(result),true);assert.equal(result.images.length,2);
+ assert.equal(propertyMetadata(result,result._id).robots.index,true);
+});
+
+test('listing hydration omits unused long content and owner/payment objects without mutation', () => {
+ const source={...home,description:'Long public description '.repeat(100),sellerId:{name:'Owner',email:'OWNER_CONTACT'},listingPayment:{signature:'PRIVATE_PAYMENT'},contactNumber:'PRIVATE_PHONE',documents:['UNUSED_DOCUMENT'],adminNotes:'PRIVATE_NOTE'};
+ const result=listingCardData(source),serialized=JSON.stringify(result);
+ for(const key of ['description','sellerId','listingPayment','contactNumber','documents','adminNotes'])assert.equal(Object.hasOwn(result,key),false,key);
+ assert.ok(source.description);assert.equal(source.sellerId.email,'OWNER_CONTACT');
+ assert.ok(serialized.length<JSON.stringify(source).length/2);
+ assert.deepEqual(listingCardData({_id:home._id,title:home.title}),{_id:home._id,title:home.title});
 });

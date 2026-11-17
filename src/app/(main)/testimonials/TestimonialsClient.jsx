@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import Footer from "@/components/Footer";
 
-export default function TestimonialsClient() {
+export default function TestimonialsClient({ contentGuide } = {}) {
   const [ratingFilter, setRatingFilter] = useState(0);
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -35,7 +35,7 @@ export default function TestimonialsClient() {
           className="text-center mb-10"
         >
           <h1 className="section-title">What Our Users Say</h1>
-          <p className="section-subtitle">Hear from our happy customers</p>
+          <p className="section-subtitle">Read the experiences shared by customers</p>
         </motion.div>
 
         <div className="flex justify-center gap-2 mb-10">
@@ -106,6 +106,8 @@ export default function TestimonialsClient() {
           </div>
         )}
       </div>
+      {contentGuide}
+
       <Footer />
     </main>
   );

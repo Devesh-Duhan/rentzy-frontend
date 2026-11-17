@@ -57,7 +57,7 @@ const FILTER_LABELS = {
   maxArea: "Max Area",
 };
 
-export default function SearchClient({ initialData, initialQuery, initialError = false } = {}) {
+export default function SearchClient({ initialData, initialQuery, initialError = false, contentGuide } = {}) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -413,6 +413,7 @@ export default function SearchClient({ initialData, initialQuery, initialError =
             </div>
           </div>
         </section>
+        {contentGuide}
       </main>
       <Footer />
     </div>
