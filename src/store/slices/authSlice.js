@@ -1,23 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../lib/axios';
 
-// The JWT lives in localStorage for XHR, and is mirrored into a cookie so the
-// Next.js middleware can guard /admin and /seller on the server. These two
-// stores MUST be kept in sync - setToken/clearToken are the only writers.
-const setToken = (token) => {
-  if (typeof window === 'undefined' || !token) return;
-  localStorage.setItem('token', token);
-  document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
-  document.cookie = `rentzy_token=${token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
-};
-
-const clearToken = () => {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('token');
-  document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
-  localStorage.removeItem('user');
-  document.cookie = 'rentzy_token=; path=/; max-age=0; SameSite=Lax';
-};
+import { setSessionToken as setToken, clearSession as clearToken } from '../../lib/session';
 
 // Get user from localStorage safely in Next.js
 export const getUserFromStorage = () => {

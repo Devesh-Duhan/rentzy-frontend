@@ -159,3 +159,16 @@
 :global(body) .homeSearch :global(.stay-mobile-search) > svg:last-child { width: 20px; height: 20px; flex-shrink: 0; }
 
 @media (max-width: 767px) { .homeSearch { padding-inline: 4px; } }
+
+/* Compact desktop controls for Buy/Rent; mobile retains its 44px touch targets. */
+.compactContent { gap: 12px; }
+.compactContent .filterGroup:not(:last-child) { padding-bottom: 12px; }
+.compactContent .filterLabel { gap: 6px; margin-bottom: 8px; font-size: 11px; }
+.compactContent .groupIcon { width: 24px; height: 24px; border-radius: 7px; }
+.compactContent .typeOptions, .compactContent .numberOptions { gap: 5px; }
+.compactContent .option { min-height: 32px; padding: 6px 5px; border-radius: 9px; font-size: 11px; line-height: 18px; }
+.compactContent .selectWrap .select { min-height: 38px; padding-block: 8px; padding-inline-start: 10px; border-radius: 10px; font-size: 12px; }
+.compactContent .selectWrap > svg { display: none; }
+.compactContent .clearFilters { min-height: 36px; padding: 7px; border-radius: 10px; font-size: 11px; }
+
+@media (pointer: coarse) { .compactContent .option, .compactContent .selectWrap .select, .compactContent .clearFilters { min-height: 44px; } }

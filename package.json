@@ -13,7 +13,7 @@
     "test:e2e:report": "playwright show-report",
     "test:seo": "node --test tests/seo.test.mjs tests/property-seo.test.mjs tests/technical-seo.test.mjs tests/rendering.test.mjs tests/schema.test.mjs tests/production-audit.test.mjs",
     "test:branding": "node --test tests/branding.test.mjs",
-    "test:auth": "node --test tests/google-signin.test.mjs",
+    "test:auth": "node --test tests/google-signin.test.mjs tests/session.test.mjs",
     "test:markdown": "node --test tests/markdown.test.mjs"
   },
   "dependencies": {

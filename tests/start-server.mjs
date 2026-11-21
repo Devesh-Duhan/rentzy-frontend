@@ -18,7 +18,7 @@ await new Promise(resolve => api.listen(Number(process.env.PLAYWRIGHT_PORT || 31
 const apiURL = `http://127.0.0.1:${api.address().port}`;
 const child = spawn(process.execPath, [fileURLToPath(new URL('../node_modules/next/dist/bin/next', import.meta.url)), 'dev', '--hostname', '127.0.0.1', '--port', process.env.PLAYWRIGHT_PORT || '3100'], {
   stdio: 'inherit',
-  env: { ...process.env, PLAYWRIGHT_TEST: '1', NEXT_PUBLIC_API_URL: `${apiURL}/api`, NEXT_PUBLIC_BACKEND_URL: apiURL, NEXT_PUBLIC_URL: `http://127.0.0.1:${process.env.PLAYWRIGHT_PORT || 3100}` },
+  env: { ...process.env, PLAYWRIGHT_TEST: '1', NEXT_PUBLIC_SESSION_MAX_AGE_SECONDS: process.env.NEXT_PUBLIC_SESSION_MAX_AGE_SECONDS ?? '604800', NEXT_PUBLIC_API_URL: `${apiURL}/api`, NEXT_PUBLIC_BACKEND_URL: apiURL, NEXT_PUBLIC_URL: `http://127.0.0.1:${process.env.PLAYWRIGHT_PORT || 3100}` },
 });
 child.on('error', error => { console.error(error.message); api.close(); process.exitCode = 1; });
 child.on('exit', code => { api.close(); process.exitCode = code || 0; });

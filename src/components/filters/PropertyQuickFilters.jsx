@@ -2,9 +2,9 @@
 import { Building, MapPin, IndianRupee, ChevronDown, BedDouble, Home, RotateCcw } from "lucide-react";
 import styles from "./Filters.module.css";
 
-export default function PropertyQuickFilters({ filters, onChange, onClear, hasActiveFilters, idPrefix, types, cities, priceRanges, bhkOptions, bedroomOptions }) {
+export default function PropertyQuickFilters({ filters, onChange, onClear, hasActiveFilters, idPrefix, types, cities, priceRanges, bhkOptions, bedroomOptions, compact = false }) {
   const optionClass = selected => `${styles.option} ${selected ? styles.optionActive : ""}`;
-  return <div className={styles.filterContent}>
+  return <div className={`${styles.filterContent} ${compact ? styles.compactContent : ""}`}>
     <fieldset className={styles.filterGroup}>
       <legend className={styles.filterLabel}><span className={`${styles.groupIcon} ${styles.typeIcon}`}><Building size={15} /></span>Property Type</legend>
       <div className={styles.typeOptions}>{types.map(type => <button type="button" key={type} aria-pressed={filters.type === type} onClick={() => onChange("type", type)} className={optionClass(filters.type === type)}>{type}</button>)}</div>

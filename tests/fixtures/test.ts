@@ -10,7 +10,7 @@ const newApi = (): MockApi => ({ blogs: [], calls: [], saved: false, propertyErr
 export function testUser(role: Role = 'buyer', email = `${role}@example.test`) {
   const id = role === 'admin' ? 'aaaaaaaaaaaaaaaaaaaaaaaa' : role === 'seller' ? 'bbbbbbbbbbbbbbbbbbbbbbbb' : 'cccccccccccccccccccccccc';
   // Synthetic token is only for frontend route guards; this does not test backend JWT verification.
-  const payload = Buffer.from(JSON.stringify({ id, role, exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ id, role, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64url');
   return { _id: id, name: `Test ${role}`, email, role, token: `test.${payload}.test`, profileImage: '/icon.svg', createdAt: '2026-01-01T00:00:00.000Z' };
 }
 export async function signIn(context: BrowserContext, baseURL: string, role: Role = 'buyer') {

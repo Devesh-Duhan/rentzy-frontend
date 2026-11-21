@@ -19,7 +19,7 @@ async function captureStore(context: BrowserContext) {
       visit(fiber.child); visit(fiber.sibling);
     };
     Object.assign(window, { __REACT_DEVTOOLS_GLOBAL_HOOK__: {
-      supportsFiber: true, inject: () => 1,
+      supportsFiber: true, renderers: new Map(), inject: () => 1,
       onCommitFiberRoot: (_id: number, root: { current: Fiber }) => visit(root.current),
       onCommitFiberUnmount() {}, onPostCommitFiberRoot() {},
     } });

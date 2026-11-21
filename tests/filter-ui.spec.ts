@@ -33,8 +33,8 @@ test('Homes filters start above cards, keep actions visible and restore focus', 
 });
 
 for (const path of ['/buy', '/rent']) test(path + ' retains Buy-style quick controls and selected query values', async ({ page, api }) => {
-  await page.goto(path); await expect(page.locator('article')).toHaveCount(12);
-  const mobile = page.viewportSize()!.width < (path === '/buy' ? 1280 : 1024);
+  await page.goto(path); await expect(page.locator('article:has(a[href^="/properties/"])')).toHaveCount(12);
+  const mobile = page.viewportSize()!.width < 1024;
   if (mobile) await page.getByRole('button', { name: 'Filters', exact: true }).click();
   const panel = mobile ? page.getByRole('dialog', { name: 'Filters', exact: true }) : page.getByRole('complementary', { name: 'Property filters', exact: true });
   await panel.getByRole('button', { name: 'Commercial', exact: true }).click();

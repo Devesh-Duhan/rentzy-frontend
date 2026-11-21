@@ -1,0 +1,171 @@
+.panel {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+  border: 1px solid #f1dfe8;
+  border-radius: 2rem;
+  background: radial-gradient(ellipse at top left, #ffe4e6a6, transparent 60%), radial-gradient(ellipse at top right, #ede9feb3, transparent 65%), #f8fafc;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, #fb7185, #a78bfa 55%, #2dd4bf);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.75rem;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .875rem;
+  color: #9f1239;
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.title {
+  max-width: 32ch;
+  color: #0f172a;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.compass {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 5rem;
+  margin: .5rem;
+  border: 1px solid #ffffff;
+  border-radius: 1.75rem;
+  background: linear-gradient(135deg, #fff1f2, #ede9fe);
+  color: #7c3aed;
+  box-shadow: 0 0 0 8px #ffffff70, 0 8px 24px #7c3aed0d;
+  transform: rotate(8deg);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.rose { --guide-accent: #be123c; --guide-tint: #fff1f2; --guide-border: #ffe4e6; }
+.violet { --guide-accent: #6d28d9; --guide-tint: #f5f3ff; --guide-border: #ede9fe; }
+.teal { --guide-accent: #0f766e; --guide-tint: #f0fdfa; --guide-border: #ccfbf1; }
+
+.card {
+  min-width: 0;
+  padding: 1.5rem;
+  border: 1px solid var(--guide-border);
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, var(--guide-tint), #ffffff 8rem);
+  box-shadow: 0 4px 16px #0f172a04;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--guide-border);
+  border-radius: .875rem;
+  background: #ffffff;
+  color: var(--guide-accent);
+}
+
+.number {
+  color: var(--guide-accent);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.cardTitle {
+  margin-bottom: .75rem;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.copy {
+  color: #475569;
+  font-size: .875rem;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1.5rem;
+}
+
+.footerLabel { color: #64748b; font-size: .8125rem; font-weight: 600; }
+.links { display: flex; flex-wrap: wrap; gap: .75rem; min-width: 0; max-width: 100%; }
+
+:global(.dark) .panel {
+  border-color: #3b2842;
+  background: radial-gradient(ellipse at top left, #4c051933, transparent 60%), radial-gradient(ellipse at top right, #4c1d9533, transparent 65%), #111827;
+}
+:global(.dark) .eyebrow { color: #fda4af; }
+:global(.dark) .title, :global(.dark) .cardTitle { color: #f1f5f9; }
+:global(.dark) .compass { border-color: #4c3b67; background: #29213b; color: #c4b5fd; box-shadow: 0 0 0 8px #ffffff05; }
+:global(.dark) .rose { --guide-accent: #fda4af; --guide-tint: #2b1c29; --guide-border: #4a2939; }
+:global(.dark) .violet { --guide-accent: #c4b5fd; --guide-tint: #26203b; --guide-border: #3e325c; }
+:global(.dark) .teal { --guide-accent: #5eead4; --guide-tint: #132e31; --guide-border: #244445; }
+:global(.dark) .card { background: linear-gradient(180deg, var(--guide-tint), #1e293b 8rem); }
+:global(.dark) .icon { background: #1e293b; }
+:global(.dark) .copy { color: #cbd5e1; }
+:global(.dark) .footerLabel { color: #94a3b8; }
+
+@media (max-width: 1023px) {
+  .panel { padding: 1.5rem; }
+  .card { padding: 1.125rem; }
+  .grid { gap: .875rem; }
+}
+
+@media (max-width: 767px) {
+  .panel { padding: 1.25rem; border-radius: 1.5rem; }
+  .header { margin-bottom: 1.5rem; }
+  .compass { display: none; }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 1.25rem; }
+  .cardTop { margin-bottom: 1rem; }
+  .eyebrow { font-size: .625rem; letter-spacing: .1em; }
+  .footer { gap: .875rem; padding-top: 1.25rem; }
+  .links { width: 100%; }
+  .links > a { width: 100%; justify-content: space-between; }
+}

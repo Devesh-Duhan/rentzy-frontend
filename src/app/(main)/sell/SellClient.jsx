@@ -3,11 +3,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, Users, Zap, ChevronRight, Star, Plus, MessageCircle, DollarSign, HelpCircle, Camera, Home } from "lucide-react";
+import { ShieldCheck, Users, Zap, ChevronRight, Star, Plus, MessageCircle, DollarSign, HelpCircle, Camera, Home, ArrowUpRight, X } from "lucide-react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import axios from "@/lib/axios";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 const benefits = [
   {
@@ -97,32 +99,48 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-function TestimonialCard({ name, location: loc, text, rating }) {
-  const location = typeof loc === "object" && loc !== null ? (loc.city || loc.address || "") : loc || "";
+function testimonialDetails(testimonial) {
+  const location = testimonial.location;
+  return {
+    name: testimonial.name || "Anonymous",
+    location: typeof location === "object" && location !== null ? (location.city || location.address || "") : location || "",
+    text: testimonial.content || testimonial.text || testimonial.comment || "",
+    rating: Math.min(5, Math.max(0, Number(testimonial.rating) || 0)),
+  };
+}
+
+function TestimonialRating({ rating }) {
   return (
-    <motion.div
-      variants={itemVariants}
-      className="app-card p-6 card-shadow hover:-translate-y-1 transition-all duration-300"
-    >
-      <div className="flex gap-1 mb-4">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            size={16}
-            className={i < rating ? "text-amber-400 fill-amber-400" : "text-slate-200 dark:text-slate-600"}
-          />
-        ))}
-      </div>
-      <p className="text-slate-600 dark:text-slate-300 font-medium text-sm leading-relaxed mb-6">&ldquo;{text}&rdquo;</p>
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm">
-          {name.charAt(0)}
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-slate-900 dark:text-white">{name}</p>
-          <p className="text-xs font-medium text-slate-400">{location || ""}</p>
-        </div>
-      </div>
+    <span role="img" aria-label={rating ? rating + " out of 5 stars" : "Rating not provided"} className="flex gap-1">
+      {[0, 1, 2, 3, 4].map((index) => (
+        <Star key={index} size={16} aria-hidden="true" className={index < rating ? "text-amber-500 fill-amber-500" : "text-slate-200 dark:text-slate-600"} />
+      ))}
+    </span>
+  );
+}
+
+function TestimonialCard({ testimonial, onClick }) {
+  const { name, location, text, rating } = testimonialDetails(testimonial);
+  return (
+    <motion.div variants={itemVariants} className="min-w-0 h-full">
+      <Button
+        onClick={onClick}
+        aria-label={"Read testimonial from " + name}
+        aria-haspopup="dialog"
+        variant="outline"
+        className="h-full w-full min-w-0 flex-col items-start justify-start gap-0 whitespace-normal rounded-3xl border-slate-100 bg-white p-5 text-left shadow-sm hover:bg-slate-50 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-800/80 sm:p-6"
+      >
+        <TestimonialRating rating={rating} />
+        <span className="my-4 line-clamp-4 w-full whitespace-pre-line break-words text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-300">&ldquo;{text}&rdquo;</span>
+        <span className="mt-auto flex w-full min-w-0 items-center gap-3">
+          <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">{name.charAt(0)}</span>
+          <span className="min-w-0">
+            <span className="block break-words text-sm font-semibold text-slate-900 dark:text-white">{name}</span>
+            {location && <span className="mt-0.5 block break-words text-xs font-medium text-slate-500 dark:text-slate-400">{location}</span>}
+          </span>
+        </span>
+        <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-300">Read full testimonial <ArrowUpRight size={14} aria-hidden="true" /></span>
+      </Button>
     </motion.div>
   );
 }
@@ -164,6 +182,8 @@ export default function SellClient() {
 
   const { user } = useSelector((state) => state.auth);
   const [openFaq, setOpenFaq] = useState(null);
+  const [selectedTestimonial, setSelectedTestimonial] = useState(null);
+  const selectedDetails = selectedTestimonial ? testimonialDetails(selectedTestimonial) : null;
 
   const testimonials = Array.isArray(testimonialsData) ? testimonialsData : [];
 
@@ -356,10 +376,8 @@ export default function SellClient() {
               {testimonials.slice(0, 6).map((t, i) => (
                 <TestimonialCard
                   key={t._id || i}
-                  name={t.name || "Anonymous"}
-                  location={t.location || ""}
-                  text={t.text || t.comment || ""}
-                  rating={t.rating || 5}
+                  testimonial={t}
+                  onClick={() => setSelectedTestimonial(t)}
                 />
               ))}
             </motion.div>
@@ -434,6 +452,29 @@ export default function SellClient() {
           </motion.div>
         </div>
       </section>
+
+      <Dialog open={Boolean(selectedTestimonial)} onOpenChange={(open) => { if (!open) setSelectedTestimonial(null); }}>
+        <DialogContent showCloseButton={false} className="flex max-h-[calc(100dvh_-_2rem)] flex-col gap-0 overflow-hidden rounded-3xl bg-white p-0 text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white sm:max-w-2xl">
+          {selectedDetails && <>
+            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-100 p-5 dark:border-white/5 sm:p-6">
+              <div className="min-w-0 space-y-2">
+                <DialogTitle className="break-words text-lg font-bold leading-snug sm:text-xl">Testimonial from {selectedDetails.name}</DialogTitle>
+                <DialogDescription className="break-words text-sm text-slate-500 dark:text-slate-400">{selectedDetails.location || "Read the full testimonial below."}</DialogDescription>
+                <TestimonialRating rating={selectedDetails.rating} />
+              </div>
+              <DialogClose render={<Button variant="ghost" size="icon" />} aria-label="Close testimonial" className="h-9 w-9 shrink-0 rounded-xl text-slate-500">
+                <X size={18} aria-hidden="true" />
+              </DialogClose>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6">
+              <blockquote className="whitespace-pre-wrap break-words text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base" data-testimonial-content>{selectedDetails.text}</blockquote>
+            </div>
+            <div className="flex shrink-0 justify-end border-t border-slate-100 p-4 dark:border-white/5 sm:px-6">
+              <DialogClose render={<Button variant="outline" />} className="h-11 w-full rounded-xl px-6 sm:w-auto">Close</DialogClose>
+            </div>
+          </>}
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </main>

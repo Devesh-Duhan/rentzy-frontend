@@ -2,10 +2,12 @@
 
 import filterUiStyles from "@/components/filters/Filters.module.css";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 import {
   Plus, Star, Trash2, Edit2, Search, RefreshCcw,
-  MessageSquare, Heart, Eye, EyeOff
+  MessageSquare, Heart, Eye, EyeOff, X, LoaderCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "@/lib/axios";
@@ -25,6 +27,7 @@ export default function TestimonialsPage() {
   });
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfig, setDeleteConfig] = useState({ id: null, name: "" });
 
   const fetchTestimonials = async () => {
@@ -79,6 +82,8 @@ export default function TestimonialsPage() {
   };
 
   const confirmDelete = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
     const loading = toast.loading("Deleting testimonial...");
     try {
       await axios.delete(`/admin/testimonials/${deleteConfig.id}`);
@@ -87,6 +92,7 @@ export default function TestimonialsPage() {
     } catch {
       toast.error("Delete failed.", { id: loading });
     } finally {
+      setIsDeleting(false);
       setIsDeleteModalOpen(false);
     }
   };
@@ -107,16 +113,16 @@ export default function TestimonialsPage() {
   );
 
   const stats = [
-    { label: "Total", count: testimonials.length, icon: MessageSquare, color: "indigo" },
-    { label: "Active", count: testimonials.filter(t => t.isActive).length, icon: Eye, color: "emerald" },
-    { label: "Featured", count: testimonials.filter(t => t.isFeatured).length, icon: Heart, color: "rose" },
+    { label: "Total", count: testimonials.length, icon: MessageSquare, color: "text-indigo-600 dark:text-indigo-300" },
+    { label: "Active", count: testimonials.filter(t => t.isActive).length, icon: Eye, color: "text-emerald-600 dark:text-emerald-400" },
+    { label: "Featured", count: testimonials.filter(t => t.isFeatured).length, icon: Heart, color: "text-rose-600 dark:text-rose-400" },
   ];
 
   return (
-    <div className="space-y-10 animate-fade-in pb-20">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in pb-12">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Testimonials</h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Testimonials</h2>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-bold mt-2">Manage client testimonials and reviews.</p>
         </div>
         <button
@@ -131,44 +137,36 @@ export default function TestimonialsPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {stats.map((s, i) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="p-5 md:p-8 bg-white dark:bg-slate-800/40 rounded-[24px] md:rounded-[32px] border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative"
-          >
-            <div className={`absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-${s.color}-600`}>
-              <s.icon size={120} className="w-20 h-20 md:w-30 md:h-30" />
+      <div role="group" aria-label="Testimonial statistics" className="grid grid-cols-3 gap-2 sm:gap-4">
+        {stats.map((s) => (
+          <div key={s.label} className="min-w-0 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm dark:border-white/5 dark:bg-slate-800/40 sm:p-4">
+            <div className="flex items-center justify-between gap-1">
+              <p className="min-w-0 text-[11px] font-semibold text-slate-500 dark:text-slate-400 sm:text-sm">{s.label}</p>
+              <s.icon size={16} aria-hidden="true" className={"shrink-0 " + s.color} />
             </div>
-            <div className={`w-10 h-10 md:w-14 md:h-14 bg-${s.color}-50 dark:bg-${s.color}-500/10 rounded-xl md:rounded-2xl flex items-center justify-center text-${s.color}-600 mb-4 md:mb-6 group-hover:scale-110 transition-transform`}>
-              <s.icon size={28} className="w-5 h-5 md:w-7 md:h-7" />
-            </div>
-            <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{s.label}</p>
-            <h4 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white">{s.count}</h4>
-          </motion.div>
+            <p className="mt-2 text-2xl font-bold leading-none tabular-nums text-slate-900 dark:text-white sm:text-3xl">{s.count}</p>
+          </div>
         ))}
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-white dark:bg-slate-900/50 rounded-[32px] border border-slate-100 dark:border-white/10 shadow-sm backdrop-blur-3xl">
-        <div className="relative flex-1 w-full">
+      <div className="flex items-center gap-3 p-3 sm:p-4 bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-white/10 shadow-sm">
+        <div className="relative min-w-0 flex-1">
           <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
+            aria-label="Search testimonials"
             placeholder="Search by name or content..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={"w-full pl-14 pr-6 py-3.5 bg-slate-50 dark:bg-white/5 border-none rounded-xl md:rounded-2xl text-[13px] md:text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all" + " " + filterUiStyles.filterControl}
           />
         </div>
-        <button onClick={fetchTestimonials} className="p-4 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-2xl hover:text-indigo-600 transition-all active:scale-90">
-          <RefreshCcw size={20} />
-        </button>
+        <Button onClick={fetchTestimonials} aria-label="Refresh testimonials" variant="outline" size="icon" className="h-11 w-11 shrink-0 rounded-xl text-slate-500 hover:text-indigo-600">
+          <RefreshCcw size={18} aria-hidden="true" />
+        </Button>
       </div>
 
-      <div className="bg-white dark:bg-slate-800/40 rounded-[40px] border border-slate-100 dark:border-white/5 shadow-2xl shadow-slate-200/50 dark:shadow-none overflow-hidden">
+      <div className="bg-white dark:bg-slate-800/40 rounded-3xl border border-slate-100 dark:border-white/5 shadow-sm overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full">
             <thead>
@@ -258,27 +256,33 @@ export default function TestimonialsPage() {
                         <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => toggleActive(t)}
-                            className={`w-11 h-11 flex items-center justify-center rounded-xl shadow-sm border transition-all active:scale-90 ${
+                            className={`w-9 h-9 flex items-center justify-center rounded-xl shadow-sm border transition-all active:scale-90 ${
                               t.isActive
                                 ? "bg-white dark:bg-slate-800 text-slate-400 hover:bg-amber-500 hover:text-white border-slate-100 dark:border-white/5"
                                 : "bg-white dark:bg-slate-800 text-slate-400 hover:bg-emerald-500 hover:text-white border-slate-100 dark:border-white/5"
                             }`}
+                            aria-label={(t.isActive ? "Deactivate" : "Activate") + " testimonial from " + t.name}
                             title={t.isActive ? "Deactivate" : "Activate"}
                           >
                             {t.isActive ? <EyeOff size={18} /> : <Eye size={18} />}
                           </button>
                           <button
+                            aria-label={"Edit testimonial from " + t.name}
                             onClick={() => handleEdit(t)}
-                            className="w-11 h-11 flex items-center justify-center bg-white dark:bg-slate-800 text-slate-400 hover:bg-indigo-600 hover:text-white rounded-xl shadow-sm border border-slate-100 dark:border-white/5 transition-all active:scale-90"
+                            className="w-9 h-9 flex items-center justify-center bg-white dark:bg-slate-800 text-slate-400 hover:bg-indigo-600 hover:text-white rounded-xl shadow-sm border border-slate-100 dark:border-white/5 transition-all active:scale-90"
                           >
                             <Edit2 size={18} />
                           </button>
-                          <button
+                          <Button
                             onClick={() => handleDelete(t)}
-                            className="w-11 h-11 flex items-center justify-center bg-white dark:bg-slate-800 text-slate-400 hover:bg-rose-600 hover:text-white rounded-xl shadow-sm border border-slate-100 dark:border-white/5 transition-all active:scale-90"
+                            aria-label={"Delete testimonial from " + t.name}
+                            title="Delete testimonial"
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 rounded-xl border-rose-100 bg-white text-rose-600 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 dark:border-rose-500/20 dark:bg-slate-800 dark:text-rose-400 dark:hover:bg-rose-500/10"
                           >
-                            <Trash2 size={18} />
-                          </button>
+                            <Trash2 size={18} aria-hidden="true" />
+                          </Button>
                         </div>
                       </td>
                     </motion.tr>
@@ -289,84 +293,71 @@ export default function TestimonialsPage() {
           </table>
         </div>
 
-        <div className="p-8 border-t border-slate-100 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
             Showing <span className="text-slate-900 dark:text-white">{filtered.length}</span> of <span className="text-slate-900 dark:text-white">{testimonials.length}</span> testimonials
           </p>
         </div>
       </div>
 
-      {/* Add/Edit Modal */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsModalOpen(false)}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100]"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed inset-x-4 bottom-8 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 w-[calc(100%-32px)] md:max-w-xl bg-white dark:bg-slate-900 z-[110] rounded-[40px] shadow-2xl overflow-hidden flex flex-col border border-slate-100 dark:border-white/10 max-h-[90vh]"
-            >
-              <div className="p-8 border-b border-slate-50 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-white/5">
-                <div>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white">{isEditMode ? "Edit Testimonial" : "New Testimonial"}</h3>
-                  <p className="text-sm text-slate-500 font-medium">Share client success stories.</p>
-                </div>
-                <button onClick={() => setIsModalOpen(false)} className="p-3 bg-white dark:bg-slate-800 text-slate-400 rounded-2xl hover:text-rose-500 transition-colors shadow-sm">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                </button>
-              </div>
+      {/* Portalled dialog stays outside the animated admin layout. */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent showCloseButton={false} className="flex max-h-[calc(100dvh_-_2rem)] flex-col gap-0 overflow-hidden rounded-3xl bg-white p-0 text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white sm:max-w-2xl">
+          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-100 bg-slate-50/50 p-5 dark:border-white/5 dark:bg-white/5 sm:p-6">
+            <div className="min-w-0 space-y-1.5">
+              <DialogTitle className="text-xl font-black sm:text-2xl">{isEditMode ? "Edit Testimonial" : "New Testimonial"}</DialogTitle>
+              <DialogDescription className="text-sm font-medium text-slate-500 dark:text-slate-400">Share client success stories.</DialogDescription>
+            </div>
+            <DialogClose aria-label="Close testimonial form" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm transition-colors hover:text-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600 dark:bg-slate-800">
+              <X size={20} />
+            </DialogClose>
+          </div>
 
-              <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div data-testimonial-form-body className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-5 sm:p-6 custom-scrollbar">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name</label>
-                    <input name="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="John Doe" className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400" htmlFor="testimonial-name">Full Name</label>
+                    <input id="testimonial-name" name="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="John Doe" className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Photo URL</label>
-                    <input name="photo" value={form.photo} onChange={(e) => setForm({ ...form, photo: e.target.value })} placeholder="https://..." className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400" htmlFor="testimonial-photo">Photo URL</label>
+                    <input id="testimonial-photo" name="photo" value={form.photo} onChange={(e) => setForm({ ...form, photo: e.target.value })} placeholder="https://..." className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Content</label>
-                  <textarea name="content" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={4} placeholder="Write the testimonial..." className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all resize-none" />
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400" htmlFor="testimonial-content">Content</label>
+                  <textarea id="testimonial-content" name="content" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={4} placeholder="Write the testimonial..." className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all resize-none" />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Designation</label>
-                    <input name="designation" value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })} placeholder="CEO" className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400" htmlFor="testimonial-designation">Designation</label>
+                    <input id="testimonial-designation" name="designation" value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })} placeholder="CEO" className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Company</label>
-                    <input name="company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} placeholder="Acme Inc." className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400" htmlFor="testimonial-company">Company</label>
+                    <input id="testimonial-company" name="company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} placeholder="Acme Inc." className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Rating (1-5)</label>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <div className="space-y-2 sm:col-span-2">
+                    <label htmlFor="testimonial-rating" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Rating (1-5)</label>
                     <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl">
-                      <input type="range" min="1" max="5" value={form.rating} onChange={(e) => setForm({ ...form, rating: parseInt(e.target.value) })} className="flex-1 accent-indigo-600" />
+                      <input id="testimonial-rating" type="range" min="1" max="5" value={form.rating} onChange={(e) => setForm({ ...form, rating: parseInt(e.target.value) })} className="min-w-0 flex-1 accent-indigo-600" />
                       <span className="font-black text-indigo-600 text-sm w-4">{form.rating}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Display Order</label>
-                    <input type="number" name="displayOrder" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: parseInt(e.target.value) || 0 })} className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400" htmlFor="testimonial-displayOrder">Display Order</label>
+                    <input type="number" id="testimonial-displayOrder" name="displayOrder" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: parseInt(e.target.value) || 0 })} className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:ring-4 focus:ring-indigo-100 transition-all" />
                   </div>
                   <div className="space-y-2 flex flex-col justify-end">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Featured</label>
                     <button
                       type="button"
+                      aria-pressed={form.isFeatured}
                       onClick={() => setForm({ ...form, isFeatured: !form.isFeatured })}
                       className={`flex items-center gap-3 p-4 rounded-2xl border transition-all font-black text-sm ${
                         form.isFeatured
@@ -384,6 +375,9 @@ export default function TestimonialsPage() {
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Status</span>
                   <button
                     type="button"
+                    role="switch"
+                    aria-label="Active status"
+                    aria-checked={form.isActive}
                     onClick={() => setForm({ ...form, isActive: !form.isActive })}
                     className={`relative w-14 h-7 rounded-full transition-all ${form.isActive ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"}`}
                   >
@@ -392,51 +386,42 @@ export default function TestimonialsPage() {
                 </div>
               </div>
 
-              <div className="p-8 border-t border-slate-50 dark:border-white/5 flex gap-4">
-                <button onClick={() => setIsModalOpen(false)} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-[20px] font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+              <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-100 bg-white p-5 dark:border-white/5 dark:bg-slate-900 sm:flex-row sm:p-6">
+                <button onClick={() => setIsModalOpen(false)} className="min-w-0 flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-[20px] font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
                   Cancel
                 </button>
-                <button onClick={handleSubmit} className="flex-1 py-4 bg-indigo-600 text-white rounded-[20px] font-black text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">
+                <button onClick={handleSubmit} className="min-w-0 flex-1 px-4 py-3 bg-indigo-600 text-white rounded-[20px] font-black text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">
                   {isEditMode ? "Save Changes" : "Create Testimonial"}
                 </button>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+        </DialogContent>
+      </Dialog>
 
-      {/* Delete Modal */}
-      <AnimatePresence>
-        {isDeleteModalOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsDeleteModalOpen(false)}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100]"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed inset-x-4 bottom-8 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 w-[calc(100%-32px)] md:max-w-md bg-white dark:bg-slate-900 z-[110] rounded-[32px] shadow-2xl overflow-hidden p-6 md:p-8 border border-slate-100 dark:border-white/10 text-center"
-            >
-              <div className="w-20 h-20 bg-rose-50 dark:bg-rose-500/10 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
-              </div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Delete Testimonial?</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-8">
-                Delete testimonial from <span className="text-slate-900 dark:text-white font-bold">&quot;{deleteConfig.name}&quot;</span>? This cannot be undone.
-              </p>
-              <div className="flex gap-4">
-                <button onClick={() => setIsDeleteModalOpen(false)} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-black text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Cancel</button>
-                <button onClick={confirmDelete} className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-rose-100 hover:bg-rose-700 transition-all">Delete</button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <Dialog open={isDeleteModalOpen} onOpenChange={(open) => { if (!isDeleting) setIsDeleteModalOpen(open); }}>
+        <DialogContent role="alertdialog" showCloseButton={false} className="flex max-h-[calc(100dvh_-_2rem)] flex-col gap-0 overflow-hidden rounded-3xl bg-white p-0 text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-white sm:max-w-md">
+          <div className="min-h-0 overflow-y-auto overscroll-contain p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
+                <Trash2 size={24} aria-hidden="true" />
+              </span>
+              <DialogClose disabled={isDeleting} aria-label="Close delete confirmation" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600 disabled:opacity-50 dark:hover:bg-slate-800 dark:hover:text-white">
+                <X size={18} aria-hidden="true" />
+              </DialogClose>
+            </div>
+            <DialogTitle className="mt-4 text-xl font-bold leading-snug">Delete testimonial?</DialogTitle>
+            <DialogDescription className="mt-2 break-words text-sm leading-6 text-slate-500 dark:text-slate-400">
+              Delete the testimonial from <span className="font-semibold text-slate-900 dark:text-white">&quot;{deleteConfig.name}&quot;</span>? This action cannot be undone.
+            </DialogDescription>
+          </div>
+          <div className="flex shrink-0 gap-3 border-t border-slate-100 bg-slate-50/60 p-4 dark:border-white/5 dark:bg-white/5 sm:px-6">
+            <DialogClose render={<Button variant="outline" />} disabled={isDeleting} className="h-11 min-w-0 flex-1 rounded-xl">Cancel</DialogClose>
+            <Button onClick={confirmDelete} disabled={isDeleting} className="h-11 min-w-0 flex-1 gap-2 rounded-xl bg-rose-600 text-white hover:bg-rose-700">
+              {isDeleting ? <LoaderCircle size={16} aria-hidden="true" className="animate-spin" /> : <Trash2 size={16} aria-hidden="true" />}
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

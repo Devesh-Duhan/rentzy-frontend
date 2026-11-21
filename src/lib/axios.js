@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clearSession } from './session';
 
 import toast from 'react-hot-toast';
 
@@ -59,11 +60,7 @@ axiosInstance.interceptors.response.use(
 
       if (hadToken && !isPublicRoute) {
         toast.error('Session expired. Please login again.');
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        // Keep the middleware cookie in sync, otherwise the server-side route
-        // guard would still consider the visitor signed in.
-        document.cookie = 'rentzy_token=; path=/; max-age=0; SameSite=Lax';
+        clearSession();
         window.location.href = '/login';
       }
     } else if (status === 403) {

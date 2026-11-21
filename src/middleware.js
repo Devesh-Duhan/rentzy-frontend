@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { decodeSessionToken, getSessionExpiresAt } from "./lib/session";
 
 // Server-side route protection for the authenticated panels.
 // Previously these were client-side useEffect redirects only, which meant the
@@ -20,20 +21,6 @@ const PROTECTED = [
 
 const LOGIN_PAGE = "/login";
 
-const decodeJwt = (token) => {
-  try {
-    const [, payload] = token.split(".");
-    if (!payload) return null;
-    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const json = atob(
-      normalized + "=".repeat((4 - (normalized.length % 4)) % 4)
-    );
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-};
-
 export function middleware(request) {
   const { pathname } = request.nextUrl;
   const rule = PROTECTED.find((r) => pathname === r.prefix || pathname.startsWith(`${r.prefix}/`));
@@ -50,7 +37,7 @@ export function middleware(request) {
     return NextResponse.redirect(url);
   }
 
-  const claims = decodeJwt(token);
+  const claims = decodeSessionToken(token);
   if (!claims) {
     const url = request.nextUrl.clone();
     url.pathname = LOGIN_PAGE;
@@ -59,7 +46,7 @@ export function middleware(request) {
   }
 
   // Expired token - send them back to login rather than into a broken panel
-  if (claims.exp && claims.exp * 1000 < Date.now()) {
+  if (getSessionExpiresAt(token) <= Date.now()) {
     const url = request.nextUrl.clone();
     url.pathname = LOGIN_PAGE;
     url.searchParams.set("next", pathname);

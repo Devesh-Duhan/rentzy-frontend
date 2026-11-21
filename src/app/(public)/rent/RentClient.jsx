@@ -12,6 +12,7 @@ import PropertyQuickFilters from "@/components/filters/PropertyQuickFilters";
 import { FilterDialog } from "@/components/filters/FilterUI";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
+import browseLayout from "@/components/filters/BrowseLayout.module.css";
 import JsonLd from '@/seo/JsonLd';
 import { collectionSchema } from '@/seo/schema';
 import { PAGE_SEO } from '@/seo';
@@ -87,7 +88,7 @@ export default function RentClient({ initialData, initialError = false, contentG
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== "All" && v !== "Any");
 
-  const renderFilters = (idPrefix) => <PropertyQuickFilters filters={filters} onChange={handleFilterChange} onClear={clearFilters} hasActiveFilters={hasActiveFilters} idPrefix={idPrefix} types={PROPERTY_TYPES} cities={CITIES} priceRanges={PRICE_RANGES} bhkOptions={BHK_OPTIONS} bedroomOptions={BEDROOM_OPTIONS} />;
+  const renderFilters = (idPrefix, compact = false) => <PropertyQuickFilters compact={compact} filters={filters} onChange={handleFilterChange} onClear={clearFilters} hasActiveFilters={hasActiveFilters} idPrefix={idPrefix} types={PROPERTY_TYPES} cities={CITIES} priceRanges={PRICE_RANGES} bhkOptions={BHK_OPTIONS} bedroomOptions={BEDROOM_OPTIONS} />;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -121,37 +122,36 @@ export default function RentClient({ initialData, initialError = false, contentG
       <JsonLd id="rental-collection-schema" data={!isError && !isLoading ? collectionSchema({canonical:"/rent",name:PAGE_SEO["/rent"].title,properties}):null} />
 
       <section className="pb-12">
-        <div className="app-container max-w-[1600px]">
-          <div className="flex gap-6 lg:gap-8 items-start">
+        <div className={browseLayout.container}>
+          <div className={browseLayout.layout}>
             <aside
               aria-label="Property filters"
-              className="hidden lg:flex flex-col w-72 xl:w-80 shrink-0 sticky top-[calc(var(--header-height,80px)+1.5rem)] self-start max-h-[calc(100dvh-var(--header-height,80px)-2.5rem)] rounded-xl border border-border/80 bg-card shadow-sm overflow-hidden z-20"
+              className={browseLayout.sidebar}
             >
-              {/* Flipkart-style Fixed Filter Header */}
-              <div className="flex shrink-0 items-center justify-between px-4 py-3.5 border-b border-border bg-card">
-                <span className="text-sm font-bold uppercase tracking-wider text-foreground">
-                  Filters
+              <div className={browseLayout.sidebarHeader}>
+                <span className={browseLayout.sidebarTitle}>
+                  <SlidersHorizontal size={16} aria-hidden="true" /> Filters
                 </span>
                 {hasActiveFilters && (
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="text-xs font-bold text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 uppercase tracking-wider transition-colors"
+                    className={browseLayout.sidebarReset}
                     aria-label="Clear all filters"
                   >
-                    CLEAR ALL
+                    Reset
                   </button>
                 )}
               </div>
-              <div className="flex-1 min-h-0 overflow-y-auto p-4 overscroll-contain">
-                {renderFilters('rent-desktop')}
+              <div className={browseLayout.sidebarBody}>
+                {renderFilters('rent-desktop', true)}
               </div>
             </aside>
 
-            <div className="flex-1 min-w-0" aria-busy={isFetching}>
+            <div className={browseLayout.results} aria-busy={isFetching}>
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-border/60 gap-3">
                 <div>
-                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground tracking-tight">
+                  <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
                     Properties for Rent
                   </h1>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -193,7 +193,7 @@ export default function RentClient({ initialData, initialError = false, contentG
                   </button>
                 </div>
               ) : isLoading ? (
-                <div role="status" aria-label="Loading properties" className="app-grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                <div role="status" aria-label="Loading properties" className={browseLayout.propertyGrid}>
                   {[...Array(6)].map((_, i) => (
                     <PropertySkeleton key={i} />
                   ))}
@@ -221,7 +221,7 @@ export default function RentClient({ initialData, initialError = false, contentG
                   variants={containerVariants}
                   initial={false}
                   animate="visible"
-                  className="app-grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+                  className={browseLayout.propertyGrid}
                 >
                   {properties.map((prop, i) => (
                     <motion.div key={prop._id || prop.id || i} variants={itemVariants} className="h-full flex">
